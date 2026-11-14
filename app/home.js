@@ -4,7 +4,6 @@
 
   const { h, icon } = window.UI;
 
-  const CHECK_SAMPLE = "Истец вправе отказаться от договора на основании ст. 450.2 ГК РФ. Обязательства исполняются надлежащим образом (ст. 309 ГК РФ). Срок обращения в суд указан в ст. 392 ТК РФ.";
 
   const AUTOMATIONS = [
     ["Суммы прописью", "с правильными падежами рублей и копеек"],
@@ -64,33 +63,6 @@
     ];
   }
 
-  /** Короткое пояснение к найденной ссылке для заметок на полях. */
-  function noteText(finding) {
-    if (finding.severity === "ok") return "Статья действует, текст есть в базе";
-    const suggestion = finding.suggestions && finding.suggestions[0];
-    const number = suggestion && suggestion.split(":")[0];
-    return number ? `${finding.status}. Возможно, имелась в виду ст. ${number}` : finding.status;
-  }
-
-  /** Лист документа с настоящей проверкой ссылок и заметками на полях. */
-  function heroPaper() {
-    const { findings } = window.Checker.analyze(CHECK_SAMPLE, window.LAW_BASE);
-    const text = h("p", { class: "hero-paper-text" });
-    let position = 0;
-    for (const finding of findings) {
-      text.append(CHECK_SAMPLE.slice(position, finding.start), h("span", { class: `mark ${finding.severity}` }, CHECK_SAMPLE.slice(finding.start, finding.end)));
-      position = finding.end;
-    }
-    text.append(CHECK_SAMPLE.slice(position));
-    return h("figure", { class: "hero-paper", "aria-label": "Пример проверки ссылок в документе" },
-      h("p", { class: "hero-paper-title" }, "ИСКОВОЕ ЗАЯВЛЕНИЕ"),
-      text,
-      h("ul", { class: "hero-notes" }, findings.map((finding) => h("li", {},
-        h("b", {}, finding.label),
-        h("span", { class: finding.severity }, noteText(finding))))),
-      h("figcaption", {}, "Проверка настоящая: она выполнилась, когда открылась страница."));
-  }
-
   /**
    * Поиск на первом экране: статья по номеру, статьи по заголовку, шаблоны и расчёты в одном списке.
    * Enter открывает первый результат, Esc закрывает список.
@@ -98,7 +70,7 @@
   function heroSearch() {
     const input = h("input", {
       class: "hero-search-input", type: "search", id: "hero-search", autocomplete: "off",
-      placeholder: "Например: 395 ГК, претензия продавцу, срок апелляции", "aria-label": "Найти статью, шаблон или расчёт",
+      placeholder: "Например: 395 ГК или претензия продавцу", "aria-label": "Найти статью, шаблон или расчёт",
       "aria-controls": "hero-search-results",
     });
     const list = h("div", { class: "search-results", id: "hero-search-results", hidden: true, role: "listbox" });
@@ -248,14 +220,12 @@
   window.Views.home = function (root, _params, app) {
     // блоки, которым нечего показать (например, «Продолжить работу» при первом визите), отдают null и пропускаются
     root.append(...[
-      h("section", { class: "home-hero" }, h("div", { class: "home-inner hero-grid" },
-        h("div", { class: "hero-copy" },
-          h("p", { class: "hero-badge" }, "Для юристов и нотариусов"),
-          h("h1", {}, "Юридические документы и законы в одном месте"),
-          h("p", { class: "hero-lead" }, "Соберите договор, претензию или иск по готовому шаблону, найдите статью закона и посчитайте сроки и пошлину. Всё, что вы вводите, остаётся на вашем компьютере."),
-          heroSearch(),
-          h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point)))),
-        heroPaper())),
+      h("section", { class: "home-hero" }, h("div", { class: "home-inner hero-center" },
+        h("p", { class: "hero-badge" }, "Для юристов, нотариусов и граждан"),
+        h("h1", {}, "Юридические документы и законы в одном месте"),
+        h("p", { class: "hero-lead" }, "Соберите договор, претензию или иск по готовому шаблону, найдите статью закона и посчитайте сроки и пошлину. Всё, что вы вводите, остаётся на вашем компьютере."),
+        heroSearch(),
+        h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point))))),
 
       continueWork(app),
       tasks(),
