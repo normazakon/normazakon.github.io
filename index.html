@@ -46,10 +46,14 @@
   <dialog id="article-dialog" class="article-dialog" aria-labelledby="article-title">
     <div class="dialog-head">
       <div>
+        <button id="article-back" class="link-button article-back" type="button" hidden></button>
         <p id="article-law" class="dialog-law"></p>
         <h2 id="article-title"></h2>
       </div>
-      <button id="article-close" class="button quiet" type="button">Закрыть</button>
+      <div class="dialog-actions">
+        <button id="article-star" class="button quiet star-button" type="button" aria-pressed="false"></button>
+        <button id="article-close" class="button quiet" type="button">Закрыть</button>
+      </div>
     </div>
     <div id="article-editions" class="article-editions" hidden></div>
     <div id="article-body" class="norm-text" tabindex="0"></div>
@@ -73,6 +77,7 @@
   <script src="lib/docx.js"></script>
   <script src="lib/docx-reader.js"></script>
   <script src="lib/storage.js"></script>
+  <script src="lib/bookmarks.js"></script>
   <script src="data/templates/common.js"></script>
   <script src="data/templates/contracts.js"></script>
   <script src="data/templates/contracts-more.js"></script>

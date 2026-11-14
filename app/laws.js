@@ -63,6 +63,45 @@
     fragment));
   }
 
+  /** Дерево оглавления из плоского списка [уровень, заголовок, [номера статей]]. */
+  function tocTree(toc) {
+    const root = { level: -1, children: [] };
+    const stack = [root];
+    for (const [level, title, numbers] of toc) {
+      while (stack[stack.length - 1].level >= level) stack.pop();
+      const node = { level, title, numbers, children: [] };
+      stack[stack.length - 1].children.push(node);
+      stack.push(node);
+    }
+    return root.children;
+  }
+
+  function nodeCount(node) {
+    return node.numbers.length + node.children.reduce((sum, child) => sum + nodeCount(child), 0);
+  }
+
+  /** Оглавление закона: разделы и главы раскрываются, статьи рисуются только при раскрытии. */
+  function tocView(lawId) {
+    const law = window.LAW_BASE.laws[lawId];
+    const renderNode = (node) => {
+      const body = h("div", { class: "toc-body" });
+      const details = h("details", { class: `toc-node toc-level-${node.level}` },
+        h("summary", {}, h("span", { class: "toc-title" }, node.title), h("span", { class: "toc-count" }, articlesCount(nodeCount(node)))),
+        body);
+      details.addEventListener("toggle", () => {
+        if (!details.open || body.childElementCount) return;
+        body.append(...node.children.map(renderNode));
+        if (node.numbers.length) {
+          body.append(h("ul", { class: "article-list" }, node.numbers
+            .filter((number) => law.articles[number])
+            .map((number) => articleRow({ lawId, number, article: law.articles[number] }, false, null))));
+        }
+      });
+      return details;
+    };
+    return h("div", { class: "toc", "aria-label": `Оглавление: ${law.short}` }, tocTree(law.toc).map(renderNode));
+  }
+
   /** Законы, по текстам которых можно искать. */
   function searchableLaws(lawId) {
     const laws = window.LAW_BASE.laws;
@@ -126,6 +165,9 @@
         h("span", { class: "law-card-name" }, law.name),
         h("span", { class: "law-card-meta" },
           `${articlesCount(Object.keys(law.articles).length)} · редакция от ${window.Editions.formatDate(law.updated)}`)))));
+    // у выбранного закона без запроса показываем оглавление вместо плоского списка статей
+    const toc = lawId && laws[lawId].toc && laws[lawId].toc.length ? tocView(lawId) : null;
+    if (toc) toc.hidden = true;
     const more = h("button", { class: "button laws-more", type: "button", hidden: true, onClick: () => { limit += PAGE_SIZE; render(); } }, "Показать ещё");
     let limit = PAGE_SIZE;
     let found = { matches: [], total: 0, terms: null };
@@ -139,6 +181,16 @@
       results.hidden = shown.length === 0;
       results.replaceChildren(...shown.map((match) => articleRow(match, !lawId, found.terms)));
       overview.hidden = !(mode === "title" && !query && !lawId);
+      if (toc) {
+        const showToc = mode === "title" && !query;
+        toc.hidden = !showToc;
+        if (showToc) {
+          results.hidden = true;
+          more.hidden = true;
+          count.textContent = "Оглавление. Раскройте раздел или главу либо найдите статью по номеру или слову из заголовка.";
+          return;
+        }
+      }
       if (mode === "text" && !found.terms) {
         count.textContent = "Введите слова, которые должны встретиться в статье, например «неустойка потребитель».";
       } else if (mode === "title" && !query && !lawId) {
@@ -199,7 +251,7 @@
       else timer = setTimeout(searchTexts, TEXT_DELAY_MS);
     }
 
-    const placeholders = { title: "Номер статьи или слово из заголовка", text: "Слова из текста статьи" };
+    const placeholders = { title: "Например, 395 или «неустойка»", text: "Например, «возврат товара»" };
     const input = h("input", {
       class: "search", type: "search", id: "law-search", "aria-label": "Поиск статьи", placeholder: placeholders[mode],
       onInput: update,
@@ -210,7 +262,7 @@
         ? "Показываем статьи, где встречаются все слова запроса, с любыми окончаниями."
         : "Ищем по всем законам. В первый раз тексты загружаются целиком, это может занять время. Чтобы искать быстрее, выберите закон в списке.");
 
-    const modeButtons = [["title", "Номер и заголовок"], ["text", "Текст статей"]].map(([value, label]) =>
+    const modeButtons = [["title", "По номеру и названию"], ["text", "По словам в тексте"]].map(([value, label]) =>
       h("button", {
         type: "button",
         "aria-pressed": String(mode === value),
@@ -231,7 +283,7 @@
       h("div", { class: "page-head" },
         h("div", {},
           h("h1", {}, lawId ? laws[lawId].name : "База законов"),
-          h("p", {}, "Номера, заголовки и статус статей. Искать можно по номеру, заголовку или словам из текста."))),
+          h("p", {}, "Кодексы и законы в официальной редакции с портала pravo.gov.ru. Откройте закон или найдите статью по номеру или по словам."))),
       h("div", { class: lawId ? "laws-layout" : "laws-layout no-law" },
         h("div", { class: "laws-side" },
           h("nav", { "aria-label": "Законы" }, h("ul", { class: "law-list" }, Object.entries(laws).map(([id, law]) => h("li", {},
@@ -240,7 +292,7 @@
           offlinePanel()),
         h("div", { class: "laws-main" },
           h("div", { class: "segmented laws-mode", role: "group", "aria-label": "Где искать" }, modeButtons),
-          input, hint, count, results, overview, more)));
+          input, hint, count, results, overview, toc, more)));
 
     update();
     if (params.number && lawId) showArticle(lawId, params.number);

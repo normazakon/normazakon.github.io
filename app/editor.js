@@ -60,6 +60,7 @@
       return;
     }
 
+    window.UI.bookmarks.touch({ kind: "template", templateId: template.id });
     const state = {
       id: saved ? saved.id : null,
       values: Engine.withDefaults(template, saved ? saved.values : {}),
@@ -247,7 +248,8 @@
           h("h1", {}, template.title),
           h("div", { class: "editor-status" },
             !template.reviewed && h("span", { class: "badge draft" }, "Черновик: юрист ещё не проверял"),
-            progress, saveStatus)),
+            progress, saveStatus,
+            window.UI.starButton({ kind: "template", templateId: template.id }, "small"))),
         h("div", { class: "editor-actions" },
           exampleButton,
           h("button", { class: "button", type: "button", id: "copy-button", onClick: copyText }, window.UI.icon("copy"), "Скопировать текст"),

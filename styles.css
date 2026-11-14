@@ -322,6 +322,20 @@ a:hover { color: var(--accent-hover); }
 .home-final h2 { margin-bottom: 8px; font-size: 28px; }
 .home-final p { max-width: 58ch; margin: 0; color: var(--ink); }
 
+/* Главная: что нужно сделать */
+.home-tasks { padding: 8px 0 56px; }
+.home-tasks h2 { margin-bottom: 18px; font-size: 28px; }
+.task-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.task-grid > li { display: flex; }
+.task-card { display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
+.task-card:hover { border-color: var(--accent); }
+.task-card:hover strong { color: var(--accent); }
+.task-icon { display: grid; flex: 0 0 auto; place-items: center; width: 44px; height: 44px; background: var(--accent-soft); border-radius: 50%; color: var(--accent); }
+.task-icon .icon, .task-icon svg { width: 24px; height: 24px; }
+.task-text { display: flex; flex-direction: column; gap: 2px; }
+.task-text strong { font-size: 17px; font-weight: 600; transition: color 150ms ease; }
+.task-text span { color: var(--muted); font-size: 14px; line-height: 1.45; }
+
 /* Каталог шаблонов */
 .catalog-filter { flex-wrap: wrap; margin-bottom: 4px; }
 .chip-count { margin-left: 2px; color: var(--muted); font-size: 13px; font-weight: 400; }
@@ -352,6 +366,18 @@ a:hover { color: var(--accent-hover); }
 .catalog-summary { flex: 1; color: var(--muted); font-size: 14px; line-height: 1.5; }
 .catalog-basis { padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
 
+.bookmarks { margin-top: 32px; }
+.bookmarks-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.bookmarks-head h2 { font-size: 22px; }
+.bookmark-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
+.bookmark-list > li { display: flex; }
+.bookmark { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); color: inherit; cursor: pointer; font: inherit; text-align: left; text-decoration: none; transition: border-color 150ms ease; }
+.bookmark:hover { border-color: var(--accent); }
+.bookmark-kind { color: var(--accent); font-size: 13px; font-weight: 600; }
+.bookmark-title { font-size: 15px; line-height: 1.4; }
+.dialog-actions { display: flex; flex-wrap: wrap; align-items: start; justify-content: end; gap: 4px; }
+.star-button .icon.filled svg { fill: currentColor; }
+.star-button[aria-pressed="true"] { color: var(--accent); }
 .empty-state { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 56px 24px; background: var(--gradient-panel); border-radius: var(--radius-l); text-align: center; }
 .empty-state h2 { font-size: 22px; }
 .empty-state p { max-width: 46ch; margin: 0 0 6px; color: var(--muted); }
@@ -550,6 +576,19 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .calc-warning { padding: 10px 12px; background: var(--check-soft); border-radius: var(--radius-m); font-size: 14px; }
 
 /* Законы */
+.toc { display: flex; flex-direction: column; gap: 6px; }
+.toc[hidden] { display: none; }
+.toc-node { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m); }
+.toc-node > summary { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 11px 14px; cursor: pointer; list-style: none; border-radius: var(--radius-m); }
+.toc-node > summary::-webkit-details-marker { display: none; }
+.toc-node > summary::before { content: "›"; flex: 0 0 auto; width: 12px; color: var(--muted); font-weight: 600; transition: transform 150ms ease; }
+.toc-node[open] > summary::before { transform: rotate(90deg); }
+.toc-node > summary:hover { background: var(--raised); }
+.toc-title { flex: 1; font-weight: 500; }
+.toc-count { flex: 0 0 auto; color: var(--muted); font-size: 13px; }
+.toc-body { display: flex; flex-direction: column; gap: 6px; padding: 0 10px 10px 22px; }
+.toc-body .article-list { margin: 0; }
+.toc-level-0 > summary .toc-title, .toc-level-1 > summary .toc-title { font-weight: 600; }
 .law-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 4px 0 0; padding: 0; list-style: none; }
 .law-cards[hidden] { display: none; }
 .law-cards > li { display: flex; }
@@ -600,6 +639,10 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .dialog-law { margin: 0 0 2px; color: var(--muted); font-size: 15px; }
 .norm-text { flex: 1; min-height: 0; overflow-y: auto; padding: 14px 22px; font: 400 17px/1.55 var(--font-doc); }
 .norm-text p { margin: 0 0 8px; }
+.norm-ref { padding: 0; background: none; border: 0; color: var(--accent); cursor: pointer; font: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.norm-ref:hover { color: var(--accent-hover); }
+.article-back { margin-bottom: 4px; font-size: 14px; }
+.article-back[hidden] { display: none; }
 .norm-text p.changed { margin-left: -12px; padding-left: 10px; border-left: 2px solid var(--accent); }
 .norm-text .changed-legend { color: var(--muted); font: 400 14px/1.45 var(--font-ui); }
 .source-link { padding: 10px 22px 16px; font-size: 15px; }
@@ -669,6 +712,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
   .doc-address { margin-left: 25%; }
   .button, .chip, .segmented button, .nav a, .law-list a, .article-row { min-height: 44px; }
   .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .task-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .article-row, .article-row.with-snippet { grid-template-columns: 76px minmax(0, 1fr); }
   .article-flag { grid-column: 2; }
   .document-row { grid-template-columns: minmax(0, 1fr); }
@@ -678,6 +722,8 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 
 @media (max-width: 640px) {
   .catalog-grid { grid-template-columns: minmax(0, 1fr); }
+  .task-grid { grid-template-columns: minmax(0, 1fr); }
+  .home-tasks h2 { font-size: 24px; }
   .catalog-filter { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px 4px; padding: 0 16px 4px; scrollbar-width: none; }
   .catalog-filter .chip { flex: 0 0 auto; }
 }

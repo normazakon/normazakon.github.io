@@ -27,10 +27,49 @@
   }
 
   /** Абзац с подсвеченными словами поиска. */
-  function paragraph(line, terms) {
-    if (!terms || !terms.length) return h("p", {}, line);
-    return h("p", {}, window.TextSearch.highlight(line, terms).map((part) => (part.hit ? h("mark", {}, part.text) : part.text)));
+  /**
+   * Абзац нормы: слова поиска подсвечены, ссылки на статьи из базы («статьей 395 настоящего Кодекса») нажимаются.
+   * lawId: закон, в котором стоит абзац.
+   */
+  function paragraph(line, terms, lawId) {
+    const marked = (text) => (terms && terms.length
+      ? window.TextSearch.highlight(text, terms).map((part) => (part.hit ? h("mark", {}, part.text) : part.text))
+      : [text]);
+    const references = lawId && window.Checker ? window.Checker.findReferences(line, lawId, window.LAW_BASE) : [];
+    const nodes = [];
+    let position = 0;
+    for (const reference of references) {
+      nodes.push(...marked(line.slice(position, reference.start)));
+      nodes.push(h("button", {
+        class: "norm-ref", type: "button", title: `Открыть ${citation(reference.lawId, reference.number)}`,
+        onClick: () => showArticle(reference.lawId, reference.number, { fromReference: true }),
+      }, ...marked(line.slice(reference.start, reference.end))));
+      position = reference.end;
+    }
+    nodes.push(...marked(line.slice(position)));
+    return h("p", {}, nodes);
   }
+
+  const bookmarks = window.Bookmarks.createBookmarks(window.Storage2.browserBackend());
+
+  /** Кнопка-звёздочка: добавляет в избранное или убирает. */
+  function fillStar(button, item) {
+    const active = bookmarks.isFavorite(item);
+    button.setAttribute("aria-pressed", String(active));
+    button.replaceChildren(icon("star"), active ? "В избранном" : "В избранное");
+    button.querySelector(".icon").classList.toggle("filled", active);
+  }
+
+  function starButton(item, extraClass = "") {
+    const button = h("button", { class: `button quiet star-button ${extraClass}`.trim(), type: "button" });
+    button.addEventListener("click", () => { bookmarks.toggleFavorite(item); fillStar(button, item); });
+    fillStar(button, item);
+    return button;
+  }
+
+  // статьи, из которых пришли по ссылкам: кнопка «Назад» возвращает к предыдущей
+  let trail = [];
+  let shown = null;
 
   /** Блок над текстом статьи: какая редакция показана и выбор другой. */
   function editionsBar(lawId, number, versions, chosen, note, onChoose) {
@@ -68,6 +107,18 @@
     const { law, article } = lawArticle(lawId, number);
     if (!article) return;
     const { formatDate } = window.Editions;
+    if (options.fromReference && shown) trail.push(shown);
+    else if (!options.back) trail = [];
+    shown = { lawId, number, date: options.date };
+    const item = { kind: "article", lawId, number };
+    bookmarks.touch(item);
+    const star = document.getElementById("article-star");
+    star.onclick = () => { bookmarks.toggleFavorite(item); fillStar(star, item); };
+    fillStar(star, item);
+    const back = document.getElementById("article-back");
+    const previous = trail[trail.length - 1];
+    back.hidden = !previous;
+    back.textContent = previous ? `← Назад к ${citation(previous.lawId, previous.number)}` : "";
     const dialog = document.getElementById("article-dialog");
     const lawLine = document.getElementById("article-law");
     const titleLine = document.getElementById("article-title");
@@ -92,7 +143,7 @@
       const changed = (line) => Boolean(previous) && !version.repealed && !before.has(line);
       body.replaceChildren(...(lines && lines.length
         ? lines.map((line) => {
-          const element = paragraph(line, options.terms);
+          const element = paragraph(line, options.terms, lawId);
           if (changed(line)) element.className = "changed";
           return element;
         })
@@ -134,7 +185,7 @@
     const source = document.getElementById("article-source");
     source.href = article.url;
     source.textContent = "Открыть на официальном портале pravo.gov.ru";
-    dialog.showModal();
+    if (!dialog.open) dialog.showModal();
   }
 
   // Значки рисуются линиями 24×24 и наследуют цвет текста
@@ -144,6 +195,13 @@
     download: '<path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/>',
     copy: '<rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/>',
     print: '<path d="M7 9V4h10v5"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 14h10v6H7z"/>',
+    contract: '<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/>',
+    letter: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 7 8 6 8-6"/>',
+    court: '<path d="M12 3v18M5 21h14M6 7h12M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>',
+    check: '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>',
+    book: '<path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/>',
+    calc: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11v6M8 15h2M12 15h2"/>',
+    star: '<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
   };
 
   /** Значок для кнопки или ссылки. Он только украшает, поэтому скрыт от экранного диктора. */
@@ -166,9 +224,15 @@
     return new Date(iso).toLocaleString("ru-RU", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
   }
 
+  document.getElementById("article-back").addEventListener("click", () => {
+    const previous = trail.pop();
+    if (previous) showArticle(previous.lawId, previous.number, { date: previous.date, back: true });
+  });
+  document.getElementById("article-dialog").addEventListener("close", () => { trail = []; shown = null; });
+
   document.getElementById("article-close").addEventListener("click", () => {
     document.getElementById("article-dialog").close();
   });
 
-  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime };
+  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime, bookmarks, starButton };
 })();

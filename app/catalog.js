@@ -38,8 +38,10 @@
   }
 
   window.Views = window.Views || {};
-  window.Views.catalog = function (root) {
-    let category = null;
+  window.Views.catalog = function (root, params = {}) {
+    const known = new Set(window.TEMPLATES.map((template) => template.category));
+    // #templates/Суд открывает каталог сразу на нужном разделе
+    let category = known.has(params.category) ? params.category : null;
     const results = h("div", {});
     const update = () => results.replaceChildren(...renderGroups(search.value, category));
     const search = h("input", {
@@ -59,7 +61,7 @@
       h("div", { class: "page-head" },
         h("div", {},
           h("h1", {}, "Шаблоны документов"),
-          h("p", {}, "Заполните поля и получите документ в Word. Пункты меняются под ваши условия, а незаполненные места остаются заметными.")),
+          h("p", {}, "Выберите документ и заполните поля: готовый текст появится рядом, его можно скачать в Word. Пустые места подсвечены, чтобы ничего не пропустить.")),
         search),
       h("div", { class: "chips catalog-filter", role: "group", "aria-label": "Разделы шаблонов" }, chips),
       results);
