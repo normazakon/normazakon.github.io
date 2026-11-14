@@ -7,19 +7,7 @@
   const TEXT_DELAY_MS = 300;
   let mode = "title";
 
-  // значок закона: короткая надпись и оттенок по виду акта
-  const LAW_BADGES = {
-    GK: ["ГК", "blue"], NK: ["НК", "blue"], TK: ["ТК", "blue"], JK: ["ЖК", "blue"], SK: ["СК", "blue"], ZK: ["ЗК", "blue"],
-    GPK: ["ГПК", "violet"], APK: ["АПК", "violet"], KAS: ["КАС", "violet"], UPK: ["УПК", "violet"],
-    UK: ["УК", "rose"], KOAP: ["КоАП", "orange"],
-    ZOZPP: ["ЗПП", "teal"], FZ214: ["214", "teal"], FZ229: ["229", "teal"], FZ127: ["127", "teal"],
-    FZ14: ["ООО", "green"], FZ208: ["АО", "green"], FZ218: ["218", "teal"], NOTAR: ["НОТ", "amber"],
-  };
-
-  function lawBadge(id, law, small) {
-    const [text, tone] = LAW_BADGES[id] || [law.short.replace(/\s*РФ$/, ""), "blue"];
-    return h("span", { class: `law-badge tone-${tone}${small ? " small" : ""}`, "aria-hidden": "true" }, text);
-  }
+  const { lawBadge } = window.UI;
 
   /** 1 статья, 243 статьи, 1 736 статей. */
   function articlesCount(count) {

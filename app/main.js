@@ -21,7 +21,7 @@
       case "check": return { name: "check", nav: "check", params: {} };
       case "laws": return { name: "laws", nav: "laws", params: { lawId: first, number: second } };
       case "templates": return { name: "catalog", nav: "templates", params: { category: first } };
-      case "calc": return { name: "calc", nav: "calc", params: {} };
+      case "calc": return { name: "calc", nav: "calc", params: { card: first } };
       case "terms": return { name: "terms", nav: "terms", params: {} };
       case "privacy": return { name: "privacy", nav: "privacy", params: {} };
       case "contacts": return { name: "contacts", nav: "contacts", params: {} };

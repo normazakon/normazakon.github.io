@@ -67,6 +67,21 @@
     return button;
   }
 
+  // значок закона: короткая надпись и оттенок по виду акта
+  const LAW_BADGES = {
+    GK: ["ГК", "blue"], NK: ["НК", "blue"], TK: ["ТК", "blue"], JK: ["ЖК", "blue"], SK: ["СК", "blue"], ZK: ["ЗК", "blue"],
+    GPK: ["ГПК", "violet"], APK: ["АПК", "violet"], KAS: ["КАС", "violet"], UPK: ["УПК", "violet"],
+    UK: ["УК", "rose"], KOAP: ["КоАП", "orange"],
+    ZOZPP: ["ЗПП", "teal"], FZ214: ["214", "teal"], FZ229: ["229", "teal"], FZ127: ["127", "teal"],
+    FZ14: ["ООО", "green"], FZ208: ["АО", "green"], FZ218: ["218", "teal"], NOTAR: ["НОТ", "amber"],
+  };
+
+  /** Значок закона: короткая надпись на плашке своего оттенка. */
+  function lawBadge(id, law, small) {
+    const [text, tone] = LAW_BADGES[id] || [law.short.replace(/\s*РФ$/, ""), "blue"];
+    return h("span", { class: `law-badge tone-${tone}${small ? " small" : ""}`, "aria-hidden": "true" }, text);
+  }
+
   // статьи, из которых пришли по ссылкам: кнопка «Назад» возвращает к предыдущей
   let trail = [];
   let shown = null;
@@ -243,5 +258,5 @@
     document.getElementById("article-dialog").close();
   });
 
-  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime, bookmarks, starButton };
+  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime, bookmarks, starButton, lawBadge };
 })();

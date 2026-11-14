@@ -268,11 +268,19 @@
   }
 
   window.Views = window.Views || {};
-  window.Views.calc = function (root) {
+  window.Views.calc = function (root, params = {}) {
+    const cards = { deadline: deadlineCard(), fee: feeCard(), interest: interestCard(), penalty: penaltyCard() };
+    for (const [id, element] of Object.entries(cards)) element.id = `calc-${id}`;
     root.append(
       h("div", { class: "page-head" }, h("div", {},
         h("h1", {}, "Расчёты"),
         h("p", {}, "Узнайте последний день срока, размер госпошлины, проценты за просрочку и неустойку. Расчёт идёт по правилам закона, но результат верен, только если верны ваши даты и суммы."))),
-      h("div", { class: "calc-grid" }, deadlineCard(), feeCard(), interestCard(), penaltyCard()));
+      h("div", { class: "calc-grid" }, Object.values(cards)));
+    // #calc/fee из поиска на главной сразу показывает нужный расчёт
+    const target = cards[params.card];
+    if (target) {
+      target.classList.add("calc-card-target");
+      requestAnimationFrame(() => target.scrollIntoView({ block: "start" }));
+    }
   };
 })();
