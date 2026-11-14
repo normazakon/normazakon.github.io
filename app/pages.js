@@ -14,10 +14,13 @@
   }
 
   function contactLine() {
-    const { email } = site();
-    return email
-      ? h("a", { href: `mailto:${email}` }, email)
-      : h("span", { class: "legal-missing" }, "адрес для связи будет указан на странице «Контакты»");
+    const { email, telegram } = site();
+    if (email) return h("a", { href: `mailto:${email}` }, email);
+    if (telegram) {
+      const handle = telegram.replace(/^https?:\/\/t\.me\//, "");
+      return h("a", { href: telegram, target: "_blank", rel: "noopener noreferrer" }, `Telegram @${handle}`);
+    }
+    return h("span", { class: "legal-missing" }, "адрес для связи будет указан на странице «Контакты»");
   }
 
   /** Страница с заголовком, датой редакции и разделами [заголовок, ...абзацы]. */
@@ -93,8 +96,9 @@
     root.append(h("article", { class: "legal" },
       h("div", { class: "page-head" }, h("div", {}, h("h1", {}, "Контакты"))),
       rows.length ? h("dl", { class: "legal-details" }, rows.map(([term, value]) => [h("dt", {}, term), h("dd", {}, value)])) : null,
-      h("p", {}, "Вопросы, замечания к шаблонам и сообщения об ошибках: ", contactLine(), "."),
-      h("p", { class: "legal-note" }, "Юридические консультации по почте мы не даём.")));
+      h("p", {}, "По всем вопросам, замечаниям к шаблонам и сообщениям об ошибках пишите: ", contactLine(), "."),
+      h("p", {}, "Если нашли ошибку, опишите, в каком разделе она случилась и что вы делали. Приложите снимок экрана, если можете."),
+      h("p", { class: "legal-note" }, "Юридические консультации в переписке мы не даём.")));
   };
 
   window.Views.notFound = function (root) {

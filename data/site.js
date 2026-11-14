@@ -6,6 +6,8 @@ window.SITE = {
   // { name: "Фамилия Имя Отчество" или наименование, status: "физическое лицо" | "самозанятый" | "ИП", inn: "", address: "" }
   owner: null,
   email: null,
+  // для вопросов и сообщений об ошибках, пока нет почты
+  telegram: "https://t.me/pugachevevga",
   hosting: "GitHub Pages (GitHub, Inc., США)",
   termsUpdated: "2026-11-14",
   privacyUpdated: "2026-11-07",
