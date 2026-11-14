@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Норма: дизайн-система</title>
+  <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+  <link rel="stylesheet" href="fonts/fonts.css">
+  <link rel="stylesheet" href="styles.css">
+  <style>
+    /* Только для этой страницы: сетка образцов. */
+    .sg { max-width: 1040px; margin: 0 auto; padding: 40px 24px 80px; }
+    .sg > header { margin-bottom: 40px; }
+    .gradients { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+    .gradients .swatch div { height: 120px; }
+    .sg > header h1 { font-size: 36px; }
+    .sg > header p { max-width: 64ch; color: var(--muted); }
+    .sg section { padding: 32px 0; border-top: 1px solid var(--line); }
+    .sg h2 { margin-bottom: 6px; font-size: 24px; }
+    .sg .rule { max-width: 70ch; margin: 0 0 18px; color: var(--muted); }
+    .row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin-bottom: 14px; }
+    .row-label { width: 150px; color: var(--muted); font-size: 14px; }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    .swatch { overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); font-size: 14px; }
+    .swatch div { height: 56px; border-bottom: 1px solid var(--line); }
+    .swatch p { margin: 0; padding: 8px 10px; }
+    .swatch code { color: var(--muted); font-size: 13px; }
+    .type-row { display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 16px; align-items: baseline; padding: 10px 0; border-bottom: 1px solid var(--line); }
+    .type-row span:first-child { color: var(--muted); font-size: 14px; }
+    .compare { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; }
+    .compare > div { padding: 16px; background: var(--raised); border-radius: var(--radius-l); }
+    .compare h3 { margin-bottom: 4px; font-size: 18px; }
+    .compare p { margin: 0 0 12px; color: var(--muted); font-size: 14px; }
+    .form-demo { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; max-width: 760px; }
+  </style>
+</head>
+<body>
+  <main class="sg">
+    <header>
+      <p class="section-label">Плоское оформление</p>
+      <h1>Дизайн-система «Нормы»</h1>
+      <p>Все элементы интерфейса на одной странице. Правила выбора описаны в docs/design-system.md. Каждый элемент узнаётся по форме: кнопка овальная, чип серой плашкой, переключатель дорожкой, метку нажать нельзя.</p>
+    </header>
+
+    <section>
+      <h2>Что для чего</h2>
+      <p class="rule">Одна и та же задача всегда решается одним элементом.</p>
+      <div class="compare">
+        <div><h3>Кнопка</h3><p>Выполняет действие</p><button class="button primary" type="button">Скачать в Word</button></div>
+        <div><h3>Чип</h3><p>Выбирает вариант или фильтр</p><button class="chip" type="button" aria-pressed="true">Иск по ДДУ</button></div>
+        <div><h3>Переключатель</h3><p>Меняет вид того же содержимого</p><div class="segmented"><button type="button" aria-pressed="true">Заполнение</button><button type="button" aria-pressed="false">Документ</button></div></div>
+        <div><h3>Метка</h3><p>Сообщает состояние, не нажимается</p><span class="badge draft">Черновик</span></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Кнопки</h2>
+      <p class="rule">Овальные. Главная залита акцентом и стоит одна на область экрана. Обычная с тёмной рамкой. Тихая для отмены и второстепенного. Опасная только для необратимого.</p>
+      <div class="row"><span class="row-label">Варианты</span>
+        <button class="button primary" type="button">Проверить</button>
+        <button class="button" type="button">Скопировать текст</button>
+        <button class="button quiet" type="button">Отмена</button>
+        <button class="button danger" type="button">Удалить навсегда</button>
+        <button class="button" type="button" disabled>Недоступно</button>
+      </div>
+      <div class="row"><span class="row-label">Размеры</span>
+        <button class="button primary large" type="button">Выбрать шаблон</button>
+        <button class="button primary" type="button">Обычная</button>
+        <button class="button small" type="button">Сохранить тексты</button>
+      </div>
+      <div class="row"><span class="row-label">Со значком</span>
+        <button class="button primary" type="button"><span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v12M7 11l5 5 5-5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></span>Скачать в Word</button>
+        <button class="button" type="button"><span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg></span>Загрузить Word или .txt</button>
+        <button class="button" type="button"><span class="icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="1.5"/><path d="M16 8V5a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h3"/></svg></span>Скопировать текст</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Чипы</h2>
+      <p class="rule">Серые плашки со скруглёнными углами, обычный текст. Выбранный чип с галочкой и рамкой цвета акцента. Подпись к группе стоит слева.</p>
+      <div class="chips"><span class="chips-label">Примеры:</span>
+        <button class="chip" type="button" aria-pressed="true">Иск по ДДУ</button>
+        <button class="chip" type="button" aria-pressed="false">Претензия магазину</button>
+        <button class="chip" type="button" aria-pressed="false">Договор и увольнение</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>Переключатель</h2>
+      <p class="rule">Два-три вида одного и того же. Серая дорожка, выбранная часть белая, остальные приглушены.</p>
+      <div class="row">
+        <div class="segmented"><button type="button" aria-pressed="true">Номер и заголовок</button><button type="button" aria-pressed="false">Текст статей</button></div>
+        <div class="segmented"><button type="button" aria-pressed="false">Заполнение</button><button type="button" aria-pressed="true">Документ</button></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Метки и статусы</h2>
+      <p class="rule">Мелкие прописные буквы, почти квадратные углы. Статусы проверки окрашены цветом результата.</p>
+      <div class="row">
+        <span class="badge">Новое</span>
+        <span class="badge draft">Черновик: юрист ещё не проверял</span>
+        <span class="badge plain">В планах</span>
+      </div>
+      <ul class="findings" style="max-width: 520px;">
+        <li class="finding problem"><div class="finding-head"><span class="finding-label">ст. 450.2 ГК РФ</span><span class="finding-status">Статьи нет</span></div></li>
+        <li class="finding check"><div class="finding-head"><span class="finding-label">ч. 3 ст. 10 214-ФЗ</span><span class="finding-status">Спецнорма</span></div></li>
+        <li class="finding ok"><div class="finding-head"><span class="finding-label">ст. 309 ГК РФ</span><span class="finding-status">Найдена</span></div></li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Поля ввода</h2>
+      <p class="rule">Подпись над полем, пояснение и ошибка под полем.</p>
+      <div class="form-demo">
+        <div class="field"><label for="sg-sum">Сумма займа, ₽</label><input id="sg-sum" value="150 000"><span class="field-help">Прописью: сто пятьдесят тысяч рублей 00 копеек</span></div>
+        <div class="field"><label for="sg-inn">ИНН заимодавца <span class="optional">необязательно</span></label><input id="sg-inn" value="1234567890"><span class="field-warning">Неверное контрольное число ИНН</span></div>
+        <div class="field"><label for="sg-kind">Вид неустойки</label><select id="sg-kind"><option>Свой процент</option><option>По закону о защите прав потребителей</option></select></div>
+        <div class="field check"><input id="sg-check" type="checkbox" checked><label for="sg-check">Заём беспроцентный</label></div>
+      </div>
+      <div class="notices" style="margin-top: 20px; max-width: 760px;">
+        <p class="notice warning">Заём больше 10 000 рублей между гражданами нужно оформить письменно (ст. 808 ГК РФ).</p>
+        <p class="notice info">Документ сохранён в этом браузере.</p>
+      </div>
+    </section>
+
+    <section>
+      <h2>Цвета</h2>
+      <p class="rule">Синий акцент только для главного действия, ссылок и выбранного состояния.</p>
+      <div class="swatches">
+        <div class="swatch"><div style="background: var(--bg)"></div><p>Фон<br><code>--bg #ffffff</code></p></div>
+        <div class="swatch"><div style="background: var(--raised)"></div><p>Плашка<br><code>--raised #f5f6f8</code></p></div>
+        <div class="swatch"><div style="background: var(--line-strong)"></div><p>Рамка<br><code>--line-strong #cdd1d9</code></p></div>
+        <div class="swatch"><div style="background: var(--ink)"></div><p>Текст<br><code>--ink #141824</code></p></div>
+        <div class="swatch"><div style="background: var(--muted)"></div><p>Пояснения<br><code>--muted #5b6070</code></p></div>
+        <div class="swatch"><div style="background: var(--accent)"></div><p>Акцент<br><code>--accent #1d5fd1</code></p></div>
+        <div class="swatch"><div style="background: var(--accent-soft)"></div><p>Выбранное<br><code>--accent-soft #e8f0fd</code></p></div>
+        <div class="swatch"><div style="background: var(--problem)"></div><p>Ошибка<br><code>--problem #b42318</code></p></div>
+        <div class="swatch"><div style="background: var(--check)"></div><p>Проверить<br><code>--check #8a5300</code></p></div>
+        <div class="swatch"><div style="background: var(--ok)"></div><p>Верно<br><code>--ok #1d7044</code></p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Градиенты</h2>
+      <p class="rule">Только для крупных фонов: светлый синий плавно уходит в белый. На кнопках, карточках и тексте градиентов нет.</p>
+      <div class="gradients">
+        <div class="swatch"><div style="background: var(--gradient-hero)"></div><p>Первый экран<br><code>--gradient-hero</code></p></div>
+        <div class="swatch"><div style="background: var(--gradient-band)"></div><p>Полоса посреди страницы<br><code>--gradient-band</code></p></div>
+        <div class="swatch"><div style="background: var(--gradient-page)"></div><p>Верх рабочих страниц<br><code>--gradient-page</code></p></div>
+        <div class="swatch"><div style="background: var(--gradient-panel)"></div><p>Призыв к действию<br><code>--gradient-panel</code></p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Шрифты</h2>
+      <div class="type-row"><span>Заголовок, Inter 600</span><h1 style="font-size: 40px;">Документы и нормы права</h1></div>
+      <div class="type-row"><span>Раздел, Inter 600</span><h2 style="font-size: 22px; margin: 0;">Договоры</h2></div>
+      <div class="type-row"><span>Текст, Inter 400</span><p style="margin: 0;">Соберите договор из шаблона и сверьте ссылки на статьи.</p></div>
+      <div class="type-row"><span>Пояснение</span><p style="margin: 0; color: var(--muted); font-size: 14px;">Денежный заём с процентами или без них</p></div>
+      <div class="type-row"><span>Документ, Times New Roman</span><p style="margin: 0; font: 400 16px/1.5 var(--font-doc);">1.1. Заимодавец передаёт в собственность Заёмщику денежные средства в сумме 150 000 рублей.</p></div>
+      <div class="type-row"><span>Ссылка</span><p style="margin: 0;"><a href="#">ст. 808 ГК РФ</a></p></div>
+    </section>
+  </main>
+</body>
+</html>
