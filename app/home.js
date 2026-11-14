@@ -153,7 +153,7 @@
     const column = (title, note, groups, upcoming) => h("div", { class: "changes-column" },
       h("h3", {}, title), h("p", { class: "changes-note" }, note),
       h("ul", { class: "change-cards" }, groups.slice(0, 4).map((group) => changeGroup(group, upcoming)).filter(Boolean)));
-    return section("home-changes", "Изменения в законах", "Что изменилось и что вступит в силу",
+    return section("home-changes", "Что изменилось в законах и что вступит в силу",
       h("div", { class: "changes-grid" },
         column("Недавно изменились", `За ${data.recentDays} дней до сборки базы ${window.Editions.formatDate(data.builtAt)}`, data.recent, false),
         column("Скоро вступят в силу", "Уже приняты и опубликованы, но ещё не действуют", data.upcoming, true)));
@@ -199,9 +199,9 @@
       h("ul", { class: "continue-grid" }, cards)));
   }
 
-  function section(className, label, title, ...children) {
+  // у раздела только заголовок, без надписи-метки над ним
+  function section(className, title, ...children) {
     return h("section", { class: `home-section ${className}` }, h("div", { class: "home-inner" },
-      label && h("p", { class: "section-label" }, label),
       title && h("h2", {}, title),
       children));
   }
@@ -221,7 +221,6 @@
     // блоки, которым нечего показать (например, «Продолжить работу» при первом визите), отдают null и пропускаются
     root.append(...[
       h("section", { class: "home-hero" }, h("div", { class: "home-inner hero-center" },
-        h("p", { class: "hero-badge" }, "Для юристов, нотариусов и граждан"),
         h("h1", {}, "Юридические документы и законы в одном месте"),
         h("p", { class: "hero-lead" }, "Соберите договор, претензию или иск по готовому шаблону, найдите статью закона и посчитайте сроки и пошлину. Всё, что вы вводите, остаётся на вашем компьютере."),
         heroSearch(),
@@ -231,7 +230,7 @@
       tasks(),
       lawChanges(),
 
-      section("home-cost", "Пример", null,
+      section("home-cost", null,
         h("div", { class: "cost-card" },
           h("div", { class: "cost-copy" },
             h("h2", {}, "Одна неверная норма меняет всю сумму"),
@@ -242,14 +241,14 @@
             h("div", {}, h("dt", {}, "Штраф 5%"), h("dd", {}, "16 820,83 ₽")),
             h("div", { class: "cost-total" }, h("dt", {}, "Разница"), h("dd", {}, "151 387,50 ₽"))))),
 
-      section("", "Что Норма делает за вас", "Считает и сверяет, пока вы заполняете",
+      section("", "Что Норма делает за вас",
         h("ul", { class: "automation-list" }, AUTOMATIONS.map(([name, text]) => h("li", {},
           h("div", {}, h("strong", {}, name), h("span", {}, text)))))),
 
-      section("home-steps", "Как это работает", "От пустой страницы до файла Word",
+      section("home-steps", "От пустой страницы до файла Word",
         h("ol", { class: "steps" }, STEPS.map(([name, text]) => h("li", {}, h("h3", {}, name), h("p", {}, text))))),
 
-      section("", "Дорожная карта", "Что будет дальше",
+      section("", "Что будет дальше",
         h("p", { class: "section-lead" }, "Сейчас Норма работает без искусственного интеллекта. Сначала мы строим надёжную основу, а помощник будет отвечать только по ней."),
         h("ul", { class: "roadmap" }, PLANNED.map(([name, text]) => h("li", {},
           h("span", { class: "badge plain" }, "В планах"), h("strong", {}, name), h("span", {}, text))))),
