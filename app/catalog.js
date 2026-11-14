@@ -15,12 +15,29 @@
     }).join("; ");
   }
 
-  /** Карточка шаблона: название, назначение и статьи, на которых он построен. */
+  // у каждого раздела своя иконка и спокойный оттенок, чтобы разделы различались с первого взгляда
+  const CATEGORY_LOOK = {
+    "Договоры": ["contract", "blue"],
+    "Соглашения и расписки": ["pen", "teal"],
+    "Акты": ["listcheck", "green"],
+    "Доверенности": ["stamp", "amber"],
+    "Претензии и уведомления": ["letter", "orange"],
+    "Суд": ["court", "violet"],
+    "Трудовые отношения": ["briefcase", "rose"],
+  };
+
+  function look(category) {
+    return CATEGORY_LOOK[category] || ["contract", "blue"];
+  }
+
+  /** Карточка шаблона: иконка раздела, название, назначение и статьи, на которых он построен. */
   function templateCard(template) {
-    return h("li", {}, h("a", { class: "catalog-card", href: `#template/${template.id}` },
+    const [iconName, tone] = look(template.category);
+    return h("li", {}, h("a", { class: `catalog-card tone-${tone}`, href: `#template/${template.id}` },
+      h("span", { class: "tone-plate" }, window.UI.icon(iconName)),
       h("span", { class: "catalog-title" }, template.title),
       h("span", { class: "catalog-summary" }, template.summary),
-      h("span", { class: "catalog-basis" }, basisLabel(template))));
+      h("span", { class: "catalog-basis" }, h("span", {}, basisLabel(template)), h("span", { class: "card-arrow" }, window.UI.icon("arrow")))));
   }
 
   function renderGroups(query, category) {
@@ -32,7 +49,7 @@
     return categories.map((name) => {
       const items = matches.filter((template) => template.category === name);
       return h("section", { class: "catalog-group" },
-        h("h2", {}, name, h("span", { class: "catalog-count" }, String(items.length))),
+        h("h2", { class: `tone-${look(name)[1]}` }, h("span", { class: "tone-plate small" }, window.UI.icon(look(name)[0])), name, h("span", { class: "catalog-count" }, String(items.length))),
         h("ul", { class: "catalog-grid" }, items.map(templateCard)));
     });
   }

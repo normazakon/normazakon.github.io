@@ -8,6 +8,7 @@
 
   const FEATURES = [
     {
+      icon: "contract", tone: "blue",
       title: "Документы из шаблонов",
       text: "Заполняете поля, а договор, претензия или иск собираются рядом. Пункты нумеруются сами и меняются под ваши условия.",
       detail: () => `150 000 ₽ в тексте станет «${window.Russian.moneyText("150 000")}»`,
@@ -15,6 +16,7 @@
       action: "Выбрать шаблон",
     },
     {
+      icon: "check", tone: "green",
       title: "Проверка ссылок",
       text: "Вставьте текст или загрузите файл Word. Проверка покажет несуществующие статьи, утратившие силу нормы, лишние части и невозможные даты актов.",
       detail: () => "Постановление от 30.02.2024 будет отмечено сразу: такой даты нет",
@@ -22,6 +24,7 @@
       action: "Проверить документ",
     },
     {
+      icon: "book", tone: "teal",
       title: "База законов",
       text: "Кодексы и законы в официальной редакции, с оглавлением и прежними редакциями. Сразу видно, действует статья или утратила силу.",
       detail: () => "Ищите и по словам из текста: по запросу «ключевой ставкой» найдётся статья 395 ГК РФ",
@@ -44,12 +47,12 @@
 
   // задачи, с которыми приходят на сайт: каждая ведёт туда, где её решают
   const TASKS = [
-    { icon: "contract", title: "Составить договор", text: "Оказание услуг, подряд, заём, аренда, купля-продажа", link: "#templates/Договоры" },
-    { icon: "letter", title: "Написать претензию", text: "Продавцу, исполнителю или должнику перед судом", link: "#templates/Претензии и уведомления" },
-    { icon: "court", title: "Обратиться в суд", text: "Иск, судебный приказ, возражения, апелляция", link: "#templates/Суд" },
-    { icon: "check", title: "Проверить документ", text: "Найдём ошибки в ссылках на статьи законов", link: "#check" },
-    { icon: "book", title: "Найти статью закона", text: "Кодексы и законы в официальной редакции", link: "#laws" },
-    { icon: "calc", title: "Посчитать срок или сумму", text: "Срок обжалования, госпошлина, неустойка, проценты", link: "#calc" },
+    { icon: "contract", tone: "blue", title: "Составить договор", text: "Оказание услуг, подряд, заём, аренда, купля-продажа", link: "#templates/Договоры" },
+    { icon: "letter", tone: "orange", title: "Написать претензию", text: "Продавцу, исполнителю или должнику перед судом", link: "#templates/Претензии и уведомления" },
+    { icon: "court", tone: "violet", title: "Обратиться в суд", text: "Иск, судебный приказ, возражения, апелляция", link: "#templates/Суд" },
+    { icon: "check", tone: "green", title: "Проверить документ", text: "Найдём ошибки в ссылках на статьи законов", link: "#check" },
+    { icon: "book", tone: "teal", title: "Найти статью закона", text: "Кодексы и законы в официальной редакции", link: "#laws" },
+    { icon: "calc", tone: "amber", title: "Посчитать срок или сумму", text: "Срок обжалования, госпошлина, неустойка, проценты", link: "#calc" },
   ];
 
   const STEPS = [
@@ -123,9 +126,10 @@
     return h("section", { class: "home-tasks" }, h("div", { class: "home-inner" },
       h("h2", {}, "Что нужно сделать?"),
       h("ul", { class: "task-grid" }, TASKS.map((task) => h("li", {},
-        h("a", { class: "task-card", href: task.link },
-          h("span", { class: "task-icon" }, window.UI.icon(task.icon)),
-          h("span", { class: "task-text" }, h("strong", {}, task.title), h("span", {}, task.text))))))));
+        h("a", { class: `task-card tone-${task.tone}`, href: task.link },
+          h("span", { class: "tone-plate" }, window.UI.icon(task.icon)),
+          h("span", { class: "task-text" }, h("strong", {}, task.title), h("span", {}, task.text)),
+          h("span", { class: "card-arrow" }, window.UI.icon("arrow"))))))));
   }
 
   window.Views = window.Views || {};
@@ -145,7 +149,8 @@
       tasks(),
 
       section("", "Возможности", "Три инструмента вместо трёх вкладок",
-        h("div", { class: "feature-grid" }, FEATURES.map((feature) => h("article", { class: "feature" },
+        h("div", { class: "feature-grid" }, FEATURES.map((feature) => h("article", { class: `feature tone-${feature.tone}` },
+          h("span", { class: "tone-plate" }, icon(feature.icon)),
           h("h3", {}, feature.title),
           h("p", {}, feature.text),
           h("p", { class: "feature-detail" }, feature.detail()),

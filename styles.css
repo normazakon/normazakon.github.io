@@ -1,22 +1,25 @@
-/* Плоское оформление: белый фон, шрифт Inter, один акцент, никаких теней и украшений.
+/* Плоское оформление: светло-серый фон страницы и белые карточки без обводки, шрифт Inter, один акцент, никаких теней.
+   Карточки отделяются от фона цветом, а не рамкой.
    Документы и нормы набираются шрифтом Times New Roman, как привыкли юристы.
    Пока у сайта только светлая тема, даже если в системе включена тёмная. */
 :root {
-  --bg: #ffffff;
+  --bg: #f3f5f9;
   --surface: #ffffff;
-  --raised: #f5f6f8;
+  --raised: #e9edf3;
   --ink: #141824;
   --muted: #5b6070;
-  --line: #e6e8ec;
+  --line: #e3e7ee;
   --line-strong: #cdd1d9;
   --accent: #1d5fd1;
   --accent-hover: #174cab;
   --accent-ink: #ffffff;
   --accent-soft: #e8f0fd;
+  /* рамка карточки при наведении: акцент, но мягко */
+  --hover-line: #b9cdf5;
   /* Градиенты для фонов: светлый синий плавно уходит в белый. Только для крупных фонов, не для кнопок и текста. */
-  --gradient-hero: linear-gradient(180deg, #d4e3fc 0%, #ffffff 100%);
-  --gradient-band: linear-gradient(180deg, #ffffff 0%, #e2ecfd 50%, #ffffff 100%);
-  --gradient-page: linear-gradient(180deg, #eef4fe 0%, #ffffff 100%);
+  --gradient-hero: linear-gradient(180deg, #d4e3fc 0%, #f3f5f9 100%);
+  --gradient-band: linear-gradient(180deg, #f3f5f9 0%, #e2ecfd 50%, #f3f5f9 100%);
+  --gradient-page: linear-gradient(180deg, #e4edfc 0%, #f3f5f9 100%);
   --gradient-panel: linear-gradient(120deg, #d4e3fc 0%, #f1f6fe 100%);
   --problem: #b42318;
   --problem-soft: #fdecea;
@@ -31,7 +34,7 @@
   --focus-mark: #eef0f4;
   --radius-s: 4px;
   --radius-m: 8px;
-  --radius-l: 12px;
+  --radius-l: 16px;
   --radius-pill: 999px;
   --font-ui: "Inter", "Segoe UI", Arial, sans-serif;
   --font-doc: "Times New Roman", "Tinos", Times, serif;
@@ -74,7 +77,7 @@ a:hover { color: var(--accent-hover); }
   align-items: center;
   gap: 4px 36px;
   padding: 0 24px;
-  background: var(--bg);
+  background: var(--surface);
   border-bottom: 1px solid var(--line);
 }
 
@@ -168,7 +171,7 @@ a:hover { color: var(--accent-hover); }
   gap: 6px;
   min-height: 32px;
   padding: 5px 12px;
-  background: var(--raised);
+  background: var(--surface);
   border: 1px solid transparent;
   border-radius: var(--radius-m);
   color: var(--ink);
@@ -253,7 +256,7 @@ a:hover { color: var(--accent-hover); }
 /* Домашняя страница */
 .view[data-route="home"] { max-width: none; padding: 0; }
 .home-inner { width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 24px; }
-.home-section { padding: 72px 0; border-top: 1px solid var(--line); }
+.home-section { padding: 72px 0; }
 .home-section h2 { margin-bottom: 28px; font-size: 34px; line-height: 1.2; }
 .section-label { margin: 0 0 12px; color: var(--accent); font: 600 14px/1.3 var(--font-ui); }
 .section-lead { max-width: 62ch; margin: -14px 0 28px; color: var(--muted); font-size: 17px; }
@@ -282,14 +285,14 @@ a:hover { color: var(--accent-hover); }
 .hero-paper figcaption { margin-top: 12px; color: var(--muted); font: 400 13px/1.4 var(--font-ui); }
 
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
-.feature { display: flex; flex-direction: column; gap: 10px; padding: 24px; background: var(--raised); border-radius: var(--radius-l); }
+.feature { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 24px; background: var(--surface); border-radius: var(--radius-l); }
 .feature h3 { font-size: 22px; line-height: 1.25; }
 .feature p { margin: 0; color: var(--muted); }
 .feature .feature-detail { flex: 1; color: var(--ink); font-size: 15px; }
 .feature-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-weight: 600; text-decoration: none; }
 .feature-link:hover { text-decoration: underline; }
 
-.cost-card { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 36px 40px; background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--radius-l); }
+.cost-card { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 36px 40px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
 .cost-card h2 { margin-bottom: 14px; font-size: 28px; }
 .cost-copy p { max-width: 58ch; margin: 0 0 10px; }
 .cost-copy .cost-note { margin-bottom: 0; color: var(--muted); font-size: 15px; }
@@ -322,17 +325,33 @@ a:hover { color: var(--accent-hover); }
 .home-final h2 { margin-bottom: 8px; font-size: 28px; }
 .home-final p { max-width: 58ch; margin: 0; color: var(--ink); }
 
+/* Оттенки разделов: иконка на мягкой плашке своего цвета. Цвет только украшает, смысл всегда есть в подписи. */
+.tone-blue { --tone: #1d5fd1; --tone-soft: #e3ecfc; }
+.tone-violet { --tone: #6247c9; --tone-soft: #ebe7fa; }
+.tone-teal { --tone: #0b7f80; --tone-soft: #dff2f1; }
+.tone-green { --tone: #1d7a4a; --tone-soft: #e1f2e8; }
+.tone-amber { --tone: #9a5b00; --tone-soft: #fbefd6; }
+.tone-orange { --tone: #c0430f; --tone-soft: #fde8dc; }
+.tone-rose { --tone: #b8284c; --tone-soft: #fbe4ea; }
+.tone-plate { display: grid; flex: 0 0 auto; place-items: center; width: 44px; height: 44px; background: var(--tone-soft, var(--accent-soft)); border-radius: 12px; color: var(--tone, var(--accent)); }
+.tone-plate .icon, .tone-plate svg { width: 24px; height: 24px; }
+.tone-plate.small { width: 32px; height: 32px; border-radius: 9px; }
+.tone-plate.small .icon, .tone-plate.small svg { width: 18px; height: 18px; }
+/* стрелка на карточке появляется при наведении и подсказывает, что карточка ведёт дальше */
+.card-arrow { display: inline-flex; color: var(--accent); opacity: 0; transform: translateX(-4px); transition: opacity 150ms ease, transform 150ms ease; }
+a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacity: 1; transform: none; }
+.law-badge { display: grid; place-items: center; min-width: 52px; height: 44px; padding: 0 8px; background: var(--tone-soft); border-radius: 12px; color: var(--tone); font: 700 15px/1 var(--font-ui); letter-spacing: -0.01em; }
+.law-badge.small { min-width: 40px; height: 26px; padding: 0 6px; border-radius: 7px; font-size: 11px; }
+
 /* Главная: что нужно сделать */
 .home-tasks { padding: 8px 0 56px; }
 .home-tasks h2 { margin-bottom: 18px; font-size: 28px; }
 .task-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .task-grid > li { display: flex; }
-.task-card { display: flex; align-items: flex-start; gap: 14px; width: 100%; padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
-.task-card:hover { border-color: var(--accent); }
+.task-card { display: flex; align-items: center; gap: 16px; width: 100%; padding: 20px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
+.task-card:hover { border-color: var(--hover-line); }
 .task-card:hover strong { color: var(--accent); }
-.task-icon { display: grid; flex: 0 0 auto; place-items: center; width: 44px; height: 44px; background: var(--accent-soft); border-radius: 50%; color: var(--accent); }
-.task-icon .icon, .task-icon svg { width: 24px; height: 24px; }
-.task-text { display: flex; flex-direction: column; gap: 2px; }
+.task-text { display: flex; flex: 1; flex-direction: column; gap: 2px; }
 .task-text strong { font-size: 17px; font-weight: 600; transition: color 150ms ease; }
 .task-text span { color: var(--muted); font-size: 14px; line-height: 1.45; }
 
@@ -341,7 +360,7 @@ a:hover { color: var(--accent-hover); }
 .chip-count { margin-left: 2px; color: var(--muted); font-size: 13px; font-weight: 400; }
 .chip[aria-pressed="true"] .chip-count { color: var(--accent); }
 .catalog-group { margin-top: 28px; }
-.catalog-group h2 { display: flex; align-items: baseline; gap: 10px; margin-bottom: 12px; font-size: 22px; }
+.catalog-group h2 { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 22px; }
 .catalog-count { color: var(--muted); font-size: 15px; font-weight: 500; }
 .catalog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .catalog-grid > li { display: flex; }
@@ -351,28 +370,28 @@ a:hover { color: var(--accent-hover); }
   flex-direction: column;
   gap: 6px;
   width: 100%;
-  padding: 16px 18px;
+  padding: 18px 20px;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 1px solid transparent;
   border-radius: var(--radius-l);
   color: inherit;
   text-decoration: none;
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 
-.catalog-card:hover { border-color: var(--accent); }
+.catalog-card:hover { border-color: var(--hover-line); }
 .catalog-card:hover .catalog-title { color: var(--accent); }
-.catalog-title { font-size: 16px; font-weight: 600; line-height: 1.35; transition: color 150ms ease; }
+.catalog-title { margin-top: 6px; font-size: 16px; font-weight: 600; line-height: 1.35; transition: color 150ms ease; }
 .catalog-summary { flex: 1; color: var(--muted); font-size: 14px; line-height: 1.5; }
-.catalog-basis { padding-top: 8px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
+.catalog-basis { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--muted); font-size: 13px; }
 
 .bookmarks { margin-top: 32px; }
 .bookmarks-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
 .bookmarks-head h2 { font-size: 22px; }
 .bookmark-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .bookmark-list > li { display: flex; }
-.bookmark { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 14px 16px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); color: inherit; cursor: pointer; font: inherit; text-align: left; text-decoration: none; transition: border-color 150ms ease; }
-.bookmark:hover { border-color: var(--accent); }
+.bookmark { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 14px 16px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; cursor: pointer; font: inherit; text-align: left; text-decoration: none; transition: border-color 150ms ease; }
+.bookmark:hover { border-color: var(--hover-line); }
 .bookmark-kind { color: var(--accent); font-size: 13px; font-weight: 600; }
 .bookmark-title { font-size: 15px; line-height: 1.4; }
 .dialog-actions { display: flex; flex-wrap: wrap; align-items: start; justify-content: end; gap: 4px; }
@@ -404,7 +423,7 @@ a:hover { color: var(--accent-hover); }
 
 .form-column { display: flex; flex-direction: column; gap: 10px; }
 
-.form-section { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); }
+.form-section { background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
 .form-section summary { padding: 12px 16px; cursor: pointer; font-size: 16px; font-weight: 600; }
 .form-fields { display: flex; flex-direction: column; gap: 14px; padding: 2px 16px 16px; }
 
@@ -480,7 +499,7 @@ a:hover { color: var(--accent-hover); }
 .value.active, .gap.active { background: var(--focus-mark); }
 
 /* Мои документы */
-.documents { margin: 0; padding: 0; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); }
+.documents { margin: 0; padding: 0; list-style: none; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
 .document-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 16px; align-items: center; padding: 12px 18px; }
 .document-row + .document-row { border-top: 1px solid var(--line); }
 .document-title { font-weight: 600; }
@@ -523,7 +542,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .doc-view.filtered .mark.dim { background: none; border-color: transparent; }
 
 .tally { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
-.tile { padding: 10px 14px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m); cursor: pointer; text-align: left; }
+.tile { padding: 10px 14px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-m); cursor: pointer; text-align: left; }
 .tile b { display: flex; align-items: center; gap: 8px; font: 600 24px/1.2 var(--font-ui); font-variant-numeric: tabular-nums; }
 .tile b::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
 .tile span { color: var(--muted); font-size: 14px; }
@@ -532,7 +551,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .tile.ok b::before { background: var(--ok); }
 .tile[aria-pressed="true"] { outline: 2px solid var(--accent); outline-offset: -2px; }
 
-.findings { flex: 1; min-height: 0; margin: 0; padding: 0; list-style: none; overflow-y: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); }
+.findings { flex: 1; min-height: 0; margin: 0; padding: 0; list-style: none; overflow-y: auto; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
 .finding { border-bottom: 1px solid var(--line); }
 .finding:last-child { border-bottom: 0; }
 .finding-head { width: 100%; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 12px; padding: 10px 14px; background: none; border: 0; border-left: 4px solid transparent; cursor: pointer; text-align: left; }
@@ -555,7 +574,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 
 /* Расчёты */
 .calc-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
-.calc-card { display: flex; flex-direction: column; gap: 14px; padding: 22px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); }
+.calc-card { display: flex; flex-direction: column; gap: 14px; padding: 22px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
 .calc-card h2 { font-size: 21px; }
 .calc-card .calc-basis { margin: -8px 0 0; color: var(--muted); font-size: 14px; }
 .calc-fields { display: flex; flex-direction: column; gap: 12px; }
@@ -578,7 +597,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 /* Законы */
 .toc { display: flex; flex-direction: column; gap: 6px; }
 .toc[hidden] { display: none; }
-.toc-node { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-m); }
+.toc-node { background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-m); }
 .toc-node > summary { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding: 11px 14px; cursor: pointer; list-style: none; border-radius: var(--radius-m); }
 .toc-node > summary::-webkit-details-marker { display: none; }
 .toc-node > summary::before { content: "›"; flex: 0 0 auto; width: 12px; color: var(--muted); font-weight: 600; transition: transform 150ms ease; }
@@ -592,21 +611,24 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .law-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; margin: 4px 0 0; padding: 0; list-style: none; }
 .law-cards[hidden] { display: none; }
 .law-cards > li { display: flex; }
-.law-card { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 16px 18px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
-.law-card:hover { border-color: var(--accent); }
-.law-card-short { color: var(--accent); font-size: 18px; font-weight: 600; }
-.law-card-name { flex: 1; font-size: 14px; line-height: 1.45; }
+.law-card { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 18px 20px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
+.law-card:hover { border-color: var(--hover-line); }
+.law-card-name { margin-top: 10px; font-size: 16px; font-weight: 600; line-height: 1.4; }
+.law-card .law-badge { justify-self: start; align-self: flex-start; }
+.law-card-name { flex: 1; }
 .law-card-meta { margin-top: 6px; color: var(--muted); font-size: 13px; }
 .laws-layout { display: grid; grid-template-columns: 260px minmax(0, 1fr); gap: 24px; align-items: start; }
-.law-list { margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); }
-.law-list a { display: flex; justify-content: space-between; gap: 12px; padding: 8px 12px; border-radius: var(--radius-m); color: inherit; text-decoration: none; }
+.law-list { margin: 0; padding: 4px; list-style: none; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
+.law-list a { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: var(--radius-m); color: inherit; text-decoration: none; }
 .law-list a:hover { background: var(--raised); }
 .law-list a[aria-current="true"] { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
 .law-list span { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.law-list .law-list-name { flex: 1; color: inherit; font-size: 15px; }
+.law-list .law-badge { color: var(--tone); font-size: 11px; }
 .laws-main { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .laws-count { margin: 0; color: var(--muted); font-size: 15px; }
 .laws-more { align-self: start; }
-.article-list { margin: 0; padding: 0; list-style: none; overflow: hidden; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-l); }
+.article-list { margin: 0; padding: 0; list-style: none; overflow: hidden; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
 .article-row { width: 100%; display: grid; grid-template-columns: 96px minmax(0, 1fr) auto; gap: 12px; padding: 9px 14px; background: none; border: 0; cursor: pointer; text-align: left; }
 .article-list li + li .article-row { border-top: 1px solid var(--line); }
 .article-row:hover { background: var(--raised); }
@@ -721,6 +743,16 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 }
 
 @media (max-width: 640px) {
+  /* длинные подписи переключателя переносятся, а не растягивают страницу */
+  .segmented { display: grid; grid-auto-columns: minmax(0, 1fr); grid-auto-flow: column; width: 100%; }
+  .segmented button { white-space: normal; line-height: 1.25; }
+  .law-cards { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+  .law-card { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 14px; align-items: center; padding: 14px 16px; }
+  .law-card .law-badge { grid-row: span 2; }
+  .law-card-name { margin-top: 0; font-size: 15px; }
+  .law-card-meta { margin-top: 2px; }
+  /* сохранение текстов — второстепенное, на телефоне оно под поиском */
+  .laws-side { order: 1; }
   .catalog-grid { grid-template-columns: minmax(0, 1fr); }
   .task-grid { grid-template-columns: minmax(0, 1fr); }
   .home-tasks h2 { font-size: 24px; }
@@ -735,7 +767,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
     position: fixed; right: 0; bottom: 0; left: 0; z-index: 20;
     display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0;
     padding: 0 4px env(safe-area-inset-bottom);
-    background: var(--bg); border-top: 1px solid var(--line);
+    background: var(--surface); border-top: 1px solid var(--line);
   }
   .nav a {
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;

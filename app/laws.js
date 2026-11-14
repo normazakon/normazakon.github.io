@@ -7,6 +7,20 @@
   const TEXT_DELAY_MS = 300;
   let mode = "title";
 
+  // значок закона: короткая надпись и оттенок по виду акта
+  const LAW_BADGES = {
+    GK: ["ГК", "blue"], NK: ["НК", "blue"], TK: ["ТК", "blue"], JK: ["ЖК", "blue"], SK: ["СК", "blue"], ZK: ["ЗК", "blue"],
+    GPK: ["ГПК", "violet"], APK: ["АПК", "violet"], KAS: ["КАС", "violet"], UPK: ["УПК", "violet"],
+    UK: ["УК", "rose"], KOAP: ["КоАП", "orange"],
+    ZOZPP: ["ЗПП", "teal"], FZ214: ["214", "teal"], FZ229: ["229", "teal"], FZ127: ["127", "teal"],
+    FZ14: ["ООО", "green"], FZ208: ["АО", "green"], FZ218: ["218", "teal"], NOTAR: ["НОТ", "amber"],
+  };
+
+  function lawBadge(id, law, small) {
+    const [text, tone] = LAW_BADGES[id] || [law.short.replace(/\s*РФ$/, ""), "blue"];
+    return h("span", { class: `law-badge tone-${tone}${small ? " small" : ""}`, "aria-hidden": "true" }, text);
+  }
+
   /** 1 статья, 243 статьи, 1 736 статей. */
   function articlesCount(count) {
     const tens = count % 100;
@@ -161,7 +175,7 @@
     // пока ничего не ищут и закон не выбран, вместо пустого места показываем сами законы
     const overview = h("ul", { class: "law-cards", hidden: true }, Object.entries(laws).map(([id, law]) => h("li", {},
       h("a", { class: "law-card", href: `#laws/${id}` },
-        h("span", { class: "law-card-short" }, law.short),
+        lawBadge(id, law),
         h("span", { class: "law-card-name" }, law.name),
         h("span", { class: "law-card-meta" },
           `${articlesCount(Object.keys(law.articles).length)} · редакция от ${window.Editions.formatDate(law.updated)}`)))));
@@ -288,7 +302,8 @@
         h("div", { class: "laws-side" },
           h("nav", { "aria-label": "Законы" }, h("ul", { class: "law-list" }, Object.entries(laws).map(([id, law]) => h("li", {},
             h("a", { href: `#laws/${id}`, "aria-current": id === lawId ? "true" : undefined },
-              law.short, h("span", {}, Object.keys(law.articles).length.toLocaleString("ru-RU"))))))),
+              lawBadge(id, law, true), h("span", { class: "law-list-name" }, law.short),
+              h("span", {}, Object.keys(law.articles).length.toLocaleString("ru-RU"))))))),
           offlinePanel()),
         h("div", { class: "laws-main" },
           h("div", { class: "segmented laws-mode", role: "group", "aria-label": "Где искать" }, modeButtons),
