@@ -57,9 +57,9 @@
     const updated = laws.map((law) => law.updated).sort().pop();
     return [
       `${counted(laws.length, "кодекс и закон", "кодекса и закона", "кодексов и законов")}, ${counted(articles, "статья", "статьи", "статей")}`,
-      `Официальные редакции pravo.gov.ru, последняя от ${window.Editions.formatDate(updated)}`,
-      counted(window.TEMPLATES.length, "шаблон документа", "шаблона документов", "шаблонов документов"),
-      "Документы не покидают ваш компьютер",
+      `Редакции pravo.gov.ru от ${window.Editions.formatDate(updated)}`,
+      counted(window.TEMPLATES.length, "шаблон", "шаблона", "шаблонов"),
+      "Данные остаются у вас",
     ];
   }
 
