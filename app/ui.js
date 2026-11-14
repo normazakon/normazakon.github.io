@@ -228,7 +228,12 @@
     const previous = trail.pop();
     if (previous) showArticle(previous.lawId, previous.number, { date: previous.date, back: true });
   });
-  document.getElementById("article-dialog").addEventListener("close", () => { trail = []; shown = null; });
+  // событие закрытия приходит с задержкой: если окно уже открыли снова, историю переходов не сбрасываем
+  document.getElementById("article-dialog").addEventListener("close", (event) => {
+    if (event.target.open) return;
+    trail = [];
+    shown = null;
+  });
 
   document.getElementById("article-close").addEventListener("click", () => {
     document.getElementById("article-dialog").close();
