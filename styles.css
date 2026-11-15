@@ -266,7 +266,7 @@ a:hover { color: var(--accent-hover); }
 .home-hero { padding: 72px 0 80px; background: var(--gradient-hero); }
 .hero-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .home-hero h1 { max-width: 22ch; font-size: 64px; line-height: 1.05; letter-spacing: -0.025em; text-wrap: balance; }
-.hero-lead { max-width: 74ch; margin: 22px 0 0; color: var(--muted); font-size: 19px; line-height: 1.6; text-wrap: balance; }
+.hero-lead { max-width: 74ch; margin: 18px 0 0; color: var(--muted); font-size: 18px; line-height: 1.5; text-wrap: balance; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .hero-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin: 22px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 15px; }
 .hero-points li::before { content: "✓"; margin-right: 6px; color: var(--accent); font-weight: 600; }
