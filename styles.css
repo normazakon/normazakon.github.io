@@ -15,7 +15,9 @@
   --accent-ink: #ffffff;
   --accent-soft: #e8f0fd;
   /* рамка карточки при наведении: акцент, но мягко */
-  --hover-line: #b9cdf5;
+  --hover-line: #6f9be6;
+  /* фон кнопки-чипа при наведении: заметно голубее белого и серого */
+  --hover-fill: #e4edfc;
   /* Градиенты для фонов: светлый синий плавно уходит в белый. Только для крупных фонов, не для кнопок и текста. */
   --gradient-hero: linear-gradient(180deg, #d4e3fc 0%, #f3f5f9 100%);
   --gradient-band: linear-gradient(180deg, #f3f5f9 0%, #e2ecfd 50%, #f3f5f9 100%);
@@ -180,8 +182,12 @@ a:hover { color: var(--accent-hover); }
   transition: border-color 150ms ease, background-color 150ms ease, color 150ms ease;
 }
 
-.chip:hover { border-color: var(--line-strong); }
-.chip[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); font-weight: 500; }
+/* Наведение на чип должно быть видно сразу, в том числе людям со слабым зрением:
+   синяя рамка, голубой фон и синий текст. Выбранный чип залит синим, чтобы не путать его с наведением. */
+.chip:hover { background: var(--hover-fill); border-color: var(--accent); color: var(--accent); }
+.chip:active { background: var(--accent-soft); }
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 500; }
+.chip[aria-pressed="true"]:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--accent-ink); }
 .chip[aria-pressed="true"]::before { content: "✓"; font-weight: 600; }
 .chips, .bar-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 
@@ -372,8 +378,9 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .timeline-date.upcoming strong { color: var(--accent); }
 .timeline-chips { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
 .timeline-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; background: var(--raised); border: 1px solid transparent; border-radius: var(--radius-pill); color: var(--ink); cursor: pointer; font: 600 14px/1 var(--font-ui); transition: border-color 150ms ease, background-color 150ms ease; }
-.timeline-chip:hover { border-color: var(--hover-line); }
-.timeline-chip[aria-expanded="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.timeline-chip:hover { background: var(--hover-fill); border-color: var(--accent); color: var(--accent); }
+.timeline-chip[aria-expanded="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.timeline-chip[aria-expanded="true"]:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .timeline-chip .law-badge.small { border-radius: var(--radius-pill); }
 .timeline-count { font-variant-numeric: tabular-nums; }
 .timeline-detail { margin-top: 10px; }
@@ -402,7 +409,8 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 /* Каталог шаблонов */
 .catalog-filter { flex-wrap: wrap; margin-bottom: 4px; }
 .chip-count { margin-left: 2px; color: var(--muted); font-size: 13px; font-weight: 400; }
-.chip[aria-pressed="true"] .chip-count { color: var(--accent); }
+.chip:hover .chip-count { color: var(--accent); }
+.chip[aria-pressed="true"] .chip-count, .chip[aria-pressed="true"]:hover .chip-count { color: rgb(255 255 255 / 80%); }
 .catalog-group { margin-top: 28px; }
 .catalog-group h2 { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; font-size: 22px; }
 .catalog-count { color: var(--muted); font-size: 15px; font-weight: 500; }
