@@ -14,7 +14,7 @@
   const select = (id, label, options, extra = {}) => ({ id, label, type: "select", options, ...extra });
 
   const title = (value) => ({ type: "title", text: value });
-  const subtitle = (value) => ({ type: "subtitle", text: value });
+  const subtitle = (value, when) => ({ type: "subtitle", text: value, when });
   const meta = (left, right) => ({ type: "meta", text: left, right });
   const heading = (value, when) => ({ type: "heading", text: value, when });
   const clause = (value, when) => ({ type: "clause", text: value, when });
