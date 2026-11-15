@@ -1,0 +1,118 @@
+/* Лендинг «Нормы». Цвета, кнопки и плашки берутся из styles.css, здесь только раскладка страницы. */
+
+body.landing { background: var(--bg); }
+.land-inner { width: 100%; max-width: 1160px; margin: 0 auto; padding: 0 24px; }
+
+/* Шапка */
+.land-header { position: sticky; top: 0; z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.land-header-row { display: flex; align-items: center; gap: 32px; min-height: 64px; }
+.land-nav { display: flex; gap: 24px; }
+.land-nav a { color: var(--muted); font-size: 15px; font-weight: 500; text-decoration: none; }
+.land-nav a:hover { color: var(--accent); }
+.land-header-actions { display: flex; gap: 8px; margin-left: auto; }
+
+/* Первый экран */
+.land-hero { padding: 72px 0 0; background: var(--gradient-hero); }
+.land-hero-copy { display: flex; flex-direction: column; align-items: center; text-align: center; }
+.land-hero h1 { max-width: 26ch; font-size: 60px; line-height: 1.05; letter-spacing: -0.025em; text-wrap: balance; }
+.land-lead { max-width: 64ch; margin: 22px 0 0; color: var(--muted); font-size: 19px; line-height: 1.55; text-wrap: balance; }
+.land-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 32px; }
+.land-note { margin: 16px 0 0; color: var(--muted); font-size: 14px; }
+.land-shot { margin: 48px 0 0; padding: 10px; background: var(--surface); border: 1px solid var(--line); border-bottom: 0; border-radius: 22px 22px 0 0; }
+.land-shot img { display: block; width: 100%; height: auto; border: 1px solid var(--line); border-radius: 14px 14px 0 0; }
+
+/* Цифры */
+.land-stats { background: var(--surface); border-bottom: 1px solid var(--line); }
+.land-stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding-top: 32px; padding-bottom: 32px; }
+.land-stats-row div { display: flex; flex-direction: column; gap: 4px; }
+.land-stats-row strong { color: var(--accent); font-size: 40px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
+.land-stats-row span { color: var(--muted); font-size: 15px; }
+
+/* Разделы */
+.land-section { padding: 88px 0 0; scroll-margin-top: 64px; }
+.land-section h2 { max-width: 24ch; font-size: 40px; line-height: 1.12; letter-spacing: -0.02em; }
+.land-section-lead { max-width: 60ch; margin: 14px 0 0; color: var(--muted); font-size: 18px; line-height: 1.55; }
+
+.land-features { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 36px 0 0; padding: 0; list-style: none; }
+.land-features li { display: flex; flex-direction: column; gap: 10px; padding: 26px; background: var(--surface); border-radius: var(--radius-l); }
+.land-features h3 { margin-top: 6px; font-size: 20px; }
+.land-features p { margin: 0; color: var(--muted); line-height: 1.55; }
+.land-soon { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; margin-top: 20px; padding: 16px 22px; background: var(--surface); border-radius: var(--radius-l); color: var(--muted); }
+.land-soon span:not(.badge)::before { content: "·"; margin-right: 8px; color: var(--line-strong); }
+
+.land-tabs { margin-top: 28px; }
+.land-tab { margin-top: 18px; padding: 28px 30px; background: var(--surface); border-radius: var(--radius-l); }
+.land-tab[hidden] { display: none; }
+.land-tab ul { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px; margin: 0; padding: 0; list-style: none; }
+.land-tab li { color: var(--muted); line-height: 1.55; }
+.land-tab strong { display: block; margin-bottom: 4px; color: var(--ink); font-size: 17px; }
+
+.land-why { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; margin: 32px 0 0; padding: 0; list-style: none; }
+.land-why li { padding-top: 18px; border-top: 2px solid var(--accent); }
+.land-why h3 { font-size: 19px; }
+.land-why p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+
+.land-steps-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin: 32px 0 0; padding: 0; list-style: none; counter-reset: step; }
+.land-steps-list li { padding: 26px; background: var(--surface); border-radius: var(--radius-l); counter-increment: step; }
+.land-steps-list li::before { content: counter(step); display: inline-grid; place-items: center; width: 36px; height: 36px; margin-bottom: 14px; background: var(--accent); border-radius: 50%; color: var(--accent-ink); font-weight: 600; }
+.land-steps-list h3 { font-size: 19px; }
+.land-steps-list p { margin: 6px 0 0; color: var(--muted); }
+
+.land-faq h2 { margin-bottom: 24px; }
+.land-faq details { border-top: 1px solid var(--line-strong); }
+.land-faq details:last-of-type { border-bottom: 1px solid var(--line-strong); }
+.land-faq summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 20px 0; cursor: pointer; font-size: 18px; font-weight: 500; list-style: none; }
+.land-faq summary::-webkit-details-marker { display: none; }
+.land-faq summary::after { content: "+"; flex: 0 0 auto; color: var(--accent); font-size: 26px; font-weight: 400; line-height: 1; transition: transform 150ms ease; }
+.land-faq details[open] summary::after { transform: rotate(45deg); }
+.land-faq summary:hover { color: var(--accent); }
+.land-faq details p { max-width: 70ch; margin: -6px 0 20px; color: var(--muted); line-height: 1.6; }
+
+/* Финальный призыв */
+.land-final { padding: 88px 0; }
+.land-final-box { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px 40px; padding: 48px; background: var(--gradient-panel); border-radius: var(--radius-l); }
+.land-final-box h2 { font-size: 36px; line-height: 1.15; letter-spacing: -0.02em; }
+.land-final-box p { margin: 10px 0 0; font-size: 18px; }
+
+/* Подвал */
+.land-footer { padding: 28px 0 36px; border-top: 1px solid var(--line); background: var(--surface); }
+.land-footer-row { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 32px; color: var(--muted); font-size: 14px; }
+.land-footer-row nav { display: flex; flex-wrap: wrap; gap: 4px 20px; }
+.land-footer-row nav a { color: var(--muted); }
+.land-footer-row p { margin: 0 0 0 auto; }
+
+@media (max-width: 960px) {
+  .land-nav { display: none; }
+  .land-hero h1 { font-size: 44px; }
+  .land-section h2 { font-size: 32px; }
+  .land-features, .land-why { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .land-tab ul, .land-steps-list { grid-template-columns: minmax(0, 1fr); }
+  .land-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+}
+
+@media (max-width: 640px) {
+  /* на лендинге нет нижней панели приложения, отступ под неё не нужен */
+  body.landing { padding-bottom: 0; }
+  .land-inner { padding: 0 16px; }
+  .land-header-row { gap: 12px; min-height: 56px; }
+  .land-header-actions .button { min-height: 40px; padding: 0 14px; font-size: 14px; }
+  .land-header-actions .button.quiet { padding: 0 8px; }
+  .land-hero { padding-top: 44px; }
+  .land-hero h1 { font-size: 34px; }
+  .land-lead { font-size: 17px; }
+  .land-actions { flex-direction: column; align-items: stretch; width: 100%; }
+  .land-shot { margin-top: 32px; padding: 6px; border-radius: 14px 14px 0 0; }
+  .land-shot img { border-radius: 9px 9px 0 0; }
+  .land-stats-row strong { font-size: 32px; }
+  .land-section { padding-top: 60px; }
+  .land-section h2, .land-final-box h2 { font-size: 28px; }
+  .land-features, .land-why { grid-template-columns: minmax(0, 1fr); }
+  .land-tab { padding: 22px 20px; }
+  /* четыре вкладки в одну строку не помещаются: на телефоне они идут сеткой два на два */
+  .land-tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row; gap: 4px; border-radius: 18px; }
+  .land-tabs button { min-height: 44px; border-radius: 14px; }
+  .land-final { padding: 60px 0; }
+  .land-final-box { padding: 28px 22px; }
+  .land-final-box .button { width: 100%; }
+  .land-footer-row p { margin-left: 0; }
+}

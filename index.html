@@ -3,105 +3,220 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Норма</title>
-  <meta name="description" content="Шаблоны документов, проверка ссылок на законы, база статей и расчёты для юристов.">
+  <title>Норма — правовая система для работы с документами и законами</title>
+  <meta name="description" content="Шаблоны документов, официальные тексты 20 кодексов и законов с редакциями, проверка ссылок на статьи и расчёт процессуальных сроков в одном окне.">
   <meta name="theme-color" content="#ffffff">
   <meta name="color-scheme" content="light">
-  <meta name="apple-mobile-web-app-title" content="Норма">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
   <link rel="manifest" href="manifest.webmanifest">
   <link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
   <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
   <link rel="stylesheet" href="fonts/fonts.css">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="landing.css">
 </head>
-<body>
-  <a class="skip-link" href="#view">Перейти к содержимому</a>
-  <header class="topbar">
-    <a class="brand" href="#home"><span class="brand-mark" aria-hidden="true">§</span>Норма</a>
-    <nav class="nav" aria-label="Разделы">
-      <a href="#templates" data-section="templates"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg><span>Шаблоны</span></a>
-      <a href="#documents" data-section="documents"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Документы</span></a>
-      <a href="#check" data-section="check"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg><span>Проверка</span></a>
-      <a href="#laws" data-section="laws"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg><span>Законы</span></a>
-      <a href="#calc" data-section="calc"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11v6M8 15h2M12 15h2M8 19h0"/></svg><span>Расчёты</span></a>
-    </nav>
-  </header>
+<body class="landing">
+  <a class="skip-link" href="#main">Перейти к содержимому</a>
 
-  <main id="view" class="view" tabindex="-1"></main>
-
-  <footer class="footnote">
-    <p id="offline-note" class="offline-note" hidden>Нет подключения к интернету. Работаем с сохранённой копией приложения.</p>
-    <p id="install-line" hidden></p>
-    <p id="base-note"></p>
-    <p>Результат не заменяет работу юриста. Документы хранятся только в этом браузере и никуда не отправляются.</p>
-    <nav class="footer-links" aria-label="Служебные страницы">
-      <a href="#terms" data-section="terms">Условия использования</a>
-      <a href="#privacy" data-section="privacy">Конфиденциальность</a>
-      <a href="#contacts" data-section="contacts">Контакты</a>
-    </nav>
-  </footer>
-
-  <dialog id="article-dialog" class="article-dialog" aria-labelledby="article-title">
-    <div class="dialog-head">
-      <div>
-        <button id="article-back" class="link-button article-back" type="button" hidden></button>
-        <p id="article-law" class="dialog-law"></p>
-        <h2 id="article-title"></h2>
-      </div>
-      <div class="dialog-actions">
-        <button id="article-star" class="button quiet star-button" type="button" aria-pressed="false"></button>
-        <button id="article-close" class="button quiet" type="button">Закрыть</button>
+  <header class="land-header">
+    <div class="land-inner land-header-row">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">§</span>Норма</a>
+      <nav class="land-nav" aria-label="Разделы страницы">
+        <a href="#features">Возможности</a>
+        <a href="#audience">Для кого</a>
+        <a href="#why">Почему Норма</a>
+        <a href="#faq">Вопросы</a>
+      </nav>
+      <div class="land-header-actions">
+        <a class="button quiet" href="app.html">Войти</a>
+        <a class="button primary" href="https://t.me/pugachevevga" target="_blank" rel="noopener noreferrer" data-cta="header">Получить доступ</a>
       </div>
     </div>
-    <div id="article-editions" class="article-editions" hidden></div>
-    <div id="article-body" class="norm-text" tabindex="0"></div>
-    <a id="article-source" class="source-link" target="_blank" rel="noopener noreferrer"></a>
-  </dialog>
+  </header>
 
-  <script src="data/site.js"></script>
-  <script src="data/laws.js"></script>
-  <script src="data/samples.js"></script>
-  <script src="data/key-rates.js"></script>
-  <script src="data/work-calendar.js"></script>
-  <script src="data/changes.js"></script>
-  <script src="lib/law-texts.js"></script>
-  <script src="lib/editions.js"></script>
-  <script src="lib/text-search.js"></script>
-  <script src="lib/russian.js"></script>
-  <script src="lib/checker.js"></script>
-  <script src="lib/court-fees.js"></script>
-  <script src="lib/calculators.js"></script>
-  <script src="lib/deadlines.js"></script>
-  <script src="lib/template-engine.js"></script>
-  <script src="lib/docx.js"></script>
-  <script src="lib/docx-reader.js"></script>
-  <script src="lib/storage.js"></script>
-  <script src="lib/bookmarks.js"></script>
-  <script src="lib/site-search.js"></script>
-  <script src="data/templates/common.js"></script>
-  <script src="data/templates/contracts.js"></script>
-  <script src="data/templates/contracts-more.js"></script>
-  <script src="data/templates/agreements.js"></script>
-  <script src="data/templates/acts.js"></script>
-  <script src="data/templates/powers.js"></script>
-  <script src="data/templates/claims.js"></script>
-  <script src="data/templates/claims-more.js"></script>
-  <script src="data/templates/court.js"></script>
-  <script src="data/templates/labor.js"></script>
-  <script src="data/templates/additional.js"></script>
-  <script src="data/templates/links.js"></script>
-  <script src="app/ui.js"></script>
-  <script src="app/pwa.js"></script>
-  <script src="app/home.js"></script>
-  <script src="app/catalog.js"></script>
-  <script src="app/editor.js"></script>
-  <script src="app/documents.js"></script>
-  <script src="app/check.js"></script>
-  <script src="app/laws.js"></script>
-  <script src="app/calc.js"></script>
-  <script src="app/pages.js"></script>
-  <script src="app/main.js"></script>
+  <main id="main">
+    <section class="land-hero">
+      <div class="land-inner land-hero-copy">
+        <h1>Правовая система для работы с документами и законами</h1>
+        <p class="land-lead">Шаблоны документов, официальные тексты кодексов с редакциями, проверка ссылок и расчёт сроков — в одном окне.</p>
+        <div class="land-actions">
+          <a class="button primary large" href="https://t.me/pugachevevga" target="_blank" rel="noopener noreferrer" data-cta="hero">Получить доступ</a>
+          <a class="button large" href="#features">Посмотреть возможности</a>
+        </div>
+        <p class="land-note">Сейчас идёт ранний доступ: напишите нам в Telegram, и мы откроем вам «Норму».</p>
+      </div>
+      <div class="land-inner">
+        <figure class="land-shot">
+          <img src="img/dashboard.webp" width="1280" height="760" alt="Рабочий экран «Нормы»: поиск по статьям, шаблонам и расчётам, задачи и лента изменений в законах" loading="eager">
+        </figure>
+      </div>
+    </section>
+
+    <section class="land-stats" aria-label="Норма в цифрах">
+      <div class="land-inner land-stats-row">
+        <div><strong>20</strong><span>кодексов и законов</span></div>
+        <div><strong>8 613</strong><span>статей в базе</span></div>
+        <div><strong>900+</strong><span>официальных редакций с 2022 года</span></div>
+        <div><strong>28</strong><span>шаблонов документов</span></div>
+      </div>
+    </section>
+
+    <section class="land-section" id="features">
+      <div class="land-inner">
+        <h2>Всё для юридической работы в одном месте</h2>
+        <p class="land-section-lead">Не нужно держать открытыми справочную систему, текстовый редактор и калькулятор: в «Норме» они работают вместе.</p>
+        <ul class="land-features">
+          <li class="tone-blue">
+            <span class="tone-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5M10 13h6M10 17h6"/></svg></span>
+            <h3>Документы по шаблонам</h3>
+            <p>Договоры, претензии, иски, доверенности. Заполняете поля — документ собирается рядом, суммы пишутся прописью, пошлина считается сама. Готовый файл — в Word.</p>
+          </li>
+          <li class="tone-teal">
+            <span class="tone-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 4h11a3 3 0 0 1 3 3v13H8a3 3 0 0 1-3-3z"/><path d="M5 17a3 3 0 0 1 3-3h11"/></svg></span>
+            <h3>Законы с редакциями</h3>
+            <p>Официальные тексты с портала pravo.gov.ru: оглавление, ссылки между статьями, прежние редакции и изменения, которые только вступят в силу.</p>
+          </li>
+          <li class="tone-green">
+            <span class="tone-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/></svg></span>
+            <h3>Проверка документов</h3>
+            <p>Загрузите файл Word: «Норма» найдёт ссылки на несуществующие и утратившие силу статьи, лишние части и невозможные даты. Можно сверить с редакцией на дату документа.</p>
+          </li>
+          <li class="tone-amber">
+            <span class="tone-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M8 7h8M8 11h2M12 11h2M16 11v6M8 15h2M12 15h2"/></svg></span>
+            <h3>Сроки и расчёты</h3>
+            <p>Последний день процессуального срока по ГПК, АПК, ГК, ТК и КоАП с производственным календарём. Госпошлина, проценты по статье 395 ГК РФ, неустойка.</p>
+          </li>
+          <li class="tone-orange">
+            <span class="tone-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 7v5l3 2"/><circle cx="12" cy="12" r="9"/></svg></span>
+            <h3>Изменения законодательства</h3>
+            <p>Лента по датам: что изменилось недавно и что вступит в силу. Будущую редакцию статьи можно открыть заранее.</p>
+          </li>
+          <li class="tone-violet">
+            <span class="tone-plate"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg></span>
+            <h3>Поиск по всему</h3>
+            <p>Одна строка для всего: «395 ГК» откроет статью, «иск о разводе» — нужный шаблон, «срок апелляции» — калькулятор.</p>
+          </li>
+        </ul>
+        <div class="land-soon">
+          <span class="badge plain">Скоро</span>
+          <span>ИИ-помощник с ответами по проверенным нормам</span>
+          <span>Судебная практика</span>
+          <span>Проверка контрагентов</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="land-section land-audience" id="audience">
+      <div class="land-inner">
+        <h2>Для кого</h2>
+        <div class="segmented land-tabs" role="tablist" aria-label="Для кого">
+          <button type="button" role="tab" aria-selected="true" aria-pressed="true" aria-controls="tab-lawyers" id="tab-lawyers-button">Юристам и адвокатам</button>
+          <button type="button" role="tab" aria-selected="false" aria-pressed="false" aria-controls="tab-notaries" id="tab-notaries-button">Нотариусам</button>
+          <button type="button" role="tab" aria-selected="false" aria-pressed="false" aria-controls="tab-business" id="tab-business-button">Бизнесу</button>
+          <button type="button" role="tab" aria-selected="false" aria-pressed="false" aria-controls="tab-people" id="tab-people-button">Гражданам и студентам</button>
+        </div>
+        <div class="land-tab" role="tabpanel" id="tab-lawyers" aria-labelledby="tab-lawyers-button">
+          <ul>
+            <li><strong>Иск и претензия за минуты.</strong> Шаблон подставит подсудность, посчитает пошлину и цену иска.</li>
+            <li><strong>Ни одной устаревшей ссылки.</strong> Проверка покажет статьи, которые утратили силу или не существуют.</li>
+            <li><strong>Сроки без ошибок.</strong> Последний день обжалования с учётом выходных и переносов.</li>
+          </ul>
+        </div>
+        <div class="land-tab" role="tabpanel" id="tab-notaries" aria-labelledby="tab-notaries-button" hidden>
+          <ul>
+            <li><strong>Основы законодательства о нотариате</strong> и связанные кодексы в действующей редакции.</li>
+            <li><strong>Доверенности и соглашения</strong> по шаблонам с понятными полями.</li>
+            <li><strong>Изменения заранее.</strong> Видно, какие нормы поменяются и с какой даты.</li>
+          </ul>
+        </div>
+        <div class="land-tab" role="tabpanel" id="tab-business" aria-labelledby="tab-business-button" hidden>
+          <ul>
+            <li><strong>Договоры поставки, услуг, аренды</strong> с условиями, которые меняются под ваш случай.</li>
+            <li><strong>Претензия должнику и проценты</strong> по ключевой ставке Банка России с разбивкой по периодам.</li>
+            <li><strong>Законы об ООО и АО, Налоговый кодекс</strong> под рукой, с поиском по словам.</li>
+          </ul>
+        </div>
+        <div class="land-tab" role="tabpanel" id="tab-people" aria-labelledby="tab-people-button" hidden>
+          <ul>
+            <li><strong>Понятные шаблоны</strong>: претензия в магазин, заявление об увольнении, договор займа.</li>
+            <li><strong>Поиск простыми словами</strong>: «вернуть деньги за товар» найдёт нужную претензию.</li>
+            <li><strong>Кодексы для учёбы</strong> с оглавлением, ссылками между статьями и историей редакций.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="land-section" id="why">
+      <div class="land-inner">
+        <h2>Почему Норма</h2>
+        <ul class="land-why">
+          <li><h3>Официальные источники</h3><p>Тексты законов берутся с Официального интернет-портала правовой информации pravo.gov.ru, а не с чужих сайтов.</p></li>
+          <li><h3>Редакция на нужную дату</h3><p>Видно, какой текст действовал в день договора или спора, и что изменится в будущем.</p></li>
+          <li><h3>Ваши данные остаются у вас</h3><p>Документы, которые вы заполняете, хранятся в вашем браузере и никуда не отправляются.</p></li>
+          <li><h3>Понятно без подготовки</h3><p>Простые формулировки, подсказки к полям и пустые места подсвечены, чтобы ничего не пропустить.</p></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="land-section land-steps" aria-labelledby="steps-title">
+      <div class="land-inner">
+        <h2 id="steps-title">Как начать</h2>
+        <ol class="land-steps-list">
+          <li><h3>Напишите нам</h3><p>В Telegram, пару слов о том, чем вы занимаетесь.</p></li>
+          <li><h3>Получите доступ</h3><p>Мы откроем «Норму» и расскажем, с чего начать.</p></li>
+          <li><h3>Работайте</h3><p>Составляйте документы, проверяйте ссылки и следите за изменениями.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="land-section" id="faq">
+      <div class="land-inner land-faq">
+        <h2>Вопросы</h2>
+        <details>
+          <summary>Сколько это стоит?</summary>
+          <p>Сейчас идёт ранний доступ, и для участников он бесплатный. О тарифах мы расскажем заранее, до того как они начнут действовать.</p>
+        </details>
+        <details>
+          <summary>Откуда тексты законов?</summary>
+          <p>С портала «Тексты правовых актов с внесенными изменениями» Официального интернет-портала правовой информации (pravo.gov.ru). Там есть все редакции с июля 2022 года.</p>
+        </details>
+        <details>
+          <summary>Можно ли пользоваться шаблонами без юриста?</summary>
+          <p>Шаблоны составлены по текстам законов, но практикующий юрист их ещё не проверял. Перед тем как подписать или подать документ, прочитайте его внимательно, а в сложной ситуации покажите юристу.</p>
+        </details>
+        <details>
+          <summary>Где хранятся мои документы?</summary>
+          <p>Только в вашем браузере. Мы их не получаем и не видим. Важные документы сохраняйте в Word.</p>
+        </details>
+        <details>
+          <summary>Будет ли искусственный интеллект?</summary>
+          <p>Да. Помощник будет отвечать со ссылками на нормы из той же официальной базы, а не на догадки модели.</p>
+        </details>
+      </div>
+    </section>
+
+    <section class="land-final">
+      <div class="land-inner land-final-box">
+        <div>
+          <h2>Присоединяйтесь к раннему доступу</h2>
+          <p>Напишите нам в Telegram — откроем доступ и поможем начать.</p>
+        </div>
+        <a class="button primary large" href="https://t.me/pugachevevga" target="_blank" rel="noopener noreferrer" data-cta="final">Получить доступ</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="land-footer">
+    <div class="land-inner land-footer-row">
+      <a class="brand" href="./"><span class="brand-mark" aria-hidden="true">§</span>Норма</a>
+      <nav aria-label="Служебные страницы">
+        <a href="app.html#terms">Условия использования</a>
+        <a href="app.html#privacy">Конфиденциальность</a>
+        <a href="app.html#contacts">Контакты</a>
+      </nav>
+      <p>Результат не заменяет работу юриста.</p>
+    </div>
+  </footer>
+
+  <script src="landing.js"></script>
 </body>
 </html>

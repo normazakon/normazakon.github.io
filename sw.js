@@ -3,7 +3,7 @@
    Сайт не обращается к чужим серверам, поэтому запросы на другие адреса не трогаем. */
 "use strict";
 
-const CACHE = "norma-app-v22";
+const CACHE = "norma-app-v23";
 const NETWORK_TIMEOUT_MS = 4000;
 const EXTRA = ["manifest.webmanifest", "404.html", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
@@ -21,13 +21,20 @@ function cssAssets(css, base) {
     .map((url) => new URL(url, base).href);
 }
 
+// страницы, которые работают без интернета: лендинг в корне и само приложение
+const PAGES = ["", "app.html"];
+
 self.addEventListener("install", (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(CACHE);
-    const page = await fetch(self.registration.scope, { cache: "no-cache" });
-    if (!page.ok) throw new Error(`Страница не загрузилась: ${page.status}`);
-    await cache.put(self.registration.scope, page.clone());
-    const assets = localAssets(await page.text()).map((url) => new URL(url, self.registration.scope).href);
+    const assets = [];
+    for (const name of PAGES) {
+      const url = new URL(name, self.registration.scope).href;
+      const page = await fetch(url, { cache: "no-cache" });
+      if (!page.ok) throw new Error(`Страница не загрузилась: ${page.status}`);
+      await cache.put(url, page.clone());
+      assets.push(...localAssets(await page.text()).map((item) => new URL(item, self.registration.scope).href));
+    }
     const fonts = [];
     for (const url of assets.filter((item) => item.endsWith(".css"))) {
       const response = await fetch(url, { cache: "no-cache" });
@@ -68,6 +75,7 @@ async function navigation(request) {
   const path = new URL(request.url).pathname;
   const scopePath = new URL(scope).pathname;
   if (path === scopePath || path === `${scopePath}index.html`) return networkFirst(new Request(scope), scope);
+  if (path === `${scopePath}app.html`) return networkFirst(new Request(`${scope}app.html`), `${scope}app.html`);
   try {
     return await fetch(request);
   } catch (error) {
