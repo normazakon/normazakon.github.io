@@ -285,7 +285,7 @@
       h("div", { class: "page-head" },
         h("div", {},
           h("h1", {}, lawId ? laws[lawId].name : "База законов"),
-          h("p", {}, "Кодексы и законы в официальной редакции с портала pravo.gov.ru. Откройте закон или найдите статью по номеру или по словам."))),
+          h("p", {}, "Конституция, кодексы и законы в официальной редакции. Откройте закон или найдите статью по номеру или по словам."))),
       h("div", { class: lawId ? "laws-layout" : "laws-layout no-law" },
         h("div", { class: "laws-side" },
           h("nav", { "aria-label": "Законы" }, h("ul", { class: "law-list" }, Object.entries(laws).map(([id, law]) => h("li", {},

@@ -9,6 +9,6 @@ window.SITE = {
   // для вопросов и сообщений об ошибках, пока нет почты
   telegram: "https://t.me/pugachevevga",
   hosting: "GitHub Pages (GitHub, Inc., США)",
-  termsUpdated: "2026-11-14",
+  termsUpdated: "2026-11-15",
   privacyUpdated: "2026-11-07",
 };

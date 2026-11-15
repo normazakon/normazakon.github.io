@@ -51,7 +51,8 @@
     const updated = all.map((law) => law.updated).sort().pop();
     document.getElementById("base-note").textContent =
       `База собрана ${window.Editions.formatDate(builtAt)}: статей ${articles.toLocaleString("ru-RU")}, с полным текстом ${texts.toLocaleString("ru-RU")}. ` +
-      `Тексты и редакции с официального портала pravo.gov.ru, последняя учтённая редакция от ${window.Editions.formatDate(updated)}.`;
+      `Тексты и редакции с официального портала pravo.gov.ru, Конституция с официального сайта Президента kremlin.ru. ` +
+      `Последняя учтённая редакция от ${window.Editions.formatDate(updated)}.`;
   }
 
   // ссылка «Перейти к содержимому» переводит фокус, а не меняет адрес

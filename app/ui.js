@@ -69,6 +69,7 @@
 
   // значок закона: короткая надпись и оттенок по виду акта
   const LAW_BADGES = {
+    KONST: ["КРФ", "amber"],
     GK: ["ГК", "blue"], NK: ["НК", "blue"], TK: ["ТК", "blue"], JK: ["ЖК", "blue"], SK: ["СК", "blue"], ZK: ["ЗК", "blue"],
     GPK: ["ГПК", "violet"], APK: ["АПК", "violet"], KAS: ["КАС", "violet"], UPK: ["УПК", "violet"],
     UK: ["УК", "rose"], KOAP: ["КоАП", "orange"],
@@ -106,8 +107,16 @@
   function editionsBar(lawId, number, versions, chosen, note, onChoose) {
     const { label, formatDate } = window.Editions;
     const first = versions[0];
+    const law = window.LAW_BASE.laws[lawId];
     const children = [];
-    if (versions.length === 1) {
+    if (versions.length === 1 && law.source !== "pravo.gov.ru") {
+      // Конституция: прежних текстов статей в источнике нет, известна только дата нынешнего текста
+      children.push(h("p", {}, first.repealed
+        ? `Утратила силу с ${formatDate(first.from)}.`
+        : first.from === law.since
+          ? `Действующая редакция. Статья не менялась с ${formatDate(first.from)}, дня вступления в силу.`
+          : `Действующая редакция с ${formatDate(first.from)}. Прежнего текста статьи в базе нет.`));
+    } else if (versions.length === 1) {
       children.push(h("p", {}, first.repealed
         ? `Утратила силу. Официальные редакции на портале есть с ${formatDate(first.from)}.`
         : `Действующая редакция. С ${formatDate(first.from)}, когда на портале начинаются официальные редакции, статья не менялась.`));
@@ -155,8 +164,10 @@
     const titleLine = document.getElementById("article-title");
     const bar = document.getElementById("article-editions");
     const body = document.getElementById("article-body");
-    lawLine.textContent = `${law.name}, статья ${number}`;
-    titleLine.textContent = article.title;
+    // у статей Конституции нет заголовков: в окне вместо начала текста стоит номер статьи
+    const titleOf = (version) => (law.untitled ? `Статья ${number}` : version.title);
+    lawLine.textContent = law.untitled ? law.name : `${law.name}, статья ${number}`;
+    titleLine.textContent = titleOf(article);
     bar.hidden = true;
 
     const scrollToMark = () => {
@@ -164,7 +175,7 @@
       body.scrollTop = first ? Math.max(0, first.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16) : 0;
     };
     const showVersion = (versions, version, note) => {
-      titleLine.textContent = version.title;
+      titleLine.textContent = titleOf(version);
       bar.replaceChildren(...editionsBar(lawId, number, versions, version, note, (other) => showVersion(versions, other, null)));
       bar.hidden = false;
       const lines = version.repealed ? [version.title] : version.text;
@@ -200,7 +211,7 @@
         const current = found.versions.find((version) => version.current);
         showVersion(found.versions, current, `На ${day} этой статьи ещё не было: она появилась ${formatDate(found.since)}. Показана действующая редакция.`);
       } else if (found.status === "unknown") {
-        showVersion(found.versions, found.version, `Официальные редакции на портале начинаются с ${formatDate(found.since)}. Какой текст действовал ${day}, по ним установить нельзя. Показана самая ранняя известная редакция.`);
+        showVersion(found.versions, found.version, `Редакции этой статьи в базе начинаются с ${formatDate(found.since)}. Какой текст действовал ${day}, по ним установить нельзя. Показана самая ранняя известная редакция.`);
       } else {
         // у статьи без изменений блок и так говорит, что редакция одна
         showVersion(found.versions, found.version, found.versions.length > 1 ? `Редакция, которая действовала ${day}.` : null);
@@ -215,7 +226,9 @@
     });
     const source = document.getElementById("article-source");
     source.href = article.url;
-    source.textContent = "Открыть на официальном портале pravo.gov.ru";
+    source.textContent = law.source === "pravo.gov.ru"
+      ? "Открыть на официальном портале pravo.gov.ru"
+      : `Открыть официальный текст на ${law.source}`;
     if (!dialog.open) dialog.showModal();
   }
 
