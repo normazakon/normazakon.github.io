@@ -90,7 +90,7 @@
       const items = [
         ...group("Статьи", found.articles.map((article) => row(
           { onClick: () => { close(); window.UI.showArticle(article.lawId, article.number); } },
-          "book", "teal", `Ст. ${article.number} ${article.short}`, article.title))),
+          "book", "teal", window.UI.articleName(article.lawId, article.number), article.title))),
         ...group("Шаблоны", found.templates.map((template) => row({ href: `#template/${template.id}` }, "contract", "blue", template.title, template.summary))),
         ...group("Расчёты и проверка", found.tools.map((tool) => row({ href: tool.link }, tool.link === "#check" ? "check" : "calc", "amber", tool.title, tool.text))),
       ];
@@ -228,7 +228,7 @@
         const article = law && law.articles[item.number];
         if (article) {
           cards.push(continueCard({ onClick: () => window.UI.showArticle(item.lawId, item.number) }, "teal", "book",
-            `Ст. ${item.number} ${law.short}`, article.title));
+            window.UI.articleName(item.lawId, item.number), article.title));
         }
       } else {
         const template = window.TEMPLATES.find((entry) => entry.id === item.templateId);

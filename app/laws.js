@@ -17,9 +17,13 @@
     return `${count.toLocaleString("ru-RU")} ${word}`;
   }
 
+  // части без номера: преамбула идёт перед статьями, раздел второй Конституции после них
+  const NAMED_ORDER = { "преамбула": -1, "раздел-2": Infinity };
+
   function compareNumbers(a, b) {
-    const left = a.split(/[.-]/).map(Number);
-    const right = b.split(/[.-]/).map(Number);
+    const parts = (number) => (number in NAMED_ORDER ? [NAMED_ORDER[number]] : number.split(/[.-]/).map(Number));
+    const left = parts(a);
+    const right = parts(b);
     for (let index = 0; index < Math.max(left.length, right.length); index++) {
       const difference = (left[index] ?? -1) - (right[index] ?? -1);
       if (difference !== 0) return difference;
@@ -35,7 +39,7 @@
     const matches = [];
     for (const id of ids) {
       for (const [number, article] of Object.entries(laws[id].articles)) {
-        const found = isNumber ? number === needle || number.startsWith(`${needle}.`) : article.title.toLowerCase().includes(needle);
+        const found = isNumber ? number === needle || number.startsWith(`${needle}.`) : `${article.label || ""} ${article.title}`.toLowerCase().includes(needle);
         if (found) matches.push({ lawId: id, number, article });
       }
     }
@@ -59,7 +63,9 @@
       type: "button",
       onClick: () => showArticle(lawId, number, { terms }),
     },
-    h("span", { class: "article-number" }, showLaw ? `${number} ${law.short}` : `Ст. ${number}`),
+    h("span", { class: "article-number" }, article.label
+      ? (showLaw ? `${article.label} ${law.short}` : article.label)
+      : (showLaw ? `${number} ${law.short}` : `Ст. ${number}`)),
     title,
     fragment ? null : flag,
     fragment));
@@ -86,6 +92,12 @@
   function tocView(lawId) {
     const law = window.LAW_BASE.laws[lawId];
     const renderNode = (node) => {
+      // преамбула и раздел второй Конституции — не главы, а сами тексты: сразу строкой, без раскрытия
+      const single = !node.children.length && node.numbers.length === 1 && law.articles[node.numbers[0]];
+      if (single && single.label) {
+        return h("button", { class: "toc-node toc-link", type: "button", onClick: () => showArticle(lawId, node.numbers[0]) },
+          h("span", { class: "toc-title" }, node.title), h("span", { class: "toc-count" }, "Открыть текст"));
+      }
       const body = h("div", { class: "toc-body" });
       const details = h("details", { class: `toc-node toc-level-${node.level}` },
         h("summary", {}, h("span", { class: "toc-title" }, node.title), h("span", { class: "toc-count" }, articlesCount(nodeCount(node)))),

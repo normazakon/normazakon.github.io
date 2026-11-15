@@ -696,6 +696,11 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .toc-node > summary:hover { background: var(--raised); }
 .toc-title { flex: 1; font-weight: 500; }
 .toc-count { flex: 0 0 auto; color: var(--muted); font-size: 13px; }
+/* часть без номера (преамбула) стоит в оглавлении плашкой, как глава, и сразу открывает текст */
+.toc-link { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; width: 100%; padding: 11px 14px; color: inherit; cursor: pointer; font: inherit; text-align: left; }
+.toc-link::before { content: "›"; flex: 0 0 auto; width: 12px; color: var(--muted); font-weight: 600; }
+.toc-link:hover { background: var(--raised); }
+.toc-link:hover .toc-title { color: var(--accent); }
 .toc-body { display: flex; flex-direction: column; gap: 6px; padding: 0 10px 10px 22px; }
 .toc-body .article-list { margin: 0; }
 .toc-level-0 > summary .toc-title, .toc-level-1 > summary .toc-title { font-weight: 600; }

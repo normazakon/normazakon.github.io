@@ -22,8 +22,16 @@
     return { law, article: law && law.articles[number] };
   }
 
+  /** Ссылка на статью для текста: «ст. 395 ГК РФ», у частей без номера своя: «преамбула Конституции РФ». */
   function citation(lawId, number) {
-    return `ст. ${number} ${window.LAW_BASE.laws[lawId].short}`;
+    const { law, article } = lawArticle(lawId, number);
+    return article && article.cite ? article.cite : `ст. ${number} ${law.short}`;
+  }
+
+  /** То же с большой буквы, для подписи в списках: «Ст. 395 ГК РФ», «Преамбула Конституции РФ». */
+  function articleName(lawId, number) {
+    const text = citation(lawId, number);
+    return text[0].toUpperCase() + text.slice(1);
   }
 
   /**
@@ -140,7 +148,7 @@
       children.push(h("p", {}, first.repealed
         ? `Утратила силу с ${formatDate(first.from)}.`
         : first.from === law.since
-          ? `Действующая редакция. Статья не менялась с ${formatDate(first.from)}, дня вступления в силу.`
+          ? `Действующая редакция. Текст не менялся с ${formatDate(first.from)}, дня вступления в силу.`
           : `Действующая редакция с ${formatDate(first.from)}. Прежнего текста статьи в базе нет.`));
     } else if (versions.length === 1) {
       children.push(h("p", {}, first.repealed
@@ -191,7 +199,7 @@
     const bar = document.getElementById("article-editions");
     const body = document.getElementById("article-body");
     // у статей Конституции нет заголовков: в окне вместо начала текста стоит номер статьи
-    const titleOf = (version) => (law.untitled ? `Статья ${number}` : version.title);
+    const titleOf = (version) => article.heading || (law.untitled ? `Статья ${number}` : version.title);
     lawLine.textContent = law.untitled ? law.name : `${law.name}, статья ${number}`;
     titleLine.textContent = titleOf(article);
     bar.hidden = true;
@@ -334,5 +342,5 @@
     document.getElementById("article-dialog").close();
   });
 
-  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook };
+  window.UI = { h, icon, showArticle, citation, articleName, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook };
 })();

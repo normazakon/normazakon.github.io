@@ -19,7 +19,7 @@
       const article = law && law.articles[item.number];
       if (!article) return null;
       return h("li", {}, h("button", { class: "bookmark", type: "button", onClick: () => window.UI.showArticle(item.lawId, item.number) },
-        h("span", { class: "bookmark-kind" }, `Ст. ${item.number} ${law.short}`),
+        h("span", { class: "bookmark-kind" }, window.UI.articleName(item.lawId, item.number)),
         h("span", { class: "bookmark-title" }, article.title)));
     }
     const template = window.TEMPLATES.find((entry) => entry.id === item.templateId);
