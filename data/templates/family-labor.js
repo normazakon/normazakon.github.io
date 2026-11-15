@@ -401,6 +401,7 @@
       address("Адрес: {{debtor_address}}"),
       address("Взыскатель: {{creditor}}"),
       address("Адрес: {{creditor_address}}"),
+      address("Государственная пошлина: 3 000 рублей (подпункт 13 пункта 1 статьи 333.19 Налогового кодекса Российской Федерации)"),
       title("ЗАЯВЛЕНИЕ"),
       subtitle("о рассрочке исполнения решения суда", isInstallment),
       subtitle("об отсрочке исполнения решения суда", (values) => !isInstallment(values)),
