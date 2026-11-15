@@ -120,43 +120,84 @@
     return wrap;
   }
 
-  const KIND_WORDS = { added: "новая", repealed: "утратила силу" };
+  const MONTHS_SHORT = ["янв", "фев", "мар", "апр", "мая", "июн", "июл", "авг", "сен", "окт", "ноя", "дек"];
+  const VISIBLE_DATES = 5;
+  const VISIBLE_ARTICLES = 8;
 
-  /** Одна группа ленты: закон, дата и первые статьи. Будущие статьи открываются в редакции на эту дату. */
-  function changeGroup(group, upcoming) {
+  /** Список статей одного закона за одну дату: раскрывается по нажатию на значок. */
+  function changeArticles(group, upcoming) {
     const law = window.LAW_BASE.laws[group.lawId];
-    if (!law) return null;
-    const { formatDate } = window.Editions;
-    const shown = group.articles.slice(0, 3);
+    const shown = group.articles.slice(0, VISIBLE_ARTICLES);
     const more = group.articles.length - shown.length;
-    return h("li", { class: "change-card" },
-      h("div", { class: "change-head" },
-        window.UI.lawBadge(group.lawId, law, true),
-        h("strong", {}, law.short),
-        h("span", { class: upcoming ? "change-date upcoming" : "change-date" }, `с ${formatDate(group.date)}`)),
-      h("p", { class: "change-summary" }, `${upcoming ? "Вступят в силу изменения" : "Изменились"}: ${counted(group.articles.length, "статья", "статьи", "статей")}`),
-      h("ul", { class: "change-list" }, shown.map(([number, kind]) => {
-        const article = law.articles[number];
-        return h("li", {}, h("button", {
-          class: "change-article", type: "button",
-          onClick: () => window.UI.showArticle(group.lawId, number, upcoming ? { date: group.date } : {}),
-        }, h("span", { class: "change-number" }, `Ст. ${number}`), h("span", {}, article ? article.title : ""),
-        KIND_WORDS[kind] && h("span", { class: kind === "repealed" ? "badge draft" : "badge" }, KIND_WORDS[kind])));
-      })),
-      more > 0 && h("p", { class: "change-more" }, `и ещё ${counted(more, "статья", "статьи", "статей")}`));
+    return h("div", { class: "timeline-panel" },
+      h("ul", {}, shown.map(([number, kind]) => h("li", {}, h("button", {
+        class: "timeline-article", type: "button",
+        onClick: () => window.UI.showArticle(group.lawId, number, upcoming ? { date: group.date } : {}),
+      },
+      h("span", { class: "timeline-number" }, `Ст. ${number}`),
+      h("span", { class: "timeline-title" }, law.articles[number] ? law.articles[number].title : ""),
+      kind === "added" && h("span", { class: "badge" }, "новая"),
+      kind === "repealed" && h("span", { class: "badge draft" }, "утратила силу"))))),
+      more > 0 && h("a", { class: "timeline-more", href: `#laws/${group.lawId}` }, `и ещё ${counted(more, "статья", "статьи", "статей")} в ${law.short}`));
+  }
+
+  /** Строка ленты: дата слева, значки законов с числом статей справа. */
+  function timelineRow(date, groups, upcoming) {
+    const [year, month, day] = date.split("-");
+    const panel = h("div", { class: "timeline-detail", hidden: true });
+    let opened = null;
+    const chips = groups.map((group) => {
+      const law = window.LAW_BASE.laws[group.lawId];
+      const chip = h("button", {
+        class: "timeline-chip", type: "button", "aria-expanded": "false",
+        title: `${law.name}: ${counted(group.articles.length, "статья", "статьи", "статей")}`,
+      }, window.UI.lawBadge(group.lawId, law, true), h("span", { class: "timeline-count" }, String(group.articles.length)));
+      chip.addEventListener("click", () => {
+        const same = opened === chip;
+        chips.forEach((other) => other.setAttribute("aria-expanded", "false"));
+        opened = same ? null : chip;
+        panel.hidden = same;
+        if (!same) {
+          chip.setAttribute("aria-expanded", "true");
+          panel.replaceChildren(changeArticles(group, upcoming));
+        }
+      });
+      return chip;
+    });
+    return h("li", { class: "timeline-row" },
+      h("div", { class: upcoming ? "timeline-date upcoming" : "timeline-date" },
+        h("strong", {}, String(Number(day))), h("span", {}, `${MONTHS_SHORT[Number(month) - 1]} ${year}`)),
+      h("div", { class: "timeline-body" }, h("div", { class: "timeline-chips" }, chips), panel));
+  }
+
+  /** Колонка ленты: даты по порядку, лишние прячутся за «Показать все». */
+  function timelineColumn(title, groups, upcoming) {
+    const byDate = new Map();
+    for (const group of groups) {
+      if (!window.LAW_BASE.laws[group.lawId]) continue;
+      byDate.set(group.date, [...(byDate.get(group.date) || []), group]);
+    }
+    const rows = [...byDate].map(([date, items]) => timelineRow(date, items, upcoming));
+    rows.slice(VISIBLE_DATES).forEach((row) => { row.hidden = true; });
+    const toggle = rows.length > VISIBLE_DATES && h("button", { class: "link-button timeline-toggle", type: "button" }, `Показать все даты (${rows.length})`);
+    if (toggle) {
+      toggle.addEventListener("click", () => {
+        rows.forEach((row) => { row.hidden = false; });
+        toggle.remove();
+      });
+    }
+    return h("div", { class: "timeline-column" }, h("h3", {}, title), h("ol", { class: "timeline" }, rows), toggle);
   }
 
   /** Лента изменений: собрана при сборке базы из дат официальных редакций. */
   function lawChanges() {
     const data = window.LAW_CHANGES;
     if (!data || (!data.recent.length && !data.upcoming.length)) return null;
-    const column = (title, note, groups, upcoming) => h("div", { class: "changes-column" },
-      h("h3", {}, title), h("p", { class: "changes-note" }, note),
-      h("ul", { class: "change-cards" }, groups.slice(0, 4).map((group) => changeGroup(group, upcoming)).filter(Boolean)));
     return section("home-changes", "Что изменилось в законах и что вступит в силу",
+      h("p", { class: "section-lead" }, "Нажмите на значок закона, чтобы увидеть изменённые статьи."),
       h("div", { class: "changes-grid" },
-        column("Недавно изменились", `За ${data.recentDays} дней до сборки базы ${window.Editions.formatDate(data.builtAt)}`, data.recent, false),
-        column("Скоро вступят в силу", "Уже приняты и опубликованы, но ещё не действуют", data.upcoming, true)));
+        timelineColumn("Скоро вступят в силу", data.upcoming, true),
+        timelineColumn("Недавно изменились", data.recent, false)));
   }
 
   /** Карточка «Продолжить работу». */

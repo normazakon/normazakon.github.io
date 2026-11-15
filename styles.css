@@ -358,24 +358,34 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .continue-text strong { overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .continue-text span { overflow: hidden; color: var(--muted); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
 
-/* Главная: изменения в законах */
-.changes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
-.changes-column h3 { font-size: 20px; }
-.changes-note { margin: 4px 0 14px; color: var(--muted); font-size: 14px; }
-.change-cards { display: flex; flex-direction: column; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.change-card { padding: 16px 18px; background: var(--surface); border-radius: var(--radius-l); }
-.change-head { display: flex; align-items: center; gap: 10px; }
-.change-head strong { flex: 1; font-size: 16px; }
-.change-date { padding: 3px 10px; background: var(--raised); border-radius: var(--radius-pill); color: var(--muted); font-size: 13px; font-weight: 500; white-space: nowrap; }
-.change-date.upcoming { background: var(--accent-soft); color: var(--accent); }
-.change-summary { margin: 10px 0 6px; color: var(--muted); font-size: 14px; }
-.change-list { display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
-.change-article { display: flex; align-items: baseline; gap: 10px; width: 100%; padding: 6px 0; background: none; border: 0; border-top: 1px solid var(--line); color: inherit; cursor: pointer; font: inherit; font-size: 14px; text-align: left; }
-.change-article:hover span:nth-child(2) { color: var(--accent); }
-.change-number { flex: 0 0 auto; min-width: 72px; color: var(--accent); font-weight: 600; }
-.change-article span:nth-child(2) { display: -webkit-box; overflow: hidden; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.change-article .badge { margin-left: auto; flex: 0 0 auto; }
-.change-more { margin: 6px 0 0; color: var(--muted); font-size: 13px; }
+/* Главная: изменения в законах — лента по датам */
+.changes-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px 32px; align-items: start; }
+.timeline-column { padding: 22px 24px; background: var(--surface); border-radius: var(--radius-l); }
+.timeline-column h3 { margin-bottom: 8px; font-size: 20px; }
+.timeline { margin: 0; padding: 0; list-style: none; }
+.timeline-row { display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 16px; padding: 14px 0; border-top: 1px solid var(--line); }
+.timeline-row:first-child { border-top: 0; }
+.timeline-row[hidden] { display: none; }
+.timeline-date { display: flex; flex-direction: column; line-height: 1.1; }
+.timeline-date strong { font-size: 26px; font-weight: 600; letter-spacing: -0.02em; }
+.timeline-date span { color: var(--muted); font-size: 13px; }
+.timeline-date.upcoming strong { color: var(--accent); }
+.timeline-chips { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 4px; }
+.timeline-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 3px; background: var(--raised); border: 1px solid transparent; border-radius: var(--radius-pill); color: var(--ink); cursor: pointer; font: 600 14px/1 var(--font-ui); transition: border-color 150ms ease, background-color 150ms ease; }
+.timeline-chip:hover { border-color: var(--hover-line); }
+.timeline-chip[aria-expanded="true"] { background: var(--accent-soft); border-color: var(--accent); }
+.timeline-chip .law-badge.small { border-radius: var(--radius-pill); }
+.timeline-count { font-variant-numeric: tabular-nums; }
+.timeline-detail { margin-top: 10px; }
+.timeline-detail[hidden] { display: none; }
+.timeline-panel ul { margin: 0; padding: 0; list-style: none; }
+.timeline-article { display: flex; align-items: baseline; gap: 10px; width: 100%; padding: 5px 0; background: none; border: 0; color: inherit; cursor: pointer; font: inherit; font-size: 14px; text-align: left; }
+.timeline-article:hover .timeline-title { color: var(--accent); }
+.timeline-number { flex: 0 0 auto; min-width: 66px; color: var(--accent); font-weight: 600; }
+.timeline-title { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.timeline-article .badge { margin-left: auto; flex: 0 0 auto; }
+.timeline-more { display: inline-block; margin-top: 4px; font-size: 13px; }
+.timeline-toggle { margin-top: 8px; font-size: 14px; }
 
 /* Главная: что нужно сделать */
 .home-tasks { padding: 8px 0 56px; }
