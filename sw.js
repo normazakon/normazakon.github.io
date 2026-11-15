@@ -3,7 +3,7 @@
    Сайт не обращается к чужим серверам, поэтому запросы на другие адреса не трогаем. */
 "use strict";
 
-const CACHE = "norma-app-v42";
+const CACHE = "norma-app-v43";
 const NETWORK_TIMEOUT_MS = 4000;
 const EXTRA = ["manifest.webmanifest", "404.html", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
