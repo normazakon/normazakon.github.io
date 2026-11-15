@@ -26,12 +26,16 @@
     return `ст. ${number} ${window.LAW_BASE.laws[lawId].short}`;
   }
 
-  /** Абзац с подсвеченными словами поиска. */
   /**
    * Абзац нормы: слова поиска подсвечены, ссылки на статьи из базы («статьей 395 настоящего Кодекса») нажимаются.
    * lawId: закон, в котором стоит абзац.
    */
   function paragraph(line, terms, lawId) {
+    return h("p", {}, inline(line, terms, lawId));
+  }
+
+  /** Содержимое абзаца нормы или его куска: текст, подсветка слов поиска и кнопки-ссылки на статьи. */
+  function inline(line, terms, lawId) {
     const marked = (text) => (terms && terms.length
       ? window.TextSearch.highlight(text, terms).map((part) => (part.hit ? h("mark", {}, part.text) : part.text))
       : [text]);
@@ -47,7 +51,29 @@
       position = reference.end;
     }
     nodes.push(...marked(line.slice(position)));
-    return h("p", {}, nodes);
+    return nodes;
+  }
+
+  // показывать ли правки словами; выбор запоминается в браузере
+  const CHANGES_KEY = "norma.showChanges";
+  let showChanges = true;
+  try { showChanges = localStorage.getItem(CHANGES_KEY) !== "off"; } catch (error) { /* хранилище недоступно */ }
+
+  /**
+   * Текст редакции с правками относительно прежней: добавленное в <ins>, удалённое в <del>,
+   * изменённые и новые абзацы отмечены полосой слева.
+   */
+  function diffParagraphs(ops, terms, lawId) {
+    return ops.map((op) => {
+      if (op.type === "same") return paragraph(op.text, terms, lawId);
+      if (op.type === "added") return h("p", { class: "changed" }, h("ins", {}, inline(op.text, terms, lawId)));
+      if (op.type === "removed") return h("p", { class: "changed" }, h("del", {}, op.text));
+      return h("p", { class: "changed" }, op.parts.map((part) => {
+        if (part.type === "added") return h("ins", {}, inline(part.text, terms, lawId));
+        if (part.type === "removed") return h("del", {}, part.text);
+        return inline(part.text, terms, lawId);
+      }));
+    });
   }
 
   const bookmarks = window.Bookmarks.createBookmarks(window.Storage2.browserBackend());
@@ -170,8 +196,9 @@
     titleLine.textContent = titleOf(article);
     bar.hidden = true;
 
+    // сначала к найденному слову поиска, иначе к первой правке; без них текст с начала
     const scrollToMark = () => {
-      const first = body.querySelector("mark");
+      const first = body.querySelector("mark") || body.querySelector("p.changed");
       body.scrollTop = first ? Math.max(0, first.getBoundingClientRect().top - body.getBoundingClientRect().top + body.scrollTop - 16) : 0;
     };
     const showVersion = (versions, version, note) => {
@@ -179,19 +206,37 @@
       bar.replaceChildren(...editionsBar(lawId, number, versions, version, note, (other) => showVersion(versions, other, null)));
       bar.hidden = false;
       const lines = version.repealed ? [version.title] : version.text;
-      // абзацы, которых не было в предыдущей редакции, отмечаются полосой слева
-      const previous = versions[versions.indexOf(version) - 1];
-      const before = new Set(previous && previous.text ? previous.text : []);
-      const changed = (line) => Boolean(previous) && !version.repealed && !before.has(line);
-      body.replaceChildren(...(lines && lines.length
-        ? lines.map((line) => {
+      // правки считаются от предыдущей редакции: у будущей — от действующей
+      const older = versions[versions.indexOf(version) - 1];
+      const ops = older && !version.repealed && Array.isArray(older.text) && lines && lines.length
+        ? window.TextDiff.paragraphs(older.text, lines)
+        : null;
+      const hasChanges = Boolean(ops && ops.some((op) => op.type !== "same"));
+      if (!lines || !lines.length) {
+        body.replaceChildren(h("p", {}, "Текста этой статьи нет в базе. Откройте её в источнике."));
+      } else if (hasChanges && showChanges) {
+        body.replaceChildren(...diffParagraphs(ops, options.terms, lawId));
+      } else {
+        // без правок изменённые и новые абзацы только отмечаются полосой слева
+        const before = new Set(hasChanges ? older.text : lines);
+        body.replaceChildren(...lines.map((line) => {
           const element = paragraph(line, options.terms, lawId);
-          if (changed(line)) element.className = "changed";
+          if (!before.has(line)) element.className = "changed";
           return element;
-        })
-        : [h("p", {}, "Текста этой статьи нет в базе. Откройте её в источнике.")]));
-      if (lines && lines.some(changed)) {
-        body.prepend(h("p", { class: "changed-legend" }, `Полосой отмечены абзацы, которые изменились или появились с ${window.Editions.formatDate(version.from)}.`));
+        }));
+      }
+      if (hasChanges) {
+        const toggle = h("button", { class: "link-button", type: "button" }, showChanges ? "Скрыть правки" : "Показать правки");
+        toggle.addEventListener("click", () => {
+          showChanges = !showChanges;
+          try { localStorage.setItem(CHANGES_KEY, showChanges ? "on" : "off"); } catch (error) { /* хранилище недоступно */ }
+          showVersion(versions, version, note);
+        });
+        const since = formatDate(older.from);
+        bar.append(h("p", { class: "diff-legend" }, showChanges
+          ? ["Правки по сравнению с редакцией от ", since, ": ", h("ins", {}, "добавлено"), ", ", h("del", {}, "удалено"), ". "]
+          : [`Полосой отмечены абзацы, изменённые по сравнению с редакцией от ${since}. `],
+        toggle));
       }
       scrollToMark();
     };

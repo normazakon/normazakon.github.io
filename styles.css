@@ -757,7 +757,14 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .article-back { margin-bottom: 4px; font-size: 14px; }
 .article-back[hidden] { display: none; }
 .norm-text p.changed { margin-left: -12px; padding-left: 10px; border-left: 2px solid var(--accent); }
-.norm-text .changed-legend { color: var(--muted); font: 400 14px/1.45 var(--font-ui); }
+/* правки между редакциями, как в режиме правок Word: добавленное зелёным с подчёркиванием, удалённое зачёркнуто */
+.norm-text ins, .diff-legend ins { padding: 0 1px; background: var(--ok-soft); border-radius: 2px; color: inherit; text-decoration: underline; text-decoration-color: var(--ok); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.norm-text del, .diff-legend del { color: var(--problem); text-decoration: line-through; text-decoration-thickness: 1px; }
+.norm-text ins .norm-ref { text-decoration-color: var(--accent); }
+/* «было» и «стало» на месте одного слова не слипаются */
+.norm-text del + ins { margin-left: 0.3em; }
+.article-editions .diff-legend { flex-basis: 100%; }
+.diff-legend .link-button { font-size: 14px; }
 .source-link { padding: 10px 22px 16px; font-size: 15px; }
 .doc-date { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 14px; }
 .doc-date label { font-weight: 500; }
