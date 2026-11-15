@@ -265,10 +265,6 @@
         h("h1", {}, "Юридические документы и законы в одном месте"),
         h("p", { class: "hero-lead" }, "Соберите документ по шаблону, найдите статью закона и посчитайте сроки."),
         heroSearch(),
-        // главное действие сайта: не все приходят искать, многим нужно сразу начать документ
-        h("div", { class: "hero-actions" },
-          h("a", { class: "button primary large", href: "#templates" }, icon("contract"), "Составить документ"),
-          h("a", { class: "button large", href: "#check" }, icon("check"), "Проверить документ")),
         h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point))))),
 
       continueWork(app),
@@ -299,12 +295,9 @@
           h("span", { class: "badge plain" }, "В планах"), h("strong", {}, name), h("span", {}, text))))),
 
       h("section", { class: "home-final-wrap" }, h("div", { class: "home-inner" }, h("div", { class: "home-final" },
-        h("div", { class: "home-final-copy" },
-          h("h2", {}, "Составьте первый документ за несколько минут"),
-          h("p", {}, "Бесплатно и без регистрации. Выберите шаблон, заполните поля и скачайте готовый файл Word."),
-          h("p", { class: "home-final-note" }, "Шаблоны пока не проверены практикующим юристом: прочитайте документ перед тем, как подписать или подать его.")),
-        h("div", { class: "home-final-actions" },
-          h("a", { class: "button primary large", href: "#templates" }, icon("contract"), "Составить документ"),
-          h("a", { class: "button large", href: "#check" }, icon("check"), "Проверить документ")))))].filter(Boolean));
+        h("div", {},
+          h("h2", {}, "Начните с одного документа"),
+          h("p", {}, "Шаблоны пока являются черновиками: практикующий юрист их ещё не проверял. Проверяйте результат перед использованием.")),
+        h("a", { class: "button primary large", href: "#templates" }, "Выбрать шаблон"))))].filter(Boolean));
   };
 })();
