@@ -649,6 +649,42 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .calc-table th { color: var(--muted); font-weight: 500; }
 .calc-warning { padding: 10px 12px; background: var(--check-soft); border-radius: var(--radius-m); font-size: 14px; }
 
+/* Редактор: иконка раздела, полоса заполнения, шаги формы */
+.editor-title { display: flex; align-items: center; gap: 14px; margin-top: 4px; }
+.progress { display: inline-flex; align-items: center; gap: 10px; }
+.progress-bar { position: relative; width: 120px; height: 6px; overflow: hidden; background: var(--raised); border-radius: var(--radius-pill); }
+.progress-fill { position: absolute; inset: 0 auto 0 0; width: 0; background: var(--accent); border-radius: inherit; transition: width 200ms ease; }
+.form-section summary { display: flex; align-items: center; gap: 12px; list-style: none; border-radius: var(--radius-l); }
+.form-section summary::-webkit-details-marker { display: none; }
+.form-section summary::after { content: "›"; margin-left: auto; color: var(--muted); font-size: 20px; font-weight: 600; line-height: 1; transition: transform 150ms ease; }
+.form-section[open] summary::after { transform: rotate(90deg); }
+.form-section summary:hover { background: var(--hover-fill); color: var(--accent); }
+.step-number { display: inline-grid; flex: 0 0 auto; place-items: center; width: 26px; height: 26px; background: var(--accent-soft); border-radius: 50%; color: var(--accent); font-size: 13px; font-weight: 600; }
+.form-section[open] .step-number { background: var(--accent); color: var(--accent-ink); }
+
+/* Проверка: статус находки меткой вместо полосы слева, счётчики цветом */
+.finding-head { border-left: 0; padding: 12px 16px; }
+.finding-status { padding: 3px 10px; border-radius: var(--radius-pill); font-size: 12px; letter-spacing: 0.02em; }
+.problem .finding-status { background: var(--problem-soft); }
+.check .finding-status { background: var(--check-soft); }
+.ok .finding-status { background: var(--ok-soft); }
+.finding-head:hover { background: var(--hover-fill); }
+.finding-head[aria-expanded="true"] { background: var(--raised); }
+.tile { padding: 12px 16px; border: 1px solid transparent; transition: border-color 150ms ease, background-color 150ms ease; }
+.tile:hover { border-color: var(--accent); }
+.tile.problem b { color: var(--problem); }
+.tile.check b { color: var(--check); }
+.tile.ok b { color: var(--ok); }
+.tile b::before { display: none; }
+.tile.problem[aria-pressed="true"] { background: var(--problem-soft); border-color: var(--problem); outline: 0; }
+.tile.check[aria-pressed="true"] { background: var(--check-soft); border-color: var(--check); outline: 0; }
+.tile.ok[aria-pressed="true"] { background: var(--ok-soft); border-color: var(--ok); outline: 0; }
+
+/* Расчёты: иконка в заголовке карточки, готовый результат выделен */
+.calc-card-head { display: flex; align-items: center; gap: 14px; }
+.calc-result:has(.calc-total) { background: var(--accent-soft); }
+.calc-result .calc-total { color: var(--accent); }
+
 /* Законы */
 .toc { display: flex; flex-direction: column; gap: 6px; }
 .toc[hidden] { display: none; }

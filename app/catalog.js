@@ -15,20 +15,7 @@
     }).join("; ");
   }
 
-  // у каждого раздела своя иконка и спокойный оттенок, чтобы разделы различались с первого взгляда
-  const CATEGORY_LOOK = {
-    "Договоры": ["contract", "blue"],
-    "Соглашения и расписки": ["pen", "teal"],
-    "Акты": ["listcheck", "green"],
-    "Доверенности": ["stamp", "amber"],
-    "Претензии и уведомления": ["letter", "orange"],
-    "Суд": ["court", "violet"],
-    "Трудовые отношения": ["briefcase", "rose"],
-  };
-
-  function look(category) {
-    return CATEGORY_LOOK[category] || ["contract", "blue"];
-  }
+  const look = window.UI.templateLook;
 
   /** Карточка шаблона: иконка раздела, название, назначение и статьи, на которых он построен. */
   function templateCard(template) {

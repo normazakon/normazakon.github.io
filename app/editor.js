@@ -69,6 +69,8 @@
     let saveTimer = null;
 
     const progress = h("span", { id: "progress" });
+    const progressFill = h("span", { class: "progress-fill" });
+    const progressBar = h("span", { class: "progress-bar", "aria-hidden": "true" }, progressFill);
     const saveStatus = h("span", { id: "save-status" });
     const actionNote = h("p", { class: "action-note", role: "status" });
     const notices = h("div", { class: "notices" });
@@ -120,6 +122,7 @@
       const result = Engine.render(template, state.values);
       paper.replaceChildren(...result.blocks.map(renderBlock));
       progress.textContent = `Заполнено ${result.progress.filled} из ${result.progress.total}`;
+      progressFill.style.width = `${result.progress.total ? Math.round((result.progress.filled / result.progress.total) * 100) : 0}%`;
       exampleButton.hidden = !isEmptyDocument();
       renderNotices();
       markActiveField();
@@ -176,7 +179,8 @@
         const fields = section.fields.filter((field) => Engine.isVisible(field, state.values));
         return h("details", {
           class: "form-section", open: openSections.get(section.title) ?? index < 2, dataset: { title: section.title },
-        }, h("summary", {}, section.title), h("div", { class: "form-fields" }, fields.map(renderInput)));
+        }, h("summary", {}, h("span", { class: "step-number" }, String(index + 1)), h("span", { class: "step-title" }, section.title)),
+        h("div", { class: "form-fields" }, fields.map(renderInput)));
       }));
       visibleSignature = Engine.visibleFields(template, state.values).map((field) => field.id).join();
       if (focused) document.getElementById(focused)?.focus();
@@ -245,10 +249,12 @@
       h("div", { class: "editor-head" },
         h("div", {},
           h("a", { class: "back-link", href: "#templates" }, "Все шаблоны"),
-          h("h1", {}, template.title),
+          h("div", { class: `editor-title tone-${window.UI.templateLook(template.category)[1]}` },
+            h("span", { class: "tone-plate" }, window.UI.icon(window.UI.templateLook(template.category)[0])),
+            h("h1", {}, template.title)),
           h("div", { class: "editor-status" },
             !template.reviewed && h("span", { class: "badge draft" }, "Черновик: юрист ещё не проверял"),
-            progress, saveStatus,
+            h("span", { class: "progress" }, progressBar, progress), saveStatus,
             window.UI.starButton({ kind: "template", templateId: template.id }, "small"))),
         h("div", { class: "editor-actions" },
           exampleButton,

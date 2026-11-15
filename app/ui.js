@@ -82,6 +82,22 @@
     return h("span", { class: `law-badge tone-${tone}${small ? " small" : ""}`, "aria-hidden": "true" }, text);
   }
 
+  // у каждого раздела своя иконка и спокойный оттенок, чтобы разделы различались с первого взгляда
+  const CATEGORY_LOOK = {
+    "Договоры": ["contract", "blue"],
+    "Соглашения и расписки": ["pen", "teal"],
+    "Акты": ["listcheck", "green"],
+    "Доверенности": ["stamp", "amber"],
+    "Претензии и уведомления": ["letter", "orange"],
+    "Суд": ["court", "violet"],
+    "Трудовые отношения": ["briefcase", "rose"],
+  };
+
+  /** Иконка и оттенок раздела шаблонов: [имя иконки, оттенок]. */
+  function templateLook(category) {
+    return CATEGORY_LOOK[category] || ["contract", "blue"];
+  }
+
   // статьи, из которых пришли по ссылкам: кнопка «Назад» возвращает к предыдущей
   let trail = [];
   let shown = null;
@@ -220,6 +236,8 @@
     stamp: '<path d="M9 13V9a3 3 0 1 1 6 0v4"/><path d="M5 13h14v4H5zM7 21h10"/>',
     listcheck: '<path d="M10 6h10M10 12h10M10 18h10"/><path d="m3 6 1.5 1.5L7 5M3 12l1.5 1.5L7 11M3 18l1.5 1.5L7 17"/>',
     briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    percent: '<path d="M19 5 5 19"/><circle cx="7" cy="7" r="2.5"/><circle cx="17" cy="17" r="2.5"/>',
     star: '<path d="m12 3.5 2.6 5.3 5.9.9-4.3 4.1 1 5.8L12 16.9l-5.2 2.7 1-5.8-4.3-4.1 5.9-.9z"/>',
   };
 
@@ -258,5 +276,5 @@
     document.getElementById("article-dialog").close();
   });
 
-  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime, bookmarks, starButton, lawBadge };
+  window.UI = { h, icon, showArticle, citation, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook };
 })();

@@ -31,8 +31,11 @@
     return h("button", { class: "link-button", type: "button", onClick: () => showArticle(lawId, number) }, text);
   }
 
+  // иконка и оттенок карточек расчётов, по id карточки
+  const CARD_LOOK = { deadline: ["clock", "amber"], fee: ["court", "violet"], interest: ["percent", "green"], penalty: ["calc", "orange"] };
+
   function card(title, basis, fields, result) {
-    return h("section", { class: "calc-card" }, h("h2", {}, title), h("p", { class: "calc-basis" }, basis), h("div", { class: "calc-fields" }, fields), result);
+    return h("section", { class: "calc-card" }, h("div", { class: "calc-card-head" }, h("span", { class: "tone-plate" }), h("h2", {}, title)), h("p", { class: "calc-basis" }, basis), h("div", { class: "calc-fields" }, fields), result);
   }
 
   /* ---------- Пошлина ---------- */
@@ -270,7 +273,12 @@
   window.Views = window.Views || {};
   window.Views.calc = function (root, params = {}) {
     const cards = { deadline: deadlineCard(), fee: feeCard(), interest: interestCard(), penalty: penaltyCard() };
-    for (const [id, element] of Object.entries(cards)) element.id = `calc-${id}`;
+    for (const [id, element] of Object.entries(cards)) {
+      element.id = `calc-${id}`;
+      const [iconName, tone] = CARD_LOOK[id];
+      element.classList.add(`tone-${tone}`);
+      element.querySelector(".calc-card-head .tone-plate").append(window.UI.icon(iconName));
+    }
     root.append(
       h("div", { class: "page-head" }, h("div", {},
         h("h1", {}, "Расчёты"),
