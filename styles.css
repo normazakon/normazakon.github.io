@@ -48,7 +48,8 @@
 
 [hidden] { display: none !important; }
 
-html, body { height: 100%; }
+/* у body только минимальная высота: так нижний отступ под панель на телефоне всегда идёт после содержимого */
+html { height: 100%; }
 
 body {
   margin: 0;
@@ -863,6 +864,40 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
   .home-tasks h2 { font-size: 24px; }
   .catalog-filter { flex-wrap: nowrap; overflow-x: auto; margin: 0 -16px 4px; padding: 0 16px 4px; scrollbar-width: none; }
   .catalog-filter .chip { flex: 0 0 auto; }
+
+  /* заголовки страниц в две-три строки, а не в четыре */
+  .home-hero h1 { font-size: 30px; }
+  .page-head h1, .editor-title h1 { font-size: 26px; }
+  .editor-title { align-items: flex-start; }
+  .editor-title .tone-plate { width: 36px; height: 36px; margin-top: 2px; }
+  .continue-head { flex-wrap: wrap; gap: 4px 16px; }
+  .continue-head h2 { font-size: 22px; }
+  .continue-head a { white-space: nowrap; }
+  .segmented button { font-size: 14px; }
+  .calc-card h2 { font-size: 19px; }
+  /* «Примеры:» отдельной строкой, сами примеры идут следом */
+  .chips-label { flex-basis: 100%; }
+
+  /* карточка шаблона в строку: иконка слева, на экран помещается вдвое больше шаблонов */
+  .catalog-card { display: grid; grid-template-columns: 36px minmax(0, 1fr); column-gap: 12px; row-gap: 4px; padding: 14px 16px; }
+  .catalog-card .tone-plate { grid-row: span 2; width: 36px; height: 36px; border-radius: 10px; }
+  .catalog-card .tone-plate .icon { width: 20px; height: 20px; }
+  .catalog-title { margin-top: 0; }
+  .catalog-basis { grid-column: 2; padding-top: 8px; }
+
+  /* в оглавлении подпись «Открыть текст» лишняя: строка и так открывает текст */
+  .toc-link .toc-count { display: none; }
+  /* открытый закон: список всех законов ниже не нужен, к нему ведёт «Все законы» */
+  .laws-layout:not(.no-law) .laws-side nav { display: none; }
+
+  /* окно статьи на весь экран, кнопки над заголовком, чтобы он шёл во всю ширину */
+  .article-dialog { width: 100%; max-width: 100%; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; }
+  .dialog-head { flex-direction: column-reverse; gap: 6px; padding: 10px 16px 12px; }
+  .dialog-actions { justify-content: space-between; }
+  .dialog-head h2 { font-size: 20px; }
+  .article-editions, .norm-text { padding-right: 16px; padding-left: 16px; }
+  .norm-text p.changed { margin-left: -10px; padding-left: 8px; }
+  .source-link { padding: 10px 16px 16px; }
 }
 
 /* На телефоне разделы в нижней панели, как в приложении: все пять всегда на виду */
