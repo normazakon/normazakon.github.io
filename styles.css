@@ -411,6 +411,8 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 
 /* Каталог шаблонов */
 .catalog-filter { flex-wrap: wrap; margin-bottom: 4px; }
+.filter-label { margin: 14px 0 6px; color: var(--muted); font-size: 13px; }
+.catalog-found { margin: 10px 0 14px; min-height: 20px; color: var(--muted); font-size: 14px; }
 .chip-count { margin-left: 2px; color: var(--muted); font-size: 13px; font-weight: 400; }
 .chip:hover .chip-count { color: var(--accent); }
 .chip[aria-pressed="true"] .chip-count, .chip[aria-pressed="true"]:hover .chip-count { color: rgb(255 255 255 / 80%); }
@@ -835,6 +837,9 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
   .doc-view, .doc-input { min-height: 320px; padding: 20px 16px; }
   .doc-address { margin-left: 25%; }
   .button, .chip, .segmented button, .nav a, .law-list a, .article-row { min-height: 44px; }
+  .button.small, .timeline-chip { min-height: 44px; }
+  /* текстовые кнопки-ссылки: зона нажатия выше самого слова, а строка не раздвигается */
+  .link-button { padding-block: 12px; margin-block: -12px; }
   .catalog-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .task-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .continue-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
