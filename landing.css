@@ -116,3 +116,72 @@ body.landing { background: var(--bg); }
   .land-final-box .button { width: 100%; }
   .land-footer-row p { margin-left: 0; }
 }
+
+/* ---------- Движение ----------
+   Плавно и без теней, как всё оформление. Первый экран появляется сам, остальное — когда доходит прокрутка
+   (классы .reveal и .is-in ставит landing.js; без скрипта всё видно сразу). При «уменьшить движение» в системе анимаций нет. */
+@keyframes land-rise { from { opacity: 0; transform: translateY(18px); } }
+@keyframes land-shot-in { from { opacity: 0; transform: perspective(1400px) translateY(56px) rotateX(10deg); } }
+@keyframes land-drift-a { 50% { transform: translate(6%, 8%) scale(1.08); } }
+@keyframes land-drift-b { 50% { transform: translate(-8%, -4%) scale(1.12); } }
+@keyframes land-fade { from { opacity: 0; transform: translateY(8px); } }
+@keyframes land-sheen { from { background-position: -100% 0; } 60%, to { background-position: 200% 0; } }
+
+/* мягкие цветные пятна, которые медленно плывут за первым экраном */
+.land-hero { position: relative; overflow: hidden; isolation: isolate; }
+.land-hero::before, .land-hero::after { content: ""; position: absolute; z-index: -1; border-radius: 50%; filter: blur(60px); pointer-events: none; }
+.land-hero::before { top: -180px; left: -120px; width: 560px; height: 560px; background: radial-gradient(circle, rgba(29, 95, 209, 0.22), transparent 70%); animation: land-drift-a 18s ease-in-out infinite; }
+.land-hero::after { top: 40px; right: -160px; width: 620px; height: 620px; background: radial-gradient(circle, rgba(111, 155, 230, 0.26), transparent 70%); animation: land-drift-b 22s ease-in-out infinite; }
+
+.land-hero-copy > * { animation: land-rise 700ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.land-hero-copy > :nth-child(2) { animation-delay: 90ms; }
+.land-hero-copy > :nth-child(3) { animation-delay: 180ms; }
+.land-hero-copy > :nth-child(4) { animation-delay: 260ms; }
+.land-shot { transform-origin: 50% 100%; animation: land-shot-in 1000ms cubic-bezier(0.2, 0.7, 0.2, 1) 300ms both; }
+
+/* появление при прокрутке, с задержкой по порядку (--i ставит скрипт) */
+.reveal { opacity: 0; transform: translateY(24px); }
+.reveal.is-in {
+  opacity: 1; transform: none;
+  transition: opacity 650ms ease, transform 650ms cubic-bezier(0.2, 0.7, 0.2, 1), border-color 150ms ease;
+  transition-delay: calc(var(--i, 0) * 80ms), calc(var(--i, 0) * 80ms), 0ms;
+}
+
+/* карточки отзываются на наведение: приподнимаются, значок слегка поворачивается */
+.land-features li, .land-steps-list li { border: 1px solid transparent; }
+@media (hover: hover) {
+  .land-features li.is-in:hover, .land-steps-list li.is-in:hover { transform: translateY(-4px); border-color: var(--hover-line); transition-delay: 0ms; transition-duration: 250ms; }
+  .land-features li:hover .tone-plate { transform: scale(1.08) rotate(-6deg); }
+  .land-actions .button:hover, .land-final .button:hover { transform: translateY(-2px); }
+}
+.land-features .tone-plate { transition: transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1); }
+.land-actions .button, .land-final .button { transition: transform 200ms ease, background-color 150ms ease, border-color 150ms ease, color 150ms ease; }
+
+.land-why li { position: relative; border-top-color: var(--line); }
+.land-why li::before { content: ""; position: absolute; top: -2px; left: 0; width: 100%; height: 2px; background: var(--accent); transform: scaleX(1); transform-origin: left; transition: transform 900ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(var(--i, 0) * 120ms + 200ms); }
+.land-why li.reveal:not(.is-in)::before { transform: scaleX(0); }
+
+.land-steps-list li::before { transition: transform 450ms cubic-bezier(0.3, 1.6, 0.5, 1) calc(var(--i, 0) * 80ms + 250ms); }
+.land-steps-list li.reveal:not(.is-in)::before { transform: scale(0.4); }
+
+/* вкладки «Для кого» и ответы в «Вопросах» открываются плавно */
+.land-tab:not([hidden]) { animation: land-fade 350ms ease both; }
+.land-tab:not([hidden]) li { animation: land-fade 400ms ease both; }
+.land-tab:not([hidden]) li:nth-child(2) { animation-delay: 60ms; }
+.land-tab:not([hidden]) li:nth-child(3) { animation-delay: 120ms; }
+.land-tab:not([hidden]) li:nth-child(4) { animation-delay: 180ms; }
+.land-faq details[open] p { animation: land-fade 300ms ease both; }
+
+/* финальный блок: по градиенту медленно проходит светлая полоса */
+.land-final-box { background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%) 0 0 / 200% 100% no-repeat, var(--gradient-panel); animation: land-sheen 7s ease-in-out infinite; }
+
+@media print {
+  .reveal { opacity: 1; transform: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .land-hero::before, .land-hero::after, .land-hero-copy > *, .land-shot, .land-tab:not([hidden]), .land-tab:not([hidden]) li,
+  .land-faq details[open] p, .land-final-box { animation: none !important; }
+  .reveal { opacity: 1; transform: none; }
+  .land-why li.reveal:not(.is-in)::before, .land-steps-list li.reveal:not(.is-in)::before { transform: none; }
+}
