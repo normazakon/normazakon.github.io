@@ -129,6 +129,51 @@
       return result;
     }
 
+    // что сообщить под полем ИНН после заполнения по ЕГРЮЛ: форма перерисовывается, поэтому храним отдельно
+    const lookupNotes = new Map();
+
+    /** Кнопка «Заполнить по ИНН» под полем ИНН стороны: подставляет наименование, ОГРН, адрес из ЕГРЮЛ. */
+    function innLookup(field, id) {
+      const C = window.Counterparty;
+      const prefix = field.id.replace(/_inn$/, "");
+      const saved = lookupNotes.get(field.id);
+      const status = h("p", { class: `inn-lookup-status${saved && saved.tone ? ` ${saved.tone}` : ""}`, role: "status" }, saved ? saved.text : "");
+      const button = h("button", { class: "button small", type: "button", id: `${id}-lookup`, onClick: run }, "Заполнить по ИНН");
+
+      async function run() {
+        const parsed = C.parseNumber(state.values[field.id]);
+        if (parsed.error || parsed.kind !== "inn") {
+          status.textContent = parsed.error || "Здесь нужен ИНН: 10 цифр у организации, 12 у предпринимателя.";
+          return;
+        }
+        button.disabled = true;
+        status.textContent = "Ищем в ЕГРЮЛ…";
+        try {
+          const found = C.partyValues(await C.lookup(parsed.number, window.SITE.dadataKey), prefix);
+          if (!found) {
+            status.textContent = "По этому ИНН в ЕГРЮЛ и ЕГРИП ничего не нашлось. Проверьте номер.";
+            return;
+          }
+          const known = new Set(Engine.allFields(template).map((item) => item.id));
+          for (const [key, value] of Object.entries(found.values)) if (known.has(key) && value) state.values[key] = value;
+          const alarm = found.summary && found.summary.status.tone !== "ok" ? `Внимание: ${found.summary.status.label.toLowerCase()}. ` : "";
+          lookupNotes.set(field.id, {
+            tone: alarm ? "problem" : "",
+            text: `${alarm}Наименование, ОГРН и адрес заполнены по ЕГРЮЛ.${found.note ? ` ${found.note}` : ""}`,
+          });
+          renderForm();
+          renderDocument();
+          scheduleSave();
+        } catch (error) {
+          status.textContent = error.message;
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      return h("div", { class: "inn-lookup" }, button, status);
+    }
+
     function renderInput(field) {
       const id = fieldInputId(field.id);
       const value = state.values[field.id] ?? "";
@@ -136,6 +181,7 @@
       const validate = () => { warning.textContent = Engine.validateField(field, state.values[field.id]) || ""; };
       const update = (next) => {
         state.values[field.id] = next;
+        lookupNotes.delete(field.id);
         renderDocument();
         syncVisibleFields();
         scheduleSave();
@@ -167,7 +213,8 @@
         h("label", { htmlFor: id }, field.label, field.optional && h("span", { class: "optional" }, " (необязательно)")),
         control,
         field.help && h("span", { class: "field-help" }, field.help),
-        warning);
+        warning,
+        field.type === "inn" && window.SITE.dadataKey && innLookup(field, id));
     }
 
     let visibleSignature = "";

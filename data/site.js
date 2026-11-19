@@ -8,7 +8,9 @@ window.SITE = {
   email: null,
   // для вопросов и сообщений об ошибках, пока нет почты
   telegram: "https://t.me/pugachevevga",
+  // ключ DaData для проверки контрагентов. Он открытый: такие ключи всегда видны в браузере, секретный здесь не нужен
+  dadataKey: "482c19456d53380b3839cf1f60f044397c40b868",
   hosting: "GitHub Pages (GitHub, Inc., США)",
   termsUpdated: "2026-11-15",
-  privacyUpdated: "2026-11-07",
+  privacyUpdated: "2026-11-18",
 };

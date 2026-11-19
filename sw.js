@@ -1,9 +1,9 @@
 /* Сервис-воркер: сохраняет приложение, чтобы оно открывалось без интернета.
    Файлы берём сначала из сети (так всегда видна свежая версия), а без сети из сохранённой копии.
-   Сайт не обращается к чужим серверам, поэтому запросы на другие адреса не трогаем. */
+   Запросы на другие адреса (проверка контрагента в DaData) не трогаем: они идут прямо в сеть. */
 "use strict";
 
-const CACHE = "norma-app-v49";
+const CACHE = "norma-app-v51";
 const NETWORK_TIMEOUT_MS = 4000;
 const EXTRA = ["manifest.webmanifest", "404.html", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 

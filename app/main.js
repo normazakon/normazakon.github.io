@@ -19,6 +19,7 @@
       case "document": return { name: "editor", nav: "documents", params: { documentId: first } };
       case "documents": return { name: "documents", nav: "documents", params: {} };
       case "check": return { name: "check", nav: "check", params: {} };
+      case "company": return { name: "company", nav: "check", params: {} };
       case "laws": return { name: "laws", nav: "laws", params: { lawId: first, number: second } };
       case "templates": return { name: "catalog", nav: "templates", params: { category: first } };
       case "calc": return { name: "calc", nav: "calc", params: { card: first } };

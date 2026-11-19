@@ -48,11 +48,11 @@
     return [
       select(`${prefix}_kind`, `${role}: кто это`, KINDS, { default: "person" }),
       ...personFields(prefix, is("person")),
+      { id: `${prefix}_inn`, label: "ИНН", type: "inn", hint: "ИНН", help: "Остальные реквизиты можно подставить из ЕГРЮЛ кнопкой ниже", when: (values) => !is("person")(values) },
       text(`${prefix}_ip_name`, "ФИО предпринимателя", { hint: "ФИО предпринимателя", when: is("ip") }),
       { id: `${prefix}_ogrnip`, label: "ОГРНИП", type: "ogrnip", hint: "ОГРНИП", when: is("ip") },
       text(`${prefix}_org_name`, "Полное наименование", { hint: "наименование организации", help: "Например, Общество с ограниченной ответственностью «Пример»", when: is("org") }),
       { id: `${prefix}_ogrn`, label: "ОГРН", type: "ogrn", hint: "ОГРН", when: is("org") },
-      { id: `${prefix}_inn`, label: "ИНН", type: "inn", hint: "ИНН", when: (values) => !is("person")(values) },
       text(`${prefix}_business_address`, "Адрес", { hint: "адрес", when: (values) => !is("person")(values) }),
       text(`${prefix}_signer`, "В лице кого подписывает", { hint: "должность и ФИО в родительном падеже", help: "Например, генерального директора Иванова И. И.", when: is("org") }),
       text(`${prefix}_authority`, "Основание полномочий", { hint: "основание полномочий", help: "Например, устав или доверенность от 01.02.2026 № 5", when: is("org") }),
