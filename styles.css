@@ -575,6 +575,22 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
 .file-error { margin: 0; color: var(--problem); font-size: 15px; }
 
+/* Официальные бланки */
+.forms-tools { display: flex; flex-direction: column; gap: 12px; margin-bottom: 12px; }
+.forms-tools .search { max-width: 640px; }
+.forms-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
+.form-card { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; padding: 20px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
+.form-card.highlighted { border-color: var(--accent); }
+.form-card-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.form-agency { background: var(--raised); color: var(--ink); }
+.form-code { color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; }
+.form-title { font-size: 17px; line-height: 1.35; }
+.form-note, .form-act, .form-changes, .form-checked { margin: 0; font-size: 14px; }
+.form-note { color: var(--ink); }
+.form-act, .form-changes, .form-checked { color: var(--muted); }
+.form-link { margin-top: 4px; }
+.form-checked { font-size: 13px; }
+
 /* Проверка контрагента */
 .company-layout { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 20px; align-items: start; }
 .company-column { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
@@ -861,6 +877,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
   .paper-column { position: static; max-height: none; overflow: visible; }
   .paper { padding: 28px 20px 36px; }
   .action-note { text-align: left; }
+  .forms-list { grid-template-columns: minmax(0, 1fr); }
   .about, .about.with-links, .check-layout, .company-layout, .laws-layout, .calc-grid { grid-template-columns: minmax(0, 1fr); }
   /* на телефоне сначала документ, затем результат; у списка находок нет своей прокрутки */
   .check-report { position: static; max-height: none; }

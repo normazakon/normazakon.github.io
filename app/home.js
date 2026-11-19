@@ -86,12 +86,13 @@
     function render() {
       const query = input.value.trim();
       if (query.length < 2) { close(); return; }
-      const found = window.SiteSearch.search(query, { base: window.LAW_BASE, templates: window.TEMPLATES, stem: window.TextSearch.stem });
+      const found = window.SiteSearch.search(query, { base: window.LAW_BASE, templates: window.TEMPLATES, forms: window.OFFICIAL_FORMS, stem: window.TextSearch.stem });
       const items = [
         ...group("Статьи", found.articles.map((article) => row(
           { onClick: () => { close(); window.UI.showArticle(article.lawId, article.number); } },
           "book", "teal", window.UI.articleName(article.lawId, article.number), article.title))),
         ...group("Шаблоны", found.templates.map((template) => row({ href: `#template/${template.id}` }, "contract", "blue", template.title, template.summary))),
+        ...group("Официальные бланки", found.forms.map((form) => row({ href: `#forms/${form.id}` }, "stamp", "violet", form.title, [form.code, form.agency].filter(Boolean).join(" · ")))),
         ...group("Расчёты и проверка", found.tools.map((tool) => row({ href: tool.link }, tool.link === "#check" ? "check" : "calc", "amber", tool.title, tool.text))),
       ];
       list.replaceChildren(...(items.length ? items : [h("p", { class: "search-empty" },
