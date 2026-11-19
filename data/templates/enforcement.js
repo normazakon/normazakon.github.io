@@ -4,10 +4,10 @@
 
   const {
     text, area, money, date, select, title, subtitle, address, paragraph, signatureLine, filled,
+    missing,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const missing = (name) => (values) => !filled(name)(values);
 
   const sideFields = () => [
     text("applicant_name", "ФИО или наименование", { hint: "ваши ФИО или наименование", help: "В именительном падеже" }),

@@ -5,17 +5,9 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, address, signatureLine,
     partyFields, partyIntro, signatures, personFields, personIntro, personSignatures, placeAndDate, closingClauses, filled,
+    missing, personExample, plainPersonExample,
   } = root.TemplateKit;
 
-  const missing = (name) => (values) => !filled(name)(values);
-  const personExample = (prefix, name, birth, passport, address_) => ({
-    [`${prefix}_kind`]: "person", [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
-    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
-  });
-  const plainPerson = (prefix, name, birth, passport, address_) => ({
-    [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
-    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
-  });
   const MIN_CAPITAL = 10000 * 100;
   const pct = (value) => {
     const match = /^(\d+(?:[.,]\d+)?)\s*%?$/.exec(String(value || "").trim());
@@ -57,7 +49,7 @@
       },
     ],
     example: {
-      city: "Энск", date: "2026-11-20", ...plainPerson("founder", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
+      city: "Энск", date: "2026-11-20", ...plainPersonExample("founder", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
       full_name: "Общество с ограниченной ответственностью «Пример»", short_name: "ООО «Пример»", seat: "г. Энск, ул. Торговая, д. 10", capital: "10 000", pay_months: "4", charter: "typical",
       director: "Иванов Иван Иванович", director_term: "5 лет",
     },
@@ -131,8 +123,8 @@
       } },
     },
     example: {
-      city: "Энск", date: "2026-11-20", ...plainPerson("first", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
-      ...plainPerson("second", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"),
+      city: "Энск", date: "2026-11-20", ...plainPersonExample("first", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
+      ...plainPersonExample("second", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"),
       short_name: "ООО «Пример»", seat: "г. Энск, ул. Торговая, д. 10", capital: "100 000", first_percent: "60", second_percent: "40", pay_months: "4", director: "Иванов Иван Иванович",
     },
     checks(values, helpers) {
@@ -207,7 +199,7 @@
     ],
     example: {
       company: "ООО «Пример»", company_ids: "ОГРН 0000000000000, ИНН 0000000000", company_address: "г. Энск, ул. Торговая, д. 10", director: "Иванову Ивану Ивановичу",
-      ...plainPerson("member", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"), share_percent: "40", nominal: "40 000", charter_ref: "пункт 8.3 устава", application_date: "2026-11-20",
+      ...plainPersonExample("member", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"), share_percent: "40", nominal: "40 000", charter_ref: "пункт 8.3 устава", application_date: "2026-11-20",
     },
     checks: () => [],
     body: [
@@ -259,8 +251,8 @@
       },
     ],
     example: {
-      city: "Энск", date: "2026-11-20", ...plainPerson("seller", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"),
-      ...plainPerson("buyer", "Сидоров Сергей Сергеевич", "03.04.1982", "0000 000008", "г. Энск, ул. Новая, д. 8"), company: "ООО «Пример», ОГРН 0000000000000, ИНН 0000000000, г. Энск, ул. Торговая, д. 10",
+      city: "Энск", date: "2026-11-20", ...plainPersonExample("seller", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"),
+      ...plainPersonExample("buyer", "Сидоров Сергей Сергеевич", "03.04.1982", "0000 000008", "г. Энск, ул. Новая, д. 8"), company: "ООО «Пример», ОГРН 0000000000000, ИНН 0000000000, г. Энск, ул. Торговая, д. 10",
       share_percent: "40", nominal: "40 000", price: "500 000", notice: "expired", basis_doc: "договор об учреждении общества от 01.03.2024",
     },
     checks: () => [],

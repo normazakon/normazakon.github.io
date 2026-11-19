@@ -4,9 +4,9 @@
 
   const {
     text, area, money, date, select, number, title, subtitle, address, paragraph, signatureLine, filled,
+    missing,
   } = root.TemplateKit;
 
-  const missing = (name) => (values) => !filled(name)(values);
 
   /* Участник арбитражного дела: наименование, адрес, ОГРН и ИНН. */
   const sideFields = (prefix, role) => [

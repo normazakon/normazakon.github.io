@@ -4,9 +4,9 @@
 
   const {
     text, area, money, date, select, number, title, subtitle, meta, paragraph, address, signatureLine, filled,
+    missing,
   } = root.TemplateKit;
 
-  const missing = (name) => (values) => !filled(name)(values);
   const sideFields = (prefix, role, help) => [
     text(`${prefix}_name`, role, { hint: role.toLowerCase(), help: help || "ФИО или наименование" }),
     text(`${prefix}_address`, "Адрес", { hint: "адрес" }),

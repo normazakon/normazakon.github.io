@@ -5,13 +5,9 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, paragraph, address, item, signatureLine,
     personFields, personIntro, filled,
+    missing, plainPersonExample,
   } = root.TemplateKit;
 
-  const missing = (name) => (values) => !filled(name)(values);
-  const personExample = (prefix, name, birth, passport, address_) => ({
-    [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
-    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
-  });
   const placeDate = [text("city", "Город", { hint: "город" }), date("date", "Дата", { hint: "дата" })];
 
   /* ---------- Заявление об отсрочке или рассрочке уплаты налога ---------- */
@@ -144,8 +140,8 @@
       },
     ],
     example: {
-      city: "Энск", date: "2026-11-20", ...personExample("principal", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"), inn: "000000000000",
-      ...personExample("agent", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"), authority: "ИФНС России № 1 по г. Энску и Управление ФНС России по Энской области",
+      city: "Энск", date: "2026-11-20", ...plainPersonExample("principal", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"), inn: "000000000000",
+      ...plainPersonExample("agent", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"), authority: "ИФНС России № 1 по г. Энску и Управление ФНС России по Энской области",
       tp_docs: true, tp_receive: true, tp_explain: true, tp_object: false, tp_pay: false, tp_refund: true, valid_until: "2027-11-19",
     },
     checks: () => [],
@@ -202,8 +198,8 @@
       },
     ],
     example: {
-      city: "Энск", date: "2026-11-20", ...personExample("principal", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
-      ...personExample("agent", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"), unit: "Энское РОСП ГУ ФССП России по Энской области", proceeding: "№ 000000/26/00000-ИП от 01.10.2026", role: "creditor",
+      city: "Энск", date: "2026-11-20", ...plainPersonExample("principal", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
+      ...plainPersonExample("agent", "Петров Пётр Петрович", "20.05.1988", "0000 000007", "г. Энск, ул. Образцовая, д. 5"), unit: "Энское РОСП ГУ ФССП России по Энской области", proceeding: "№ 000000/26/00000-ИП от 01.10.2026", role: "creditor",
       bp_docs: true, bp_apply: true, bp_complaint: true, bp_money: false, bp_paper: false, valid_until: "2027-11-19",
     },
     checks: () => [],
@@ -308,7 +304,7 @@
       },
     ],
     example: {
-      addressee: "Энскому районному суду", case_no: "1-123/2026", ...personExample("victim", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"), accused: "Петров Пётр Петрович", article: "часть 1 статьи 158 УК РФ",
+      addressee: "Энскому районному суду", case_no: "1-123/2026", ...plainPersonExample("victim", "Иванов Иван Иванович", "15.03.1985", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"), accused: "Петров Пётр Петрович", article: "часть 1 статьи 158 УК РФ",
       repair: "обвиняемый вернул похищенное имущество, возместил ущерб в сумме 45 000 рублей, что подтверждается распиской от 15.11.2026, и принес мне извинения", application_date: "2026-11-20",
     },
     checks: () => [],

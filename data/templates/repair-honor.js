@@ -6,10 +6,10 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, address, signatureLine,
     partyFields, partyIntro, signatures, personFields, personIntro, personSignatures, placeAndDate, closingClauses, filled,
+    kindOf,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
 
   /* ---------- Договор бытового подряда на ремонт квартиры ---------- */
 

@@ -5,19 +5,9 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, signatureLine,
     partyFields, partyIntro, signatures, personFields, personIntro, personSignatures, placeAndDate, closingClauses, filled,
+    missing, kindOf, personExample, orgExample, intro,
   } = root.TemplateKit;
 
-  const missing = (name) => (values) => !filled(name)(values);
-  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
-  const personExample = (prefix, name, birth, passport, address_) => ({
-    [`${prefix}_kind`]: "person", [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
-    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
-  });
-  const orgExample = (prefix, name, signer = "генерального директора Петрова П. П.", short = "Петров П. П.") => ({
-    [`${prefix}_kind`]: "org", [`${prefix}_org_name`]: name, [`${prefix}_ogrn`]: "0000000000000", [`${prefix}_inn`]: "0000000000",
-    [`${prefix}_business_address`]: "г. Энск, ул. Торговая, д. 10", [`${prefix}_signer`]: signer, [`${prefix}_authority`]: "устав", [`${prefix}_short_signer`]: short,
-  });
-  const intro = (prefix, role) => (values) => `${partyIntro(prefix, values)} (далее — «${role}»)`;
 
   /* ---------- Договор уступки права требования ---------- */
 

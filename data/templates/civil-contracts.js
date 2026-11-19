@@ -5,17 +5,9 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, address, signatureLine,
     partyFields, partyIntro, signatures, placeAndDate, closingClauses, filled,
+    kindOf, personExample, orgExample,
   } = root.TemplateKit;
 
-  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
-  const personExample = (prefix, name, birth, passport, address_) => ({
-    [`${prefix}_kind`]: "person", [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
-    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
-  });
-  const orgExample = (prefix, name) => ({
-    [`${prefix}_kind`]: "org", [`${prefix}_org_name`]: name, [`${prefix}_ogrn`]: "0000000000000", [`${prefix}_inn`]: "0000000000",
-    [`${prefix}_business_address`]: "г. Энск, ул. Торговая, д. 10", [`${prefix}_signer`]: "генерального директора Петрова П. П.", [`${prefix}_authority`]: "устав", [`${prefix}_short_signer`]: "Петров П. П.",
-  });
 
   /* ---------- Договор мены ---------- */
 

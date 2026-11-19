@@ -4,10 +4,10 @@
 
   const {
     text, area, money, date, select, number, title, subtitle, meta, paragraph, address, signatureLine, filled,
+    missing,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const missing = (name) => (values) => !filled(name)(values);
 
   /* ---------- Требование о даче письменных объяснений ---------- */
 

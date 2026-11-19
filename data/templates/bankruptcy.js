@@ -5,10 +5,10 @@
 
   const {
     text, area, money, date, select, number, title, subtitle, address, paragraph, signatureLine, filled,
+    missing,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const missing = (name) => (values) => !filled(name)(values);
 
   const sideFields = (prefix, role) => [
     text(`${prefix}_name`, `${role}: наименование`, { hint: "наименование", help: "Например, ООО «Пример» или ФИО гражданина" }),

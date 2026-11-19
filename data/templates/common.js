@@ -122,10 +122,35 @@
     clause("Договор составлен в двух экземплярах, имеющих одинаковую юридическую силу, по одному для каждой из Сторон."),
   ];
 
+  const missing = (id) => (values) => !filled(id)(values);
+  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
+  /** Вступление стороны договора: «… (далее — «Продавец»)». */
+  const intro = (prefix, role) => (values) => `${partyIntro(prefix, values)} (далее — «${role}»)`;
+
+  /* Вымышленные данные для примеров. */
+  const plainPersonExample = (prefix, name, birth, passport, address_) => ({
+    [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
+    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
+  });
+  /** Пример для полей partyFields, когда сторона — гражданин. */
+  const personExample = (prefix, name, birth, passport, address_) => ({
+    [`${prefix}_kind`]: "person", ...plainPersonExample(prefix, name, birth, passport, address_),
+  });
+  /** Пример для полей partyFields, когда сторона — организация. */
+  const orgExample = (prefix, name, signer = "генерального директора Петрова П. П.", short = "Петров П. П.") => ({
+    [`${prefix}_kind`]: "org", [`${prefix}_org_name`]: name, [`${prefix}_ogrn`]: "0000000000000", [`${prefix}_inn`]: "0000000000",
+    [`${prefix}_business_address`]: "г. Энск, ул. Торговая, д. 10", [`${prefix}_signer`]: signer, [`${prefix}_authority`]: "устав", [`${prefix}_short_signer`]: short,
+  });
+  /** Пример для полей courtPerson: участник дела с датой рождения и идентификатором. */
+  const courtPersonExample = (prefix, name, birth, address_, id) => ({
+    [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_address`]: address_, [`${prefix}_id`]: id,
+  });
+
   root.TEMPLATES = [];
   root.TemplateKit = {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, item, address,
     signatureLine, KINDS, personFields, partyFields, personIntro, partyIntro, partyLines, partySigner,
-    signatures, personSignatures, placeAndDate, closingClauses, filled,
+    signatures, personSignatures, placeAndDate, closingClauses, filled, missing, kindOf, intro,
+    plainPersonExample, personExample, orgExample, courtPersonExample,
   };
 })(typeof window !== "undefined" ? window : globalThis);

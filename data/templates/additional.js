@@ -5,10 +5,10 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, item, address,
     signatureLine, partyFields, partyIntro, signatures, placeAndDate, closingClauses, filled,
+    kindOf,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines, sumOf } = root.TemplateKit.court;
 
-  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
 
   /* ---------- Поставка ---------- */
 

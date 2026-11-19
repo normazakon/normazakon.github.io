@@ -5,15 +5,10 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, address, signatureLine,
     partyFields, partyIntro, signatures, personFields, personIntro, personSignatures, placeAndDate, closingClauses, filled,
+    missing, plainPersonExample, personExample,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const missing = (name) => (values) => !filled(name)(values);
-  const plainPerson = (prefix, name, birth, passport, address_) => ({
-    [`${prefix}_name`]: name, [`${prefix}_birth`]: birth, [`${prefix}_passport`]: passport,
-    [`${prefix}_issued`]: "вымышленным отделом 01.01.2015", [`${prefix}_address`]: address_,
-  });
-  const personExample = (prefix, name, birth, passport, address_) => ({ [`${prefix}_kind`]: "person", ...plainPerson(prefix, name, birth, passport, address_) });
 
   /* ---------- Договор дарения недвижимости ---------- */
 
@@ -45,8 +40,8 @@
       },
     ],
     example: {
-      city: "Энск", date: "2026-11-20", ...plainPerson("donor", "Иванов Иван Иванович", "15.03.1960", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
-      ...plainPerson("donee", "Иванова Анна Ивановна", "01.02.1990", "0000 000006", "г. Энск, ул. Новая, д. 3"),
+      city: "Энск", date: "2026-11-20", ...plainPersonExample("donor", "Иванов Иван Иванович", "15.03.1960", "0000 000000", "г. Энск, ул. Примерная, д. 1, кв. 1"),
+      ...plainPersonExample("donee", "Иванова Анна Ивановна", "01.02.1990", "0000 000006", "г. Энск, ул. Новая, д. 3"),
       property: "квартира по адресу: г. Энск, ул. Новая, д. 1, кв. 15, площадью 45 кв. м, кадастровый номер 00:00:0000000:0", title_doc: "выписка из ЕГРН от 10.11.2026", rights: "reserve", value: "5 000 000",
     },
     checks: () => [],

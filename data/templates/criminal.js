@@ -5,10 +5,10 @@
 
   const {
     text, area, money, date, select, title, subtitle, address, paragraph, signatureLine, filled,
+    missing,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const missing = (name) => (values) => !filled(name)(values);
   const phoneField = (prefix) => text(`${prefix}_phone`, "Телефон", { hint: "телефон", optional: true });
   const personExample = (prefix) => ({
     [`${prefix}_name`]: "Иванов Иван Иванович", [`${prefix}_birth`]: "15.03.1985, г. Энск", [`${prefix}_address`]: "г. Энск, ул. Примерная, д. 1, кв. 1",

@@ -5,11 +5,11 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, item,
     personFields, partyFields, personIntro, partyIntro, signatures, personSignatures, placeAndDate, closingClauses, filled,
+    kindOf,
   } = root.TemplateKit;
 
   const COMMON_DISPUTE = "Спор передается в суд по правилам подсудности, установленным законодательством Российской Федерации.";
 
-  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
 
   /* ---------- Подряд ---------- */
 

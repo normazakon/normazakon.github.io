@@ -5,9 +5,9 @@
   const {
     text, area, date, select, title, subtitle, meta, heading, clause, paragraph, address, signatureLine,
     placeAndDate, filled,
+    missing,
   } = root.TemplateKit;
 
-  const missing = (name) => (values) => !filled(name)(values);
 
   /* ---------- Заявление о приёме на работу ---------- */
 

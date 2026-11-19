@@ -6,10 +6,10 @@
   const {
     text, area, money, date, select, number, title, subtitle, meta, heading, clause, paragraph, address, signatureLine,
     partyFields, partyIntro, signatures, personFields, placeAndDate, closingClauses, filled,
+    kindOf,
   } = root.TemplateKit;
   const { courtPerson, courtPersonLines } = root.TemplateKit.court;
 
-  const kindOf = (values, prefix) => values[`${prefix}_kind`] || "person";
 
   /** Процент из строки: «0,1» и «3 %» → число. */
   function parsePercent(value) {
