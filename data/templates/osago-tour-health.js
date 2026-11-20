@@ -26,8 +26,16 @@
 
   /* ---------- Неустойка за просрочку ремонта по ОСАГО ---------- */
 
+  /* Последний день ремонта: 30 рабочих дней со дня передачи машины по производственному календарю
+     (lib/deadlines.js) или согласованный со страховщиком более длинный срок. */
+  const repairTerm = (values) => (root.Deadlines ? root.Deadlines.addWorkdays(values.handed_date, 30, root.WORK_CALENDAR) : null);
+  const repairDue = (values) => {
+    if (filled("agreed_due")(values)) return values.agreed_due;
+    const term = repairTerm(values);
+    return term ? term.end : null;
+  };
   const repairDays = (values, helpers) => {
-    const days = helpers.daysBetween(values.due_date, values.done_date);
+    const days = helpers.daysBetween(repairDue(values), values.done_date);
     return days === null ? null : Math.max(0, days);
   };
   const repairPenalty = (values, helpers) => {
@@ -47,7 +55,7 @@
     notes: [
       "Срок восстановительного ремонта — не более 30 рабочих дней со дня, когда машину передали на станцию или страховщику для транспортировки, если со страховщиком не согласован более длинный срок.",
       "За каждый день нарушения срока ремонта страховщик платит неустойку 0,5 % от суммы страхового возмещения, но не больше самой суммы возмещения. Отвечает страховщик, даже если затянула станция.",
-      "Неустойка выплачивается по заявлению, в котором указывается способ расчета: почтовый перевод или перечисление на счет с реквизитами. Последний день срока ремонта укажите сами, считая рабочие дни.",
+      "Неустойка выплачивается по заявлению, в котором указывается способ расчета: почтовый перевод или перечисление на счет с реквизитами. Последний день срока ремонта код считает сам по производственному календарю; согласованный более длинный срок можно указать отдельно.",
       "Если ремонт не только затянули, но и сделали некачественно, это отдельное требование: заявление о несогласии страховщику, затем финансовому уполномоченному.",
     ],
     sections: [
@@ -59,7 +67,7 @@
           text("case", "Страховой случай", { hint: "страховой случай", help: "Дата ДТП, автомобиль, номер убытка" }),
           text("station", "Станция техобслуживания", { hint: "станция техобслуживания", help: "Наименование, адрес, номер направления на ремонт" }),
           date("handed_date", "Машина передана на ремонт", { hint: "дата передачи" }),
-          date("due_date", "Последний день срока ремонта", { hint: "последний день срока", help: "30-й рабочий день со дня передачи или согласованный срок" }),
+          date("agreed_due", "Согласованный срок ремонта", { hint: "согласованный срок", optional: true, help: "Только если со страховщиком письменно согласован срок дольше 30 рабочих дней; иначе код посчитает 30 рабочих дней сам" }),
           select("status", "Машину уже вернули из ремонта?", [{ value: "done", label: "Да, с опозданием" }, { value: "pending", label: "Нет, ремонт еще идет" }], { default: "done" }),
           date("done_date", "Дата возврата или расчета", { hint: "дата возврата", help: "Когда забрали отремонтированную машину; если еще нет — дата, на которую считается неустойка" }),
           money("compensation", "Сумма страхового возмещения, ₽", { hint: "сумма возмещения", help: "Стоимость ремонта, которую оплачивает страховщик, — есть в направлении или акте" }),
@@ -70,19 +78,22 @@
       },
     ],
     computed: {
+      due: { hint: "последний день срока ремонта", field: "handed_date", value: (values, helpers) => helpers.dateText(repairDue(values)) },
       days: { hint: "дней просрочки", field: "done_date", value: (values, helpers) => { const days = repairDays(values, helpers); return days ? String(days) : null; } },
       penalty: { hint: "сумма неустойки", field: "compensation", value: (values, helpers) => { const sum = repairPenalty(values, helpers); return sum ? helpers.kopecksText(sum) : null; } },
     },
     example: {
       insurer: INSURER_EXAMPLE, ...applicantExample("applicant"), case: "ДТП 10.11.2026, автомобиль Лада Веста, государственный номер А000АА00, убыток № 0000/26",
-      station: "ООО «Вымышленный автосервис», г. Энск, ул. Гаражная, д. 9, направление на ремонт от 01.12.2026 № 77", handed_date: "2026-12-03", due_date: "2027-01-28",
+      station: "ООО «Вымышленный автосервис», г. Энск, ул. Гаражная, д. 9, направление на ремонт от 01.12.2026 № 77", handed_date: "2026-12-03", agreed_due: "",
       status: "done", done_date: "2027-02-17", compensation: "136 900", pay: "bank", bank: BANK_EXAMPLE, application_date: "2027-02-18",
     },
     checks(values, helpers) {
-      const days = helpers.daysBetween(values.due_date, values.done_date);
+      const days = helpers.daysBetween(repairDue(values), values.done_date);
       if (days !== null && days <= 0) return [{ level: "warning", text: "Ремонт уложился в срок: неустойки нет.", basis: { lawId: "FZ40", number: "12" } }];
-      const term = helpers.daysBetween(values.handed_date, values.due_date);
-      if (term !== null && term < 30) return [{ level: "warning", text: "Срок ремонта короче 30 рабочих дней со дня передачи машины. Проверьте последний день срока.", basis: { lawId: "FZ40", number: "12" } }];
+      const term = repairTerm(values);
+      const agreed = filled("agreed_due")(values);
+      if (!agreed && term && term.unknownYears.length) return [{ level: "warning", text: `Производственного календаря на ${term.unknownYears.join(", ")} год в базе нет: учтены только выходные и праздники без переносов. Проверьте последний день срока.` }];
+      if (agreed && term && helpers.daysBetween(values.agreed_due, term.end) > 0) return [{ level: "warning", text: "Согласованный срок короче 30 рабочих дней: закон позволяет согласовать только более длинный срок. Оставьте поле пустым, чтобы считались 30 рабочих дней.", basis: { lawId: "FZ40", number: "12" } }];
       return [];
     },
     body: [
@@ -91,7 +102,8 @@
       title("ЗАЯВЛЕНИЕ"),
       subtitle("о выплате неустойки за нарушение срока восстановительного ремонта"),
       paragraph("По страховому случаю ({{case}}) страховщик выдал направление на ремонт: {{station}}. Автомобиль передан на ремонт {{handed_date}}."),
-      paragraph("Согласно пункту 15.2 статьи 12 Федерального закона «Об обязательном страховании гражданской ответственности владельцев транспортных средств» ремонт должен был быть окончен не позднее {{due_date}}."),
+      paragraph("Согласно пункту 15.2 статьи 12 Федерального закона «Об обязательном страховании гражданской ответственности владельцев транспортных средств» ремонт должен был быть окончен не позднее {{due}}: в течение 30 рабочих дней со дня передачи автомобиля.", (values) => !filled("agreed_due")(values)),
+      paragraph("Со страховщиком согласован срок ремонта до {{due}}.", filled("agreed_due")),
       paragraph("Отремонтированный автомобиль возвращен только {{done_date}}. Просрочка составляет {{days}} дн.", (values) => (values.status || "done") === "done"),
       paragraph("На {{done_date}} ремонт не окончен. Просрочка на эту дату составляет {{days}} дн.", (values) => values.status === "pending"),
       paragraph("За каждый день нарушения срока ремонта страховщик уплачивает неустойку в размере 0,5 процента от суммы страхового возмещения, но не более суммы такого возмещения (пункт 21 статьи 12 закона). Сумма возмещения — {{compensation}}, неустойка составляет {{penalty}}."),
