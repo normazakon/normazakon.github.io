@@ -23,6 +23,20 @@
   }
 
   /** Ссылка на статью для текста: «ст. 395 ГК РФ», у частей без номера своя: «преамбула Конституции РФ». */
+  /** Ссылка «Сообщить об ошибке»: открывает переписку в Telegram с готовым началом сообщения.
+      В текст попадает только то, что видно на странице (название шаблона или статьи и адрес), значения полей — никогда. */
+  function reportHref(subject, hash) {
+    const base = window.SITE && window.SITE.telegram;
+    if (!base) return null;
+    const page = `${location.origin}${location.pathname}${hash || ""}`;
+    return `${base}?text=${encodeURIComponent(`${subject}\n${page}\n\nЧто не так: `)}`;
+  }
+
+  function reportLink(subject, hash, className = "link-button report-link") {
+    const href = reportHref(subject, hash);
+    return href ? h("a", { class: className, href, target: "_blank", rel: "noopener noreferrer" }, "Сообщить об ошибке") : null;
+  }
+
   function citation(lawId, number) {
     const { law, article } = lawArticle(lawId, number);
     return article && article.cite ? article.cite : `ст. ${number} ${law.short}`;
@@ -280,6 +294,10 @@
     Promise.all(loads).then(fill).catch(() => {
       body.replaceChildren(h("p", {}, "Не удалось загрузить текст. Откройте статью в источнике."));
     });
+    const report = document.getElementById("article-report");
+    const reportTo = reportHref(`Ошибка в статье: ${articleName(lawId, number)} (${law.name})`, `#laws/${lawId}/${encodeURIComponent(number)}`);
+    report.hidden = !reportTo;
+    if (reportTo) report.href = reportTo;
     const source = document.getElementById("article-source");
     source.href = article.url;
     source.textContent = law.source === "pravo.gov.ru"
@@ -346,5 +364,5 @@
     document.getElementById("article-dialog").close();
   });
 
-  window.UI = { h, icon, showArticle, citation, articleName, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook };
+  window.UI = { h, icon, showArticle, citation, articleName, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook, reportLink, reportHref };
 })();

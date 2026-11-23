@@ -821,6 +821,10 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .article-editions .diff-legend { flex-basis: 100%; }
 .diff-legend .link-button { font-size: 14px; }
 .source-link { padding: 10px 22px 16px; font-size: 15px; }
+/* под текстом статьи: ссылка на источник и «Сообщить об ошибке» в одну строку, на телефоне — друг под другом */
+.article-links { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0 16px; }
+.report-link { color: var(--muted); font-size: 14px; }
+.report-link:hover { color: var(--accent); }
 .doc-date { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; margin-bottom: 14px; }
 .doc-date label { font-weight: 500; }
 .doc-date input { min-height: 36px; padding: 5px 8px; background: var(--paper); border: 1px solid var(--line-strong); border-radius: var(--radius-m); }
