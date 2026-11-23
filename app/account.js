@@ -164,6 +164,7 @@
     const telegram = window.SITE && window.SITE.telegram;
     const link = (href, text, external) => h("li", {}, h("a", external ? { href, target: "_blank", rel: "noopener noreferrer" } : { href }, text));
     return card("Помощь", "",
+      h("p", { class: "account-note" }, window.UI.baseDescription()),
       h("ul", { class: "account-links" },
         telegram && link(telegram, "Написать в поддержку в Telegram", true),
         link("./", "О сервисе «Норма»"),

@@ -371,5 +371,18 @@
     document.getElementById("article-dialog").close();
   });
 
-  window.UI = { h, icon, showArticle, citation, articleName, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook, reportLink, reportHref };
+  /** Подробно о базе законов: когда собрана, сколько статей, откуда тексты. */
+  function baseDescription() {
+    const { laws, builtAt } = window.LAW_BASE;
+    const all = Object.values(laws);
+    const articles = all.reduce((sum, law) => sum + Object.keys(law.articles).length, 0);
+    const texts = all.reduce((sum, law) => sum + Object.values(law.articles).filter((article) => article.hasText).length, 0);
+    const updated = all.map((law) => law.updated).sort().pop();
+    const date = window.Editions.formatDate;
+    return `База собрана ${date(builtAt)}: статей ${articles.toLocaleString("ru-RU")}, с полным текстом ${texts.toLocaleString("ru-RU")}. ` +
+      "Тексты и редакции с официального портала pravo.gov.ru, Конституция с официального сайта Президента kremlin.ru. " +
+      `Последняя учтённая редакция от ${date(updated)}.`;
+  }
+
+  window.UI = { h, icon, baseDescription, showArticle, citation, articleName, downloadFile, shortDateTime, bookmarks, starButton, lawBadge, templateLook, reportLink, reportHref };
 })();

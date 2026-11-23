@@ -27,7 +27,7 @@
     return `${count.toLocaleString("ru-RU")} ${word}`;
   }
 
-  /** Полоса доверия под поиском: цифры берутся из настоящей базы. */
+  /** Строка под поиском: что есть в базе и насколько она свежая. Цифры берутся из настоящей базы. */
   function heroPoints() {
     const laws = Object.values(window.LAW_BASE.laws);
     const articles = laws.reduce((sum, law) => sum + Object.keys(law.articles).length, 0);
@@ -36,8 +36,6 @@
     return [
       `${window.LAW_BASE.laws.KONST ? "Конституция и " : ""}${counted(codes, "кодекс и закон", "кодекса и закона", "кодексов и законов")}, ${counted(articles, "статья", "статьи", "статей")}`,
       `Официальные редакции от ${window.Editions.formatDate(updated)}`,
-      counted(window.TEMPLATE_INDEX.length, "шаблон", "шаблона", "шаблонов"),
-      "Данные остаются у вас",
     ];
   }
 

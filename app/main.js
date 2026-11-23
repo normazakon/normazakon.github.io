@@ -61,16 +61,11 @@
     window.scrollTo(0, 0);
   }
 
+  /** Коротко о базе в подвале; подробно — в кабинете, в карточке «Помощь» (UI.baseDescription). */
   function describeBase() {
-    const { laws, builtAt } = window.LAW_BASE;
-    const all = Object.values(laws);
-    const articles = all.reduce((sum, law) => sum + Object.keys(law.articles).length, 0);
-    const texts = all.reduce((sum, law) => sum + Object.values(law.articles).filter((article) => article.hasText).length, 0);
-    const updated = all.map((law) => law.updated).sort().pop();
+    const updated = Object.values(window.LAW_BASE.laws).map((law) => law.updated).sort().pop();
     document.getElementById("base-note").textContent =
-      `База собрана ${window.Editions.formatDate(builtAt)}: статей ${articles.toLocaleString("ru-RU")}, с полным текстом ${texts.toLocaleString("ru-RU")}. ` +
-      `Тексты и редакции с официального портала pravo.gov.ru, Конституция с официального сайта Президента kremlin.ru. ` +
-      `Последняя учтённая редакция от ${window.Editions.formatDate(updated)}.`;
+      `Тексты законов с pravo.gov.ru и kremlin.ru, редакции по ${window.Editions.formatDate(updated)}.`;
   }
 
   /* Шапка справа: без входа — кнопка «Войти», после входа — кружок с инициалами и меню аккаунта.
