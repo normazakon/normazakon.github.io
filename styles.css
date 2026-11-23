@@ -43,7 +43,6 @@
   color-scheme: light;
 }
 
-
 * { box-sizing: border-box; }
 
 [hidden] { display: none !important; }
@@ -272,14 +271,13 @@ a:hover { color: var(--accent-hover); }
 .icon { display: inline-flex; width: 1.1em; height: 1.1em; flex: none; }
 .icon svg { width: 100%; height: 100%; }
 
-.home-hero { padding: 72px 0 80px; background: var(--gradient-hero); }
+.home-hero { padding: 56px 0 56px; background: var(--gradient-hero); }
 .hero-center { display: flex; flex-direction: column; align-items: center; text-align: center; }
-.home-hero h1 { max-width: 22ch; font-size: 64px; line-height: 1.05; letter-spacing: -0.025em; text-wrap: balance; }
+.home-hero h1 { max-width: 22ch; font-size: 52px; line-height: 1.05; letter-spacing: -0.025em; text-wrap: balance; }
 .hero-lead { max-width: 74ch; margin: 18px 0 0; color: var(--muted); font-size: 18px; line-height: 1.5; text-wrap: balance; }
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; }
 .hero-points { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 22px; margin: 22px 0 0; padding: 0; list-style: none; color: var(--muted); font-size: 15px; }
 .hero-points li::before { content: "✓"; margin-right: 6px; color: var(--accent); font-weight: 600; }
-
 
 .feature-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; }
 .feature { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; padding: 24px; background: var(--surface); border-radius: var(--radius-l); }
@@ -288,39 +286,6 @@ a:hover { color: var(--accent-hover); }
 .feature .feature-detail { flex: 1; color: var(--ink); font-size: 15px; }
 .feature-link { display: inline-flex; align-items: center; gap: 6px; margin-top: 4px; font-weight: 600; text-decoration: none; }
 .feature-link:hover { text-decoration: underline; }
-
-.cost-card { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 48px; align-items: center; padding: 36px 40px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); }
-.cost-card h2 { margin-bottom: 14px; font-size: 28px; }
-.cost-copy p { max-width: 58ch; margin: 0 0 10px; }
-.cost-copy .cost-note { margin-bottom: 0; color: var(--muted); font-size: 15px; }
-.cost-table { margin: 0; }
-.cost-table div { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--line); }
-.cost-table dd { margin: 0; font-size: 18px; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.cost-table .cost-total { border-bottom: 0; border-top: 2px solid var(--ink); }
-.cost-table .cost-total dt { font-weight: 600; }
-.cost-table .cost-total dd { color: var(--accent); font-size: 24px; font-weight: 600; }
-
-.automation-list { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px 40px; margin: 0; padding: 0; list-style: none; }
-.automation-list li { display: flex; gap: 12px; padding-top: 14px; border-top: 1px solid var(--line); }
-.automation-list div { display: flex; flex-direction: column; gap: 2px; }
-.automation-list div span { color: var(--muted); font-size: 15px; }
-
-.home-steps { background: var(--gradient-band); }
-.steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 40px; margin: 0; padding: 0; list-style: none; counter-reset: step; }
-.steps li { counter-increment: step; }
-.steps li::before { content: counter(step); display: inline-grid; place-items: center; width: 36px; height: 36px; margin-bottom: 14px; background: var(--accent); border-radius: 50%; color: var(--accent-ink); font-weight: 600; }
-.steps h3 { margin-bottom: 6px; font-size: 20px; }
-.steps p { margin: 0; color: var(--muted); }
-
-.roadmap { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 0 40px; margin: 0; padding: 0; list-style: none; }
-.roadmap li { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; padding: 16px 0; border-bottom: 1px solid var(--line); }
-.roadmap strong { font-size: 17px; font-weight: 600; }
-.roadmap li > span:last-child { color: var(--muted); font-size: 15px; }
-
-.home-final-wrap { padding: 0 0 72px; }
-.home-final { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 20px 40px; padding: 40px; background: var(--gradient-panel); border-radius: var(--radius-l); }
-.home-final h2 { margin-bottom: 8px; font-size: 28px; }
-.home-final p { max-width: 58ch; margin: 0; color: var(--ink); }
 
 /* Оттенки разделов: иконка на мягкой плашке своего цвета. Цвет только украшает, смысл всегда есть в подписи. */
 .tone-blue { --tone: #1d5fd1; --tone-soft: #e3ecfc; }
@@ -357,6 +322,8 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 
 /* Главная: продолжить работу */
 .home-continue { padding: 8px 0 24px; }
+.continue-empty { margin: 0; padding: 18px 20px; background: var(--surface); border-radius: var(--radius-l); color: var(--muted); }
+.home-changes { background: var(--gradient-band); }
 .continue-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .continue-head h2 { font-size: 24px; }
 .continue-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
@@ -465,7 +432,6 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .editor-switch { display: none; width: 100%; margin-bottom: 12px; }
 .laws-mode { align-self: start; }
 .action-note { flex-basis: 100%; margin: 0; color: var(--muted); font-size: 14px; text-align: right; }
-
 
 .editor-body {
   display: grid;
@@ -858,14 +824,9 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
   .home-inner { padding: 0 16px; }
   .home-section { padding: 44px 0; }
   .home-hero { padding: 36px 0 48px; }
-  .cost-card { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .home-hero h1 { font-size: 36px; }
   .home-section h2 { font-size: 26px; }
-  .feature-grid, .steps, .roadmap, .automation-list { grid-template-columns: minmax(0, 1fr); }
-  .feature-grid, .steps { gap: 32px; }
-  .cost-card { padding: 24px 20px; }
-  .home-final { padding: 26px 22px; }
-  .home-final-wrap { padding-bottom: 48px; }
+  .feature-grid { grid-template-columns: minmax(0, 1fr); gap: 32px; }
   .topbar { padding: 0 16px; }
   .view { padding: 20px 16px; }
   .footnote { padding: 8px 16px 16px; }
