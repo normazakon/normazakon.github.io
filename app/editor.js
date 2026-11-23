@@ -51,14 +51,30 @@
   window.Views = window.Views || {};
 
   /** params: { templateId } для нового документа или { documentId } для сохранённого. */
+  /** Шаблон подгружается по требованию (lib/template-loader.js): пока он загружается, показываем строку ожидания. */
   window.Views.editor = function (root, params, app) {
     const saved = params.documentId ? app.store.get(params.documentId) : null;
     const templateId = saved ? saved.templateId : params.templateId;
-    const template = window.TEMPLATES.find((item) => item.id === templateId);
-    if (!template) {
-      root.append(h("p", { class: "empty" }, "Документ не найден. Возможно, он удалён или сохранён в другом браузере. "), h("a", { href: "#templates" }, "К шаблонам"));
+    const notFound = () => root.append(h("p", { class: "empty" }, "Документ не найден. Возможно, он удалён или сохранён в другом браузере. "), h("a", { href: "#templates" }, "К шаблонам"));
+    if (!window.TemplateLoader.entry(templateId)) {
+      notFound();
       return;
     }
+    const route = location.hash;
+    const loading = h("p", { class: "empty", role: "status" }, "Загружаем шаблон…");
+    root.append(loading);
+    window.TemplateLoader.load(templateId).then((template) => {
+      // пока шаблон загружался, пользователь мог уйти на другую страницу
+      if (location.hash !== route || !loading.isConnected) return;
+      loading.remove();
+      if (!template) notFound();
+      else openEditor(root, app, saved, template);
+    }, () => {
+      loading.textContent = "Не удалось загрузить шаблон. Проверьте подключение к интернету и обновите страницу.";
+    });
+  };
+
+  function openEditor(root, app, saved, template) {
 
     window.UI.bookmarks.touch({ kind: "template", templateId: template.id });
     const state = {
@@ -335,8 +351,9 @@
           h("button", { class: "button", type: "button", onClick: () => createLinked(link) }, link.label))))));
     }
 
-    function createLinked(link) {
-      const target = window.TEMPLATES.find((item) => item.id === link.target);
+    async function createLinked(link) {
+      const target = await window.TemplateLoader.load(link.target);
+      if (!target) return;
       const fieldIds = new Set(Engine.allFields(target).map((field) => field.id));
       const values = {};
       for (const [key, value] of Object.entries(link.map(state.values))) {

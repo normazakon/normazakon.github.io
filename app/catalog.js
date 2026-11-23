@@ -31,7 +31,7 @@
 
   /** Шаблоны под запрос и разделы; без запроса остаётся исходный порядок. */
   function matching(query, category, kind) {
-    const ranked = window.TemplateSearch.rank(window.TEMPLATES, query, { stem: stemOf, laws: window.LAW_BASE.laws });
+    const ranked = window.TemplateSearch.rank(window.TEMPLATE_INDEX, query, { stem: stemOf, laws: window.LAW_BASE.laws });
     return ranked.filter((template) =>
       (!category || template.category === category) && (!kind || window.TemplateSearch.kindOf(template) === kind));
   }
@@ -51,8 +51,8 @@
 
   window.Views = window.Views || {};
   window.Views.catalog = function (root, params = {}) {
-    const known = new Set(window.TEMPLATES.map((template) => template.category));
-    const total = window.TEMPLATES.length;
+    const known = new Set(window.TEMPLATE_INDEX.map((template) => template.category));
+    const total = window.TEMPLATE_INDEX.length;
     // #templates/Суд открывает каталог сразу на нужном разделе
     const state = { category: known.has(params.category) ? params.category : null, kind: null };
     const results = h("div", {});

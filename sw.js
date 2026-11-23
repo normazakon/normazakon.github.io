@@ -3,7 +3,7 @@
    Запросы на другие адреса (проверка контрагента в DaData) не трогаем: они идут прямо в сеть. */
 "use strict";
 
-const CACHE = "norma-app-v53";
+const CACHE = "norma-app-v54";
 const NETWORK_TIMEOUT_MS = 4000;
 const EXTRA = ["manifest.webmanifest", "404.html", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
@@ -34,6 +34,12 @@ self.addEventListener("install", (event) => {
       if (!page.ok) throw new Error(`Страница не загрузилась: ${page.status}`);
       await cache.put(url, page.clone());
       assets.push(...localAssets(await page.text()).map((item) => new URL(item, self.registration.scope).href));
+    }
+    // шаблоны подгружаются по требованию и в app.html не перечислены: их список берем из manifest.json,
+    // чтобы без сети открывался любой шаблон, а не только уже открытые
+    const templates = await fetch(new URL("data/templates/manifest.json", self.registration.scope).href, { cache: "no-cache" });
+    if (templates.ok) {
+      for (const name of await templates.json()) assets.push(new URL(`data/templates/${name}.js`, self.registration.scope).href);
     }
     const fonts = [];
     for (const url of assets.filter((item) => item.endsWith(".css"))) {

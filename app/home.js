@@ -59,7 +59,7 @@
     return [
       `${window.LAW_BASE.laws.KONST ? "Конституция и " : ""}${counted(codes, "кодекс и закон", "кодекса и закона", "кодексов и законов")}, ${counted(articles, "статья", "статьи", "статей")}`,
       `Официальные редакции от ${window.Editions.formatDate(updated)}`,
-      counted(window.TEMPLATES.length, "шаблон", "шаблона", "шаблонов"),
+      counted(window.TEMPLATE_INDEX.length, "шаблон", "шаблона", "шаблонов"),
       "Данные остаются у вас",
     ];
   }
@@ -86,7 +86,7 @@
     function render() {
       const query = input.value.trim();
       if (query.length < 2) { close(); return; }
-      const found = window.SiteSearch.search(query, { base: window.LAW_BASE, templates: window.TEMPLATES, forms: window.OFFICIAL_FORMS, stem: window.TextSearch.stem });
+      const found = window.SiteSearch.search(query, { base: window.LAW_BASE, templates: window.TEMPLATE_INDEX, forms: window.OFFICIAL_FORMS, stem: window.TextSearch.stem });
       const items = [
         ...group("Статьи", found.articles.map((article) => row(
           { onClick: () => { close(); window.UI.showArticle(article.lawId, article.number); } },
@@ -232,7 +232,7 @@
             window.UI.articleName(item.lawId, item.number), article.title));
         }
       } else {
-        const template = window.TEMPLATES.find((entry) => entry.id === item.templateId);
+        const template = window.TEMPLATE_INDEX.find((entry) => entry.id === item.templateId);
         if (template) cards.push(continueCard({ href: `#template/${template.id}` }, "blue", "contract", template.title, "Шаблон"));
       }
     }

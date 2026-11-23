@@ -5,11 +5,14 @@
   const { h, shortDateTime } = window.UI;
   const Engine = window.TemplateEngine;
 
-  function describe(document) {
-    const template = window.TEMPLATES.find((item) => item.id === document.templateId);
-    if (!template) return "Шаблон больше не доступен";
+  /** Подпись черновика. Шаблоны подгружаются по требованию: пока шаблон не загружен, показываем только дату. */
+  function describe(document, templates) {
+    if (!window.TemplateLoader.entry(document.templateId)) return "Шаблон больше не доступен";
+    const template = templates && templates.get(document.templateId);
+    const changed = `изменён ${shortDateTime(document.updatedAt)}`;
+    if (!template) return changed[0].toUpperCase() + changed.slice(1);
     const { progress } = Engine.render(template, Engine.withDefaults(template, document.values));
-    return `Заполнено ${progress.filled} из ${progress.total}, изменён ${shortDateTime(document.updatedAt)}`;
+    return `Заполнено ${progress.filled} из ${progress.total}, ${changed}`;
   }
 
   /** Строка избранного или недавнего: статья открывается в окне, шаблон по ссылке. Отдаёт null, если записи больше нет. */
@@ -22,7 +25,7 @@
         h("span", { class: "bookmark-kind" }, window.UI.articleName(item.lawId, item.number)),
         h("span", { class: "bookmark-title" }, article.title)));
     }
-    const template = window.TEMPLATES.find((entry) => entry.id === item.templateId);
+    const template = window.TemplateLoader.entry(item.templateId);
     if (!template) return null;
     return h("li", {}, h("a", { class: "bookmark", href: `#template/${template.id}` },
       h("span", { class: "bookmark-kind" }, "Шаблон"),
@@ -56,7 +59,7 @@
     const onClose = () => (saved.isConnected ? renderBookmarks() : dialog.removeEventListener("close", onClose));
     dialog.addEventListener("close", onClose);
 
-    function row(document) {
+    function row(document, templates) {
       const actions = h("div", { class: "document-actions" });
 
       function showActions() {
@@ -75,7 +78,7 @@
       return h("li", { class: "document-row" },
         h("div", {},
           h("div", { class: "document-title" }, document.title),
-          h("div", { class: "document-meta" }, describe(document))),
+          h("div", { class: "document-meta" }, describe(document, templates))),
         actions);
     }
 
@@ -94,7 +97,11 @@
           h("a", { class: "button primary", href: "#templates" }, "Выбрать шаблон")));
         return;
       }
-      list.replaceChildren(h("ul", { class: "documents" }, documents.map(row)));
+      const draw = (templates) => list.replaceChildren(h("ul", { class: "documents" }, documents.map((document) => row(document, templates))));
+      draw(null);
+      window.TemplateLoader.loadMany(documents.map((document) => document.templateId))
+        .then((templates) => { if (list.isConnected) draw(templates); })
+        .catch(() => {});
     }
 
     root.append(
