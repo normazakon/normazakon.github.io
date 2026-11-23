@@ -45,7 +45,7 @@
         lead && h("p", { class: "auth-lead" }, lead),
         ...content),
       app.auth.mode === "local" && h("p", { class: "auth-test-note" },
-        "Тестовый режим: аккаунт хранится только в этом браузере, пароль не проверяется, письма не отправляются.")));
+        "Тестовый режим: войти можно без почты и пароля. Аккаунт хранится только в этом браузере, письма не отправляются.")));
   }
 
   function tabs(active) {
@@ -87,7 +87,13 @@
       if (result.ok) { announce(); goBack(); }
       return result;
     });
+    // в тестовом режиме посмотреть кабинет можно без почты и пароля
+    const demo = app.auth.mode === "local" && h("button", { class: "button large wide", type: "button", onClick: async () => {
+      const result = await app.auth.signIn({});
+      if (result.ok) { announce(); goBack(); } else error.textContent = result.error;
+    } }, "Посмотреть без регистрации");
     page(root, app, "Вход в «Норму»", "Шаблоны, законы и расчёты — в вашем аккаунте.", tabs("login"), form,
+      demo && h("div", { class: "auth-or" }, h("span", {}, "или")), demo,
       h("p", { class: "auth-switch" }, "Ещё нет аккаунта? ", h("a", { href: "#register" }, "Зарегистрируйтесь")));
     setTimeout(() => email.focus(), 0);
   };

@@ -1077,6 +1077,8 @@ button.avatar { border: 0; cursor: pointer; }
 .auth-error { margin: 0; color: var(--problem); font-size: 14px; }
 .auth-error:empty { display: none; }
 .button.wide { width: 100%; justify-content: center; }
+.auth-or { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 13px; }
+.auth-or::before, .auth-or::after { content: ""; flex: 1; height: 1px; background: var(--line); }
 .auth-switch { margin: 0; color: var(--muted); font-size: 15px; text-align: center; }
 .auth-sent { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; padding: 16px; background: var(--accent-soft); border-radius: 14px; }
 .auth-sent p { margin: 0; }
