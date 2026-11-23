@@ -284,7 +284,11 @@
         showVersion(found.versions, found.version, `Редакции этой статьи в базе начинаются с ${formatDate(found.since)}. Какой текст действовал ${day}, по ним установить нельзя. Показана самая ранняя известная редакция.`);
       } else {
         // у статьи без изменений блок и так говорит, что редакция одна
-        showVersion(found.versions, found.version, found.versions.length > 1 ? `Редакция, которая действовала ${day}.` : null);
+        // для будущей даты — «будет действовать»: так статья открывается из ленты «скоро вступит в силу»
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+        const verb = options.date > today ? "будет действовать" : "действовала";
+        showVersion(found.versions, found.version, found.versions.length > 1 ? `Редакция, которая ${verb} ${day}.` : null);
       }
     };
 
