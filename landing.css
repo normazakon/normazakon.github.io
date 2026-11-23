@@ -23,7 +23,7 @@ body.landing { background: var(--bg); }
 
 /* Цифры */
 .land-stats { background: var(--surface); border-bottom: 1px solid var(--line); }
-.land-stats-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding-top: 32px; padding-bottom: 32px; }
+.land-stats-row { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 16px; padding-top: 32px; padding-bottom: 32px; }
 .land-stats-row div { display: flex; flex-direction: column; gap: 4px; }
 .land-stats-row strong { color: var(--accent); font-size: 40px; font-weight: 600; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .land-stats-row span { color: var(--muted); font-size: 15px; }
@@ -88,6 +88,8 @@ body.landing { background: var(--bg); }
   .land-features, .land-why { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .land-tab ul, .land-steps-list { grid-template-columns: minmax(0, 1fr); }
   .land-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; }
+  .land-stats-row div:last-child { grid-column: 1 / -1; }
+  .land-floats { display: none; }
 }
 
 @media (max-width: 640px) {
@@ -175,13 +177,68 @@ body.landing { background: var(--bg); }
 /* финальный блок: по градиенту медленно проходит светлая полоса */
 .land-final-box { background: linear-gradient(110deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%) 0 0 / 200% 100% no-repeat, var(--gradient-panel); animation: land-sheen 7s ease-in-out infinite; }
 
+/* шапка при прокрутке становится полупрозрачной, снизу бежит полоса прочитанного */
+.land-header { transition: background-color 250ms ease, border-color 250ms ease; }
+.land-header.is-scrolled { background: rgba(255, 255, 255, 0.82); -webkit-backdrop-filter: saturate(1.6) blur(14px); backdrop-filter: saturate(1.6) blur(14px); }
+.land-progress { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--accent); transform: scaleX(var(--progress, 0)); transform-origin: left; pointer-events: none; }
+.land-nav a { position: relative; transition: color 200ms ease; }
+.land-nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.land-nav a.is-active { color: var(--ink); }
+.land-nav a.is-active::after, .land-nav a:hover::after { transform: scaleX(1); }
+
+/* в заголовке под ключевыми словами прорисовывается линия */
+@keyframes land-underline { from { background-size: 0 0.14em; } }
+.land-mark { background: linear-gradient(90deg, var(--accent), #6f9be6) 0 92% / 100% 0.14em no-repeat; animation: land-underline 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 700ms both; }
+.land-mark + .land-mark, h1 .land-mark:last-child { animation-delay: 950ms; }
+
+/* карточки вокруг снимка экрана: покачиваются и при прокрутке смещаются с разной скоростью */
+@keyframes land-float-in { from { opacity: 0; scale: 0.85; } }
+@keyframes land-bob { 50% { transform: translateY(-10px); } }
+.land-stage { position: relative; }
+.land-floats { position: absolute; inset: 0 24px; pointer-events: none; }
+.land-float {
+  position: absolute; left: var(--x); top: var(--y); display: flex; align-items: center; gap: 12px; padding: 12px 18px 12px 12px;
+  background: rgba(255, 255, 255, 0.9); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  border: 1px solid var(--line); border-radius: 16px; white-space: nowrap;
+  translate: 0 calc(var(--scroll, 0) * var(--depth, 0.15) * -1px);
+  animation: land-float-in 700ms cubic-bezier(0.2, 0.7, 0.2, 1) calc(900ms + var(--n, 0) * 150ms) both, land-bob 6s ease-in-out var(--d, 0s) infinite;
+}
+.land-float:nth-child(2) { --n: 1; } .land-float:nth-child(3) { --n: 2; } .land-float:nth-child(4) { --n: 3; }
+.land-float .tone-plate { width: 38px; height: 38px; border-radius: 11px; font-weight: 600; font-size: 17px; }
+.land-float b { display: block; font-size: 15px; font-weight: 600; }
+.land-float small { display: block; color: var(--muted); font-size: 13px; }
+
+/* бегущая лента с названиями шаблонов; при наведении останавливается */
+@keyframes land-marquee { to { transform: translateX(-100%); } }
+.land-marquee { display: grid; gap: 12px; padding: 28px 0; overflow: hidden; background: var(--surface); border-bottom: 1px solid var(--line);
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+.land-marquee-row { display: flex; width: max-content; }
+.land-marquee-track { display: flex; flex: 0 0 auto; gap: 12px; margin: 0; padding: 0 12px 0 0; list-style: none; animation: land-marquee 60s linear infinite; }
+.land-marquee-row.is-reverse .land-marquee-track { animation-direction: reverse; animation-duration: 70s; }
+.land-marquee-row:hover .land-marquee-track { animation-play-state: paused; }
+.land-marquee-track + .land-marquee-track { display: flex; }
+.land-marquee li { display: inline-flex; align-items: center; gap: 10px; padding: 10px 18px; background: var(--bg); border-radius: 999px; font-size: 15px; white-space: nowrap; }
+.land-marquee li::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--tone, var(--accent)); }
+
+/* под курсором на карточке возможностей светится мягкое пятно её цвета */
+.land-features li { position: relative; overflow: hidden; isolation: isolate; }
+.land-features li::after { content: ""; position: absolute; inset: 0; z-index: -1; background: radial-gradient(320px circle at var(--mx, 50%) var(--my, 0%), var(--tone-soft), transparent 65%); opacity: 0; transition: opacity 300ms ease; }
+@media (hover: hover) { .land-features li:hover::after { opacity: 1; } }
+
+@media (prefers-reduced-motion: no-preference) { html:has(body.landing) { scroll-behavior: smooth; } }
+
 @media print {
   .reveal { opacity: 1; transform: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .land-hero::before, .land-hero::after, .land-hero-copy > *, .land-shot, .land-tab:not([hidden]), .land-tab:not([hidden]) li,
-  .land-faq details[open] p, .land-final-box { animation: none !important; }
+  .land-faq details[open] p, .land-final-box, .land-mark, .land-float, .land-marquee-track { animation: none !important; }
+  .land-float { translate: none; }
+  .land-marquee { -webkit-mask-image: none; mask-image: none; }
+  .land-marquee-row { flex-wrap: wrap; width: auto; padding: 0 16px; }
+  .land-marquee-track { flex-wrap: wrap; }
+  .land-marquee-track + .land-marquee-track { display: none; }
   .reveal { opacity: 1; transform: none; }
   .land-why li.reveal:not(.is-in)::before, .land-steps-list li.reveal:not(.is-in)::before { transform: none; }
 }
