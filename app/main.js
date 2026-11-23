@@ -35,7 +35,15 @@
 
   function showRoute() {
     const route = parseRoute(location.hash);
+    // окно статьи открыто поверх прежнего экрана: при переходе (в том числе кнопкой «Назад») его закрываем,
+    // а если новый адрес сам ведёт на статью, раздел законов откроет её заново
+    const dialog = document.getElementById("article-dialog");
+    if (dialog && dialog.open) dialog.close();
     view.replaceChildren();
+    // класс перезапускает анимацию появления экрана (в styles.css, при «уменьшить движение» её нет)
+    view.classList.remove("view-enter");
+    void view.offsetWidth;
+    view.classList.add("view-enter");
     view.dataset.route = route.name;
     window.Views[route.name](view, route.params, app);
     document.querySelectorAll(".nav a, .footer-links a").forEach((link) => {

@@ -984,6 +984,50 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
   .doc-signatures { grid-template-columns: minmax(0, 1fr); }
 }
 
+/* ---------- Движение в приложении ----------
+   Плавно и без теней. Экран появляется при каждом переходе (класс .view-enter ставит main.js),
+   карточки идут друг за другом, окно статьи раскрывается. При «уменьшить движение» всего этого нет. */
+@keyframes view-in { from { opacity: 0; transform: translateY(10px); } }
+@keyframes card-in { from { opacity: 0; transform: translateY(14px); } }
+@keyframes dialog-in { from { opacity: 0; transform: translateY(16px) scale(0.98); } }
+@keyframes backdrop-in { from { opacity: 0; } }
+@keyframes hero-drift { 50% { transform: translate(5%, 7%) scale(1.08); } }
+
+.view-enter > * { animation: view-in 380ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > * { animation: card-in 450ms cubic-bezier(0.2, 0.7, 0.2, 1) both; animation-delay: calc(var(--n, 0) * 45ms + 80ms); }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(2) { --n: 1; }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(3) { --n: 2; }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(4) { --n: 3; }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(5) { --n: 4; }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(6) { --n: 5; }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(n+7) { --n: 6; }
+
+/* карточки слегка приподнимаются под курсором, значок поворачивается */
+.task-card, .catalog-card, .continue-card { transition: border-color 150ms ease, transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.task-card .tone-plate, .catalog-card .tone-plate { transition: transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1); }
+.card-arrow { transition: transform 200ms ease; }
+@media (hover: hover) {
+  .task-card:hover, .catalog-card:hover, .continue-card:hover { transform: translateY(-3px); }
+  .task-card:hover .tone-plate, .catalog-card:hover .tone-plate { transform: scale(1.08) rotate(-6deg); }
+  .task-card:hover .card-arrow, .catalog-card:hover .card-arrow { transform: translateX(4px); }
+}
+
+/* за первым экраном главной медленно плывёт мягкое цветное пятно, как на лендинге */
+.home-hero { position: relative; overflow: hidden; isolation: isolate; }
+.home-hero::before { content: ""; position: absolute; z-index: -1; top: -200px; right: -160px; width: 620px; height: 620px; border-radius: 50%; background: rgba(111, 155, 230, 0.22); filter: blur(90px); pointer-events: none; animation: hero-drift 20s ease-in-out infinite; }
+/* список поиска на главной не должен обрезаться краем первого экрана */
+.home-hero:has(.search-results:not([hidden])) { overflow: visible; }
+
+.article-dialog[open] { animation: dialog-in 280ms cubic-bezier(0.2, 0.7, 0.2, 1) both; }
+.article-dialog[open]::backdrop { animation: backdrop-in 280ms ease both; }
+
+@media (prefers-reduced-motion: reduce) {
+  .view-enter > *, .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > *,
+  .home-hero::before, .article-dialog[open], .article-dialog[open]::backdrop { animation: none !important; }
+  .task-card:hover, .catalog-card:hover, .continue-card:hover, .task-card:hover .tone-plate, .catalog-card:hover .tone-plate,
+  .task-card:hover .card-arrow, .catalog-card:hover .card-arrow { transform: none; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; scroll-behavior: auto !important; }
 }
