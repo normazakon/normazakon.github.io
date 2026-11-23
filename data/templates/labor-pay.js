@@ -409,14 +409,7 @@
       },
     ],
     computed: {
-      last_day: { hint: "последний день отпуска", field: "days", value: (values, helpers) => {
-        const start = helpers.parseDate(values.start);
-        const days = Number(String(values.days || "").replace(",", "."));
-        if (!start || !Number.isInteger(days) || days < 1) return null;
-        const last = new Date(start.getTime());
-        last.setUTCDate(last.getUTCDate() + days - 1);
-        return helpers.dateText(last.toISOString().slice(0, 10));
-      } },
+      last_day: { hint: "последний день отпуска", field: "days", value: (values, helpers) => lastDayOf(values.start, values.days, helpers) },
     },
     example: { ...WORKER_EXAMPLE, ground: "own", start: "2026-12-07", days: "14", application_date: "2026-11-23" },
     checks(values, helpers) {
@@ -603,6 +596,280 @@
     ],
   };
 
+  /** Дата через n календарных дней после начала, включая день начала: последний день периода. */
+  function lastDayOf(start, days, helpers) {
+    const from = helpers.parseDate(start);
+    const count = Number(String(days || "").replace(",", "."));
+    if (!from || !Number.isInteger(count) || count < 1) return null;
+    const last = new Date(from.getTime());
+    last.setUTCDate(last.getUTCDate() + count - 1);
+    return helpers.dateText(last.toISOString().slice(0, 10));
+  }
+
+  /* ---------- Отзыв заявления об увольнении ---------- */
+
+  const resignationWithdrawal = {
+    id: "resignation-withdrawal",
+    title: "Заявление об отзыве заявления об увольнении по собственному желанию",
+    category: "Трудовые отношения",
+    summary: "Передумали увольняться: до истечения срока предупреждения заявление можно отозвать, если на место не пригласили письменно другого работника.",
+    reviewed: false,
+    basis: [{ lawId: "TK", number: "80" }],
+    notes: [
+      "До истечения срока предупреждения работник вправе в любое время отозвать заявление об увольнении. Увольнение тогда не производится, если на его место не приглашен в письменной форме другой работник, которому нельзя отказать в договоре (например, переводом из другой организации).",
+      "Отзовите заявление письменно и сохраните доказательство вручения: отметку о получении на втором экземпляре или почтовую квитанцию с описью.",
+      "Если последний рабочий день уже прошел и трудовой договор прекращен, отозвать заявление нельзя.",
+    ],
+    sections: [
+      { title: "Работодатель и работник", fields: workerFields },
+      {
+        title: "Отзыв",
+        fields: [
+          date("resignation_date", "Дата заявления об увольнении", { hint: "дата заявления об увольнении" }),
+          date("last_day", "Последний рабочий день по заявлению", { hint: "дата увольнения" }),
+          date("application_date", "Дата отзыва", { hint: "дата отзыва" }),
+        ],
+      },
+    ],
+    example: { ...WORKER_EXAMPLE, resignation_date: "2026-11-16", last_day: "2026-11-30", application_date: "2026-11-23" },
+    checks(values, helpers) {
+      const left = helpers.daysBetween(values.application_date, values.last_day);
+      if (left !== null && left < 0) return [{ level: "warning", text: "Срок предупреждения уже истек: отозвать заявление можно только до последнего рабочего дня.", basis: { lawId: "TK", number: "80" } }];
+      const after = helpers.daysBetween(values.resignation_date, values.application_date);
+      if (after !== null && after < 0) return [{ level: "warning", text: "Дата отзыва раньше даты заявления об увольнении." }];
+      return [];
+    },
+    body: [
+      ...workerLines,
+      title("ЗАЯВЛЕНИЕ"),
+      subtitle("об отзыве заявления об увольнении"),
+      paragraph("На основании части четвертой статьи 80 Трудового кодекса Российской Федерации отзываю свое заявление от {{resignation_date}} об увольнении по собственному желанию с {{last_day}}."),
+      paragraph("Прошу не производить мое увольнение и считать трудовой договор продолжающим действовать на прежних условиях."),
+      signatureLine("{{employee_short}}", "{{application_date}}"),
+    ],
+  };
+
+  /* ---------- Отпуск по беременности и родам ---------- */
+
+  const MATERNITY = [
+    { value: "single", label: "Одноплодная беременность — 140 дней", days: 140 },
+    { value: "multiple", label: "Многоплодная беременность — 194 дня", days: 194 },
+  ];
+  const maternityDays = (values) => (MATERNITY.find((item) => item.value === values.pregnancy) || MATERNITY[0]).days;
+  const withAnnual = (values) => values.annual === "after" || values.annual === "before";
+
+  const maternityLeave = {
+    id: "maternity-leave",
+    title: "Заявление о предоставлении отпуска по беременности и родам",
+    category: "Трудовые отношения",
+    summary: "Декретный отпуск по листку нетрудоспособности: 140 дней, при многоплодной беременности 194. Можно сразу присоединить ежегодный отпуск — независимо от стажа.",
+    reviewed: false,
+    basis: [{ lawId: "TK", number: "255" }, { lawId: "TK", number: "260" }],
+    notes: [
+      "Отпуск по беременности и родам предоставляется по заявлению и на основании листка нетрудоспособности: 70 дней до родов и 70 после, при многоплодной беременности 84 до и 110 после. При осложненных родах отпуск после родов продлевается до 86 дней по дополнительному листку.",
+      "Отпуск считается суммарно и предоставляется полностью, сколько бы дней ни было использовано до родов.",
+      "Перед отпуском по беременности и родам или сразу после него женщине по ее желанию предоставляется ежегодный оплачиваемый отпуск независимо от стажа у этого работодателя.",
+      "Пособие по беременности и родам выплачивает Социальный фонд по сведениям от работодателя; электронный листок нетрудоспособности оформляет врач.",
+    ],
+    sections: [
+      { title: "Работодатель и работник", fields: workerFields },
+      {
+        title: "Отпуск",
+        fields: [
+          text("sick_leave", "Листок нетрудоспособности", { hint: "номер листка", help: "Номер электронного листка нетрудоспособности" }),
+          select("pregnancy", "Беременность", MATERNITY.map(({ value, label }) => ({ value, label })), { default: "single" }),
+          date("start", "Начало отпуска", { hint: "начало отпуска", help: "Дата начала по листку нетрудоспособности" }),
+          select("annual", "Ежегодный отпуск", [
+            { value: "none", label: "Не нужен" },
+            { value: "after", label: "Сразу после декретного" },
+            { value: "before", label: "Перед декретным" },
+          ], { default: "none" }),
+          number("annual_days", "Дней ежегодного отпуска", { hint: "дни ежегодного отпуска", when: withAnnual }),
+          date("application_date", "Дата заявления", { hint: "дата заявления" }),
+        ],
+      },
+    ],
+    computed: {
+      maternity_days: { hint: "дней отпуска", field: "pregnancy", value: (values) => String(maternityDays(values)) },
+      maternity_end: { hint: "окончание отпуска", field: "start", value: (values, helpers) => lastDayOf(values.start, maternityDays(values), helpers) },
+    },
+    example: { ...WORKER_EXAMPLE, sick_leave: "№ 000000000000", pregnancy: "single", start: "2026-12-07", annual: "after", annual_days: "28", application_date: "2026-11-30" },
+    checks(values, helpers) {
+      const ahead = helpers.daysBetween(values.application_date, values.start);
+      if (ahead !== null && ahead > 30) return [{ level: "info", text: "Заявление подают вместе с листком нетрудоспособности, который врач оформляет на 30-й неделе беременности (при многоплодной — на 28-й)." }];
+      return [];
+    },
+    body: [
+      ...workerLines,
+      title("ЗАЯВЛЕНИЕ"),
+      paragraph("На основании статьи 255 Трудового кодекса Российской Федерации и листка нетрудоспособности {{sick_leave}} прошу предоставить мне отпуск по беременности и родам продолжительностью {{maternity_days}} календарных дн. с {{start}} по {{maternity_end}} и назначить пособие по беременности и родам."),
+      paragraph("На основании статьи 260 Трудового кодекса Российской Федерации прошу предоставить мне ежегодный оплачиваемый отпуск продолжительностью {{annual_days}} календарных дн. непосредственно после окончания отпуска по беременности и родам.", (values) => values.annual === "after"),
+      paragraph("На основании статьи 260 Трудового кодекса Российской Федерации прошу предоставить мне ежегодный оплачиваемый отпуск продолжительностью {{annual_days}} календарных дн. непосредственно перед отпуском по беременности и родам.", (values) => values.annual === "before"),
+      signatureLine("{{employee_short}}", "{{application_date}}"),
+    ],
+  };
+
+  /* ---------- Перевод на дистанционную работу ---------- */
+
+  const REMOTE_MODES = [
+    { value: "permanent", label: "Постоянно" },
+    { value: "temporary", label: "Временно, до шести месяцев" },
+    { value: "mixed", label: "Чередуя с работой в офисе" },
+  ];
+  const remoteMode = (values) => values.remote_mode || "permanent";
+
+  const remoteWork = {
+    id: "remote-work-request",
+    title: "Заявление о переводе на дистанционную (удаленную) работу",
+    category: "Трудовые отношения",
+    summary: "Работать удаленно постоянно, временно до полугода или чередуя с офисом: перевод оформляется дополнительным соглашением к трудовому договору.",
+    reviewed: false,
+    basis: [{ lawId: "TK", number: "312.1" }, { lawId: "TK", number: "312.2" }, { lawId: "TK", number: "72" }],
+    notes: [
+      "Дистанционная работа может быть постоянной, временной (непрерывно не больше шести месяцев) или периодической — с чередованием удаленной работы и работы на рабочем месте.",
+      "Перевод — изменение условий трудового договора, поэтому он оформляется дополнительным соглашением, в том числе обменом электронными документами с электронной подписью. Работодатель вправе не согласиться.",
+      "По письменному заявлению дистанционного работника работодатель в течение трех рабочих дней обязан направить ему бумажный экземпляр трудового договора или дополнительного соглашения.",
+      "В соглашении стоит договориться о способе связи, сроках ответа на сообщения, оборудовании и возмещении расходов на связь.",
+    ],
+    sections: [
+      { title: "Работодатель и работник", fields: workerFields },
+      {
+        title: "Удаленная работа",
+        fields: [
+          select("remote_mode", "Как работать удаленно", REMOTE_MODES, { default: "permanent" }),
+          date("from", "С какого дня", { hint: "дата начала" }),
+          date("until", "По какой день", { hint: "дата окончания", when: (values) => remoteMode(values) === "temporary" }),
+          text("schedule", "Порядок чередования", { hint: "порядок чередования", when: (values) => remoteMode(values) === "mixed", help: "Например, понедельник и пятница — удаленно, остальные дни — в офисе" }),
+          text("contact", "Способ связи", { hint: "способ связи", help: "Например, рабочая почта ivanov@example.ru и корпоративный мессенджер" }),
+          area("reason", "Причина", { hint: "причина", optional: true, help: "Указывать не обязательно" }),
+          date("application_date", "Дата заявления", { hint: "дата заявления" }),
+        ],
+      },
+    ],
+    example: {
+      ...WORKER_EXAMPLE, remote_mode: "temporary", from: "2026-12-01", until: "2027-02-28", schedule: "понедельник и пятница — дистанционно, остальные дни — на рабочем месте",
+      contact: "рабочая электронная почта ivanov@example.ru", reason: "переезд на время лечения близкого родственника", application_date: "2026-11-23",
+    },
+    checks(values, helpers) {
+      if (remoteMode(values) !== "temporary") return [];
+      const days = helpers.daysBetween(values.from, values.until);
+      if (days !== null && days < 0) return [{ level: "warning", text: "Дата окончания раньше даты начала." }];
+      if (days !== null && days > 184) return [{ level: "warning", text: "Временная дистанционная работа — непрерывно не больше шести месяцев. На больший срок переводят постоянно или с чередованием.", basis: { lawId: "TK", number: "312.1" } }];
+      return [];
+    },
+    body: [
+      ...workerLines,
+      title("ЗАЯВЛЕНИЕ"),
+      subtitle("о переводе на дистанционную работу"),
+      paragraph("Прошу перевести меня на дистанционную работу с {{from}} на постоянной основе.", (values) => remoteMode(values) === "permanent"),
+      paragraph("Прошу перевести меня на дистанционную работу временно, с {{from}} по {{until}}.", (values) => remoteMode(values) === "temporary"),
+      paragraph("Прошу с {{from}} установить мне выполнение трудовой функции дистанционно периодически в следующем порядке: {{schedule}}.", (values) => remoteMode(values) === "mixed"),
+      paragraph("Причина: {{reason}}.", filled("reason")),
+      paragraph("Взаимодействие прошу осуществлять через: {{contact}}."),
+      paragraph("Прошу оформить перевод дополнительным соглашением к трудовому договору в соответствии со статьями 72 и 312.1 Трудового кодекса Российской Федерации."),
+      signatureLine("{{employee_short}}", "{{application_date}}"),
+    ],
+  };
+
+  /* ---------- Отказ от опасной работы ---------- */
+
+  const dangerRefusal = {
+    id: "dangerous-work-refusal",
+    title: "Уведомление об отказе от выполнения работы, угрожающей жизни и здоровью",
+    category: "Трудовые отношения",
+    summary: "Работа опасна из-за нарушения требований охраны труда: письменно известить работодателя и не выполнять ее до устранения опасности, сохраняя права и заработок.",
+    reviewed: false,
+    basis: [{ lawId: "TK", number: "216" }, { lawId: "TK", number: "216.1" }, { lawId: "TK", number: "379" }],
+    notes: [
+      "Работник вправе отказаться от работы при опасности для жизни и здоровья из-за нарушения требований охраны труда — до устранения опасности, кроме случаев, предусмотренных федеральными законами. Для самозащиты прав нужно письменно известить работодателя или непосредственного руководителя.",
+      "На это время работодатель обязан дать другую работу. Если это невозможно, время простоя до устранения опасности оплачивается. За работником сохраняются все трудовые права.",
+      "Опишите опасность конкретно: какое оборудование, какое нарушение, чем грозит. Сохраните копию уведомления с отметкой о получении, фото и показания коллег.",
+    ],
+    sections: [
+      { title: "Работодатель и работник", fields: workerFields },
+      {
+        title: "Опасность",
+        fields: [
+          text("work", "От какой работы отказываетесь", { hint: "работа", help: "Например, работа на высоте при монтаже кровли склада № 2" }),
+          area("danger", "В чем опасность", { hint: "описание опасности", help: "Например, нет страховочной системы и ограждения, леса не закреплены" }),
+          date("from", "С какого дня", { hint: "дата отказа" }),
+          date("notice_date", "Дата уведомления", { hint: "дата уведомления" }),
+        ],
+      },
+    ],
+    example: {
+      ...WORKER_EXAMPLE, position: "монтажника", work: "работа на высоте при монтаже кровли склада № 2",
+      danger: "отсутствуют страховочные системы и ограждения, строительные леса не закреплены, инструктаж по работе на высоте не проводился", from: "2026-11-23", notice_date: "2026-11-23",
+    },
+    checks(values, helpers) {
+      const order = helpers.daysBetween(values.notice_date, values.from);
+      if (order !== null && order < 0) return [{ level: "warning", text: "Сначала нужно письменно известить работодателя: дата отказа раньше даты уведомления.", basis: { lawId: "TK", number: "379" } }];
+      return [];
+    },
+    body: [
+      ...workerLines,
+      title("УВЕДОМЛЕНИЕ"),
+      subtitle("об отказе от выполнения работы"),
+      paragraph("Извещаю, что с {{from}} отказываюсь от выполнения работы: {{work}}, так как она непосредственно угрожает моей жизни и здоровью вследствие нарушения требований охраны труда: {{danger}}."),
+      paragraph("Отказ заявлен на основании статей 216 и 379 Трудового кодекса Российской Федерации и действует до устранения опасности."),
+      paragraph("В соответствии со статьей 216.1 Трудового кодекса Российской Федерации прошу устранить опасность и на это время предоставить мне другую работу, а если это невозможно — оплатить время простоя. Прошу письменно уведомить меня об устранении опасности."),
+      signatureLine("{{employee_short}}", "{{notice_date}}"),
+    ],
+  };
+
+  /* ---------- Ежегодный отпуск в удобное время ---------- */
+
+  const CONVENIENT = [
+    { value: "husband", label: "Муж — во время декретного отпуска жены", article: "123" },
+    { value: "disabled", label: "Родитель ребенка-инвалида до 18 лет", article: "262.1" },
+    { value: "large", label: "Трое и более детей до 18 лет, младшему нет 14", article: "262.2" },
+  ];
+  const convenientOf = (values) => CONVENIENT.find((item) => item.value === values.convenient) || CONVENIENT[0];
+
+  const convenientLeave = {
+    id: "convenient-annual-leave",
+    title: "Заявление о предоставлении ежегодного отпуска в удобное время",
+    category: "Трудовые отношения",
+    summary: "Отпуск вне графика по праву выбрать время: мужу в период декретного отпуска жены, родителю ребенка-инвалида, работнику с тремя и более детьми.",
+    reviewed: false,
+    basis: [{ lawId: "TK", number: "123" }, { lawId: "TK", number: "262.1" }, { lawId: "TK", number: "262.2" }],
+    notes: [
+      "Обычно отпуск предоставляется по графику. Но отдельным категориям работников ежегодный отпуск предоставляется по их желанию в удобное для них время.",
+      "Мужу — в период отпуска жены по беременности и родам, независимо от стажа у работодателя (статья 123 ТК). Одному из родителей ребенка-инвалида до 18 лет (статья 262.1 ТК). Работнику с тремя и более детьми до 18 лет — пока младшему не исполнится 14 (статья 262.2 ТК).",
+      "Приложите подтверждающие документы: справку о декретном отпуске жены, справку об инвалидности ребенка, свидетельства о рождении детей.",
+    ],
+    sections: [
+      { title: "Работодатель и работник", fields: workerFields },
+      {
+        title: "Отпуск",
+        fields: [
+          select("convenient", "Основание", CONVENIENT.map(({ value, label }) => ({ value, label })), { default: "husband" }),
+          date("start", "Начало отпуска", { hint: "начало отпуска" }),
+          number("days", "Календарных дней", { hint: "дни отпуска" }),
+          area("attachments", "Приложения", { hint: "приложения", default: "справка с места работы жены о предоставлении отпуска по беременности и родам; копия свидетельства о браке" }),
+          date("application_date", "Дата заявления", { hint: "дата заявления" }),
+        ],
+      },
+    ],
+    example: { ...WORKER_EXAMPLE, convenient: "husband", start: "2027-01-11", days: "14", attachments: "справка с места работы жены о предоставлении отпуска по беременности и родам; копия свидетельства о браке", application_date: "2026-11-23" },
+    checks(values, helpers) {
+      const ahead = helpers.daysBetween(values.application_date, values.start);
+      if (ahead !== null && ahead < 0) return [{ level: "warning", text: "Начало отпуска раньше даты заявления." }];
+      return [];
+    },
+    body: [
+      ...workerLines,
+      title("ЗАЯВЛЕНИЕ"),
+      paragraph("Прошу предоставить мне ежегодный оплачиваемый отпуск продолжительностью {{days}} календарных дн. с {{start}}."),
+      paragraph("В соответствии с частью пятой статьи 123 Трудового кодекса Российской Федерации ежегодный отпуск предоставляется мне по моему желанию в период нахождения моей жены в отпуске по беременности и родам независимо от времени непрерывной работы у работодателя.", (values) => convenientOf(values).value === "husband"),
+      paragraph("В соответствии со статьей 262.1 Трудового кодекса Российской Федерации как одному из родителей, воспитывающему ребенка-инвалида в возрасте до восемнадцати лет, ежегодный оплачиваемый отпуск предоставляется мне по моему желанию в удобное для меня время.", (values) => convenientOf(values).value === "disabled"),
+      paragraph("В соответствии со статьей 262.2 Трудового кодекса Российской Федерации как работнику, имеющему трех и более детей в возрасте до восемнадцати лет, младшему из которых не исполнилось четырнадцати лет, ежегодный оплачиваемый отпуск предоставляется мне по моему желанию в удобное для меня время.", (values) => convenientOf(values).value === "large"),
+      paragraph("Приложения: {{attachments}}."),
+      signatureLine("{{employee_short}}", "{{application_date}}"),
+    ],
+  };
+
   root.TEMPLATES.push(salaryDelay, workSuspension, unpaidLeave, workDocuments, childDeduction,
-    dismissalPayment, vacationDismissal, leaveCompensation, disabledChildDays, partTime);
+    dismissalPayment, vacationDismissal, leaveCompensation, disabledChildDays, partTime,
+    resignationWithdrawal, maternityLeave, remoteWork, dangerRefusal, convenientLeave);
 })(typeof window !== "undefined" ? window : globalThis);
