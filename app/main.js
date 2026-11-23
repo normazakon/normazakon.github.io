@@ -27,6 +27,7 @@
       case "terms": return { name: "terms", nav: "terms", params: {} };
       case "privacy": return { name: "privacy", nav: "privacy", params: {} };
       case "contacts": return { name: "contacts", nav: "contacts", params: {} };
+      case "account": return { name: "account", nav: "account", params: {} };
       case "":
       case "home": return { name: "home", nav: "home", params: {} };
       default: return { name: "notFound", nav: null, params: {} };
@@ -37,8 +38,7 @@
     const route = parseRoute(location.hash);
     // окно статьи открыто поверх прежнего экрана: при переходе (в том числе кнопкой «Назад») его закрываем,
     // а если новый адрес сам ведёт на статью, раздел законов откроет её заново
-    const dialog = document.getElementById("article-dialog");
-    if (dialog && dialog.open) dialog.close();
+    for (const dialog of [document.getElementById("article-dialog"), searchDialog]) if (dialog && dialog.open) dialog.close();
     view.replaceChildren();
     // класс перезапускает анимацию появления экрана (в styles.css, при «уменьшить движение» её нет)
     view.classList.remove("view-enter");
@@ -46,7 +46,7 @@
     view.classList.add("view-enter");
     view.dataset.route = route.name;
     window.Views[route.name](view, route.params, app);
-    document.querySelectorAll(".nav a, .footer-links a").forEach((link) => {
+    document.querySelectorAll(".nav a, .footer-links a, #account-link").forEach((link) => {
       if (link.dataset.section === route.nav) link.setAttribute("aria-current", "page");
       else link.removeAttribute("aria-current");
     });
@@ -64,6 +64,46 @@
       `Тексты и редакции с официального портала pravo.gov.ru, Конституция с официального сайта Президента kremlin.ru. ` +
       `Последняя учтённая редакция от ${window.Editions.formatDate(updated)}.`;
   }
+
+  /* Шапка: кружок кабинета с инициалами и поиск по всему из любого раздела (кнопка, Ctrl+K или «/»). */
+  const profile = window.Profile.createProfile(window.Storage2.browserBackend());
+  const accountLink = document.getElementById("account-link");
+  const userIcon = accountLink.innerHTML;
+  function showAvatar() {
+    const { name } = profile.read();
+    const initials = window.Profile.initials(name);
+    if (initials) accountLink.textContent = initials;
+    else accountLink.innerHTML = userIcon;
+    accountLink.setAttribute("aria-label", name ? `Личный кабинет: ${name}` : "Личный кабинет");
+  }
+  window.addEventListener("norma:profile", showAvatar);
+  // профиль поменяли в другой вкладке
+  window.addEventListener("storage", (event) => { if (event.key === window.Profile.KEY || event.key === null) showAvatar(); });
+  showAvatar();
+
+  const searchDialog = document.getElementById("search-dialog");
+  function openSearch() {
+    if (searchDialog.open) return;
+    const box = window.SearchBox.create({ id: "palette-search", onPick: () => searchDialog.close() });
+    document.getElementById("search-dialog-body").replaceChildren(box);
+    searchDialog.showModal();
+    box.input.focus();
+  }
+  document.getElementById("search-open").addEventListener("click", openSearch);
+  // щелчок по затемнению вокруг окна закрывает его
+  searchDialog.addEventListener("click", (event) => { if (event.target === searchDialog) searchDialog.close(); });
+  document.addEventListener("keydown", (event) => {
+    const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(event.target.tagName) || event.target.isContentEditable;
+    // KeyK — та же клавиша в русской раскладке («Л»)
+    const isK = event.code === "KeyK" || event.key.toLowerCase() === "k";
+    if ((event.ctrlKey || event.metaKey) && isK) {
+      event.preventDefault();
+      openSearch();
+    } else if (event.key === "/" && !typing && !document.querySelector("dialog[open]")) {
+      event.preventDefault();
+      openSearch();
+    }
+  });
 
   // ссылка «Перейти к содержимому» переводит фокус, а не меняет адрес
   document.querySelector(".skip-link").addEventListener("click", (event) => {
