@@ -362,7 +362,6 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .continue-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .continue-grid > li { display: flex; }
 .continue-card { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; cursor: pointer; font: inherit; text-align: left; text-decoration: none; transition: border-color 150ms ease; }
-.continue-card:hover { border-color: var(--hover-line); }
 .continue-text { display: flex; flex-direction: column; min-width: 0; }
 .continue-text strong { overflow: hidden; font-size: 15px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .continue-text span { overflow: hidden; color: var(--muted); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
@@ -403,7 +402,6 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .task-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 0; padding: 0; list-style: none; }
 .task-grid > li { display: flex; }
 .task-card { display: flex; align-items: center; gap: 16px; width: 100%; padding: 20px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
-.task-card:hover { border-color: var(--hover-line); }
 .task-card:hover strong { color: var(--accent); }
 .task-text { display: flex; flex: 1; flex-direction: column; gap: 2px; }
 .task-text strong { font-size: 17px; font-weight: 600; transition: color 150ms ease; }
@@ -436,7 +434,6 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
   transition: border-color 150ms ease, background-color 150ms ease;
 }
 
-.catalog-card:hover { border-color: var(--hover-line); }
 .catalog-card:hover .catalog-title { color: var(--accent); }
 .catalog-title { margin-top: 6px; font-size: 16px; font-weight: 600; line-height: 1.35; transition: color 150ms ease; }
 .catalog-summary { flex: 1; color: var(--muted); font-size: 14px; line-height: 1.5; }
@@ -448,7 +445,6 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .bookmark-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
 .bookmark-list > li { display: flex; }
 .bookmark { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 14px 16px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; cursor: pointer; font: inherit; text-align: left; text-decoration: none; transition: border-color 150ms ease; }
-.bookmark:hover { border-color: var(--hover-line); }
 .bookmark-kind { color: var(--accent); font-size: 13px; font-weight: 600; }
 .bookmark-title { font-size: 15px; line-height: 1.4; }
 .dialog-actions { display: flex; flex-wrap: wrap; align-items: start; justify-content: end; gap: 4px; }
@@ -758,7 +754,6 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .law-cards[hidden] { display: none; }
 .law-cards > li { display: flex; }
 .law-card { display: flex; flex-direction: column; gap: 4px; width: 100%; padding: 18px 20px; background: var(--surface); border: 1px solid transparent; border-radius: var(--radius-l); color: inherit; text-decoration: none; transition: border-color 150ms ease; }
-.law-card:hover { border-color: var(--hover-line); }
 .law-card-name { margin-top: 10px; font-size: 16px; font-weight: 600; line-height: 1.4; }
 .law-card .law-badge { justify-self: start; align-self: flex-start; }
 .law-card-name { flex: 1; }
@@ -1003,11 +998,12 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(n+7) { --n: 6; }
 
 /* карточки слегка приподнимаются под курсором, значок поворачивается */
-.task-card, .catalog-card, .continue-card { transition: border-color 150ms ease, transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+/* рамки при наведении нет: карточка только приподнимается */
+.task-card, .catalog-card, .continue-card, .bookmark, .law-card { transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1); }
 .task-card .tone-plate, .catalog-card .tone-plate { transition: transform 300ms cubic-bezier(0.3, 1.6, 0.5, 1); }
 .card-arrow { transition: transform 200ms ease; }
 @media (hover: hover) {
-  .task-card:hover, .catalog-card:hover, .continue-card:hover { transform: translateY(-3px); }
+  .task-card:hover, .catalog-card:hover, .continue-card:hover, .bookmark:hover, .law-card:hover { transform: translateY(-3px); }
   .task-card:hover .tone-plate, .catalog-card:hover .tone-plate { transform: scale(1.08) rotate(-6deg); }
   .task-card:hover .card-arrow, .catalog-card:hover .card-arrow { transform: translateX(4px); }
 }
@@ -1024,7 +1020,7 @@ label.button:focus-within { outline: 2px solid var(--accent); outline-offset: 2p
 @media (prefers-reduced-motion: reduce) {
   .view-enter > *, .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > *,
   .home-hero::before, .article-dialog[open], .article-dialog[open]::backdrop { animation: none !important; }
-  .task-card:hover, .catalog-card:hover, .continue-card:hover, .task-card:hover .tone-plate, .catalog-card:hover .tone-plate,
+  .task-card:hover, .catalog-card:hover, .continue-card:hover, .bookmark:hover, .law-card:hover, .task-card:hover .tone-plate, .catalog-card:hover .tone-plate,
   .task-card:hover .card-arrow, .catalog-card:hover .card-arrow { transform: none; }
 }
 
