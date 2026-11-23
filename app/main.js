@@ -5,7 +5,8 @@
   const view = document.getElementById("view");
   // app.auth — аккаунты: сейчас тестовый режим в браузере (lib/auth.js), позже сервер с теми же методами
   const app = {
-    store: window.Storage2.createStore(window.Storage2.browserBackend()),
+    // черновики свои у каждого аккаунта и у гостя (Auth.personalBackend)
+    store: window.Storage2.createStore(window.Auth.personalBackend(window.Storage2.browserBackend())),
     auth: window.Auth.createLocalAuth(window.Storage2.browserBackend()),
   };
 
@@ -124,7 +125,12 @@
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape" && menu && !menu.hidden) { closeAccountMenu(); document.getElementById("account-link").focus(); }
   });
-  window.addEventListener("norma:auth", renderAccount);
+  // вошли или вышли: шапка и текущий экран показывают уже данные другого человека
+  // экраны входа и кабинета сами решают, куда перейти после входа или выхода, их не трогаем
+  window.addEventListener("norma:auth", () => {
+    renderAccount();
+    if (!/^#(login|register|reset|account)\b/.test(location.hash)) showRoute();
+  });
   // вошли или вышли в другой вкладке
   window.addEventListener("storage", (event) => {
     if (event.key === window.Auth.KEY || event.key === null) { renderAccount(); showRoute(); }

@@ -74,13 +74,30 @@
       telegram && h("a", { href: telegram, target: "_blank", rel: "noopener noreferrer" }, "Вопрос по доступу — напишите нам"));
   }
 
-  function workCard(app) {
+  /** Черновики, сделанные до входа, лежат у гостя: предлагаем забрать их в аккаунт. */
+  function guestOffer(app, rerender) {
+    const guest = app.auth.guestData();
+    if (!guest.documents && !guest.favorites) return null;
+    const parts = [
+      guest.documents && `${guest.documents} ${plural(guest.documents, "черновик", "черновика", "черновиков")}`,
+      guest.favorites && `${guest.favorites} в избранном`,
+    ].filter(Boolean).join(" и ");
+    return h("div", { class: "guest-offer" },
+      h("p", {}, `До входа вы работали без аккаунта: ${parts}. Перенести их сюда?`),
+      h("button", { class: "button primary", type: "button", onClick: async () => {
+        const result = await app.auth.moveGuestData();
+        rerender(result.ok ? "Черновики и избранное перенесены в аккаунт." : result.error);
+      } }, "Перенести в аккаунт"));
+  }
+
+  function workCard(app, rerender) {
     const drafts = app.store.list();
     const { bookmarks } = window.UI;
     const tile = (value, label, iconName, tone) => h("a", { class: `account-stat tone-${tone}`, href: "#documents" },
       h("span", { class: "tone-plate small" }, icon(iconName)),
       h("strong", {}, String(value)), h("span", {}, label));
     return card("Моя работа", "",
+      guestOffer(app, rerender),
       h("div", { class: "account-stats" },
         tile(drafts.length, plural(drafts.length, "черновик", "черновика", "черновиков"), "contract", "blue"),
         tile(bookmarks.favorites().length, "в избранном", "star", "amber"),
@@ -195,7 +212,7 @@
       h("div", { class: "account-grid" },
         profileCard(app, user, rerender),
         planCard(user),
-        workCard(app),
+        workCard(app, rerender),
         settingsCard(),
         securityCard(app),
         helpCard()),

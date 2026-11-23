@@ -97,7 +97,8 @@
     });
   }
 
-  const bookmarks = window.Bookmarks.createBookmarks(window.Storage2.browserBackend());
+  // избранное и недавние свои у каждого аккаунта и у гостя
+  const bookmarks = window.Bookmarks.createBookmarks(window.Auth.personalBackend(window.Storage2.browserBackend()));
 
   /** Кнопка-звёздочка: добавляет в избранное или убирает. */
   function fillStar(button, item) {
