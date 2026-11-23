@@ -232,6 +232,8 @@
           h("span", { class: "card-arrow" }, window.UI.icon("arrow"))))))));
   }
 
+  const homeSettings = () => window.Settings.createSettings(window.Storage2.browserBackend()).read();
+
   /** Заголовок главной: по имени из аккаунта, если человек вошёл. */
   function greeting(app) {
     const user = app && app.auth && app.auth.current();
@@ -249,9 +251,10 @@
         h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point))))),
 
       continueWork(app),
-      watchedChanges(app),
+      // блоки, которые можно скрыть в настройках кабинета
+      homeSettings().homeWatch && watchedChanges(app),
       tasks(),
-      lawChanges(),
+      homeSettings().homeChanges && lawChanges(),
     ].filter(Boolean));
   };
 })();

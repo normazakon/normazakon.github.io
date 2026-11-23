@@ -160,6 +160,14 @@
     }
   });
 
+  /* Настройки из кабинета, которые касаются всего приложения: размер шрифта документов и статей. */
+  const settings = window.Settings.createSettings(window.Storage2.browserBackend());
+  function applySettings() {
+    document.documentElement.style.setProperty("--doc-scale", String(window.Settings.scaleOf(settings.read().docScale)));
+  }
+  window.addEventListener("norma:settings", applySettings);
+  applySettings();
+
   // ссылка «Перейти к содержимому» переводит фокус, а не меняет адрес
   document.querySelector(".skip-link").addEventListener("click", (event) => {
     event.preventDefault();

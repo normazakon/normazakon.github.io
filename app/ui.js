@@ -77,9 +77,8 @@
   }
 
   // показывать ли правки словами; выбор запоминается в браузере
-  const CHANGES_KEY = "norma.showChanges";
-  let showChanges = true;
-  try { showChanges = localStorage.getItem(CHANGES_KEY) !== "off"; } catch (error) { /* хранилище недоступно */ }
+  // подсветка правок в тексте статьи: настройка из кабинета, её же переключает кнопка в окне статьи
+  const settings = window.Settings.createSettings(window.Storage2.browserBackend());
 
   /**
    * Текст редакции с правками относительно прежней: добавленное в <ins>, удалённое в <del>,
@@ -239,7 +238,7 @@
       const hasChanges = Boolean(ops && ops.some((op) => op.type !== "same"));
       if (!lines || !lines.length) {
         body.replaceChildren(h("p", {}, "Текста этой статьи нет в базе. Откройте её в источнике."));
-      } else if (hasChanges && showChanges) {
+      } else if (hasChanges && settings.read().showChanges) {
         body.replaceChildren(...diffParagraphs(ops, options.terms, lawId));
       } else {
         // без правок изменённые и новые абзацы только отмечаются полосой слева
@@ -251,10 +250,10 @@
         }));
       }
       if (hasChanges) {
+        const showChanges = settings.read().showChanges;
         const toggle = h("button", { class: "link-button", type: "button" }, showChanges ? "Скрыть правки" : "Показать правки");
         toggle.addEventListener("click", () => {
-          showChanges = !showChanges;
-          try { localStorage.setItem(CHANGES_KEY, showChanges ? "on" : "off"); } catch (error) { /* хранилище недоступно */ }
+          settings.update({ showChanges: !showChanges });
           showVersion(versions, version, note);
         });
         const since = formatDate(older.from);

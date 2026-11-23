@@ -123,6 +123,43 @@
         h("button", { class: "button quiet danger", type: "button", onClick: remove }, "Удалить аккаунт")));
   }
 
+  /** Настройки сохраняются сразу при изменении, без кнопки. */
+  function settingsCard() {
+    const settings = window.Settings.createSettings(window.Storage2.browserBackend());
+    const current = settings.read();
+    const status = h("p", { class: "account-status ok", role: "status" });
+    const save = (fields) => {
+      const ok = settings.update(fields);
+      status.className = `account-status ${ok ? "ok" : "problem"}`;
+      status.textContent = ok ? "Сохранено." : "Браузер не дал сохранить: возможно, включён приватный режим.";
+      window.dispatchEvent(new CustomEvent("norma:settings"));
+    };
+    const scale = h("div", { class: "segmented settings-scale", role: "radiogroup", "aria-label": "Размер шрифта документов" },
+      window.Settings.DOC_SCALES.map((item) => {
+        const button = h("button", { type: "button", role: "radio", "aria-checked": String(item.value === current.docScale), "aria-pressed": String(item.value === current.docScale) }, item.label);
+        button.addEventListener("click", () => {
+          scale.querySelectorAll("button").forEach((other) => {
+            other.setAttribute("aria-checked", String(other === button));
+            other.setAttribute("aria-pressed", String(other === button));
+          });
+          save({ docScale: item.value });
+        });
+        return button;
+      }));
+    const toggle = (id, key, title, note) => {
+      const input = h("input", { id, type: "checkbox", checked: current[key], onChange: () => save({ [key]: input.checked }) });
+      return h("div", { class: "settings-row" }, input,
+        h("label", { htmlFor: id }, h("strong", {}, title), h("span", {}, note)));
+    };
+    return card("Настройки", "",
+      h("div", { class: "field" }, h("span", { class: "settings-label" }, "Размер шрифта документов и статей"), scale,
+        h("p", { class: "settings-sample" }, "Статья 395. Ответственность за неисполнение денежного обязательства")),
+      toggle("setting-changes", "showChanges", "Показывать правки в тексте статей", "Добавленное и удалённое по сравнению с прежней редакцией подсвечивается"),
+      toggle("setting-watch", "homeWatch", "«Изменилось в ваших статьях» на главной", "Изменения в статьях из избранного и в основаниях ваших черновиков"),
+      toggle("setting-feed", "homeChanges", "Лента изменений законов на главной", "Что недавно изменилось и что вступит в силу во всех законах базы"),
+      status);
+  }
+
   function helpCard() {
     const telegram = window.SITE && window.SITE.telegram;
     const link = (href, text, external) => h("li", {}, h("a", external ? { href, target: "_blank", rel: "noopener noreferrer" } : { href }, text));
@@ -158,6 +195,7 @@
         profileCard(app, user, rerender),
         planCard(user),
         workCard(app),
+        settingsCard(),
         securityCard(app),
         helpCard()),
     ].filter(Boolean));
