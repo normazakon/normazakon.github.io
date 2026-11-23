@@ -1,13 +1,12 @@
-/* Личный кабинет. Сервера пока нет, поэтому кабинет живёт в этом браузере:
-   профиль, сводка по своей работе, резервная копия данных и восстановление из неё. */
+/* Личный кабинет вошедшего пользователя: профиль, тариф, своя работа, безопасность и помощь.
+   Данные аккаунта приходят из app.auth (lib/auth.js); без входа кабинет отправляет на страницу входа. */
 (function () {
   "use strict";
 
   const { h, icon } = window.UI;
 
-  /** Сообщает шапке и главной, что профиль изменился (кружок с инициалами, приветствие). */
   function announce() {
-    window.dispatchEvent(new CustomEvent("norma:profile"));
+    window.dispatchEvent(new CustomEvent("norma:auth"));
   }
 
   /** Слово в нужном падеже к числу: 1 черновик, 3 черновика, 5 черновиков. */
@@ -17,92 +16,117 @@
     return tens >= 11 && tens <= 14 ? many : units === 1 ? one : units >= 2 && units <= 4 ? few : many;
   }
 
-  function card(title, ...children) {
-    return h("section", { class: "account-card" }, h("h2", {}, title), ...children);
+  const MONTHS = ["января", "февраля", "марта", "апреля", "мая", "июня", "июля", "августа", "сентября", "октября", "ноября", "декабря"];
+  const longDate = (iso) => {
+    const date = new Date(iso);
+    return Number.isNaN(date.getTime()) ? "" : `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`;
+  };
+
+  function card(title, className, ...children) {
+    return h("section", { class: `account-card ${className || ""}`.trim() }, h("h2", {}, title), ...children);
   }
 
-  function profileCard(profile, onSaved) {
-    const data = profile.read();
-    const name = h("input", { id: "profile-name", type: "text", value: data.name, maxLength: 80, autocomplete: "name", placeholder: "Например, Анна" });
-    const role = h("select", { id: "profile-role" }, window.Profile.ROLES.map((item) =>
-      h("option", { value: item.value, selected: item.value === data.role }, item.label)));
-    const organization = h("input", { id: "profile-org", type: "text", value: data.organization, maxLength: 120, autocomplete: "organization", placeholder: "Компания, коллегия или вуз" });
+  /** Форма в карточке: сообщение об успехе или ошибке под кнопкой. */
+  function formWith(className, fields, buttonText, action) {
     const status = h("p", { class: "account-status", role: "status" });
-    const form = h("form", { class: "account-form", onSubmit: (event) => {
+    const button = h("button", { class: "button primary", type: "submit" }, buttonText);
+    const form = h("form", { class: `account-form ${className}`, novalidate: true }, ...fields,
+      h("div", { class: "account-actions" }, button, status));
+    form.addEventListener("submit", async (event) => {
       event.preventDefault();
-      const ok = profile.write({ name: name.value, role: role.value, organization: organization.value });
-      status.textContent = ok ? "Сохранено." : "Браузер не дал сохранить: возможно, включён приватный режим.";
-      if (ok) { announce(); onSaved(); }
-    } },
-    h("div", { class: "field" }, h("label", { htmlFor: "profile-name" }, "Как к вам обращаться"), name),
-    h("div", { class: "field" }, h("label", { htmlFor: "profile-role" }, "Чем вы занимаетесь"), role),
-    h("div", { class: "field" }, h("label", { htmlFor: "profile-org" }, "Организация", h("span", { class: "optional" }, " (необязательно)")), organization),
-    h("div", { class: "account-actions" }, h("button", { class: "button primary", type: "submit" }, "Сохранить"), status));
-    return card("Профиль", h("p", { class: "account-note" }, "Имя видно только вам: оно хранится в этом браузере и нужно, чтобы «Норма» обращалась к вам по имени."), form);
+      button.disabled = true;
+      const result = await action();
+      button.disabled = false;
+      status.className = `account-status ${result.ok ? "ok" : "problem"}`;
+      status.textContent = result.ok ? result.message : result.error;
+    });
+    return form;
+  }
+
+  function profileCard(app, user, rerender) {
+    const name = h("input", { id: "profile-name", type: "text", value: user.name, maxLength: 80, autocomplete: "name" });
+    const role = h("select", { id: "profile-role" }, window.Auth.ROLES.map((item) =>
+      h("option", { value: item.value, selected: item.value === user.role }, item.label)));
+    const organization = h("input", { id: "profile-org", type: "text", value: user.organization, maxLength: 120, autocomplete: "organization", placeholder: "Компания, коллегия или вуз" });
+    const email = h("input", { id: "profile-email", type: "email", value: user.email, readOnly: true });
+    return card("Профиль", "", formWith("", [
+      h("div", { class: "field" }, h("label", { htmlFor: "profile-name" }, "Как к вам обращаться"), name),
+      h("div", { class: "field" }, h("label", { htmlFor: "profile-email" }, "Почта"), email,
+        h("span", { class: "field-help" }, "Сменить почту можно через поддержку.")),
+      h("div", { class: "auth-pair" },
+        h("div", { class: "field" }, h("label", { htmlFor: "profile-role" }, "Чем вы занимаетесь"), role),
+        h("div", { class: "field" }, h("label", { htmlFor: "profile-org" }, "Организация"), organization)),
+    ], "Сохранить", async () => {
+      const result = await app.auth.updateProfile({ name: name.value, role: role.value, organization: organization.value });
+      if (result.ok) { announce(); rerender("Профиль сохранён."); }
+      return result;
+    }));
+  }
+
+  function planCard(user) {
+    const { plan } = user;
+    const telegram = window.SITE && window.SITE.telegram;
+    const included = ["Все шаблоны и официальные бланки", "Законы с редакциями и лентой изменений", "Проверка документов и контрагентов", "Расчёты сроков, пошлин и процентов"];
+    return card("Тариф", "plan-card",
+      h("div", { class: "plan-head" }, h("span", { class: "badge" }, plan.title), h("strong", { class: "plan-price" }, plan.price)),
+      h("ul", { class: "plan-list" }, included.map((item) => h("li", {}, item))),
+      h("p", { class: "account-note" }, plan.note),
+      telegram && h("a", { href: telegram, target: "_blank", rel: "noopener noreferrer" }, "Вопрос по доступу — напишите нам"));
   }
 
   function workCard(app) {
     const drafts = app.store.list();
     const { bookmarks } = window.UI;
-    const tile = (href, value, label, iconName, tone) => h("a", { class: `account-stat tone-${tone}`, href },
+    const tile = (value, label, iconName, tone) => h("a", { class: `account-stat tone-${tone}`, href: "#documents" },
       h("span", { class: "tone-plate small" }, icon(iconName)),
       h("strong", {}, String(value)), h("span", {}, label));
-    return card("Моя работа",
+    return card("Моя работа", "",
       h("div", { class: "account-stats" },
-        tile("#documents", drafts.length, plural(drafts.length, "черновик", "черновика", "черновиков"), "contract", "blue"),
-        tile("#documents", bookmarks.favorites().length, "в избранном", "star", "amber"),
-        tile("#documents", bookmarks.recent().length, "недавно открыто", "clock", "teal")),
-      drafts.length > 0 && h("ul", { class: "account-drafts" }, drafts.slice(0, 4).map((draft) => h("li", {},
-        h("a", { href: `#document/${draft.id}` }, draft.title),
-        h("span", {}, window.UI.shortDateTime(draft.updatedAt))))));
+        tile(drafts.length, plural(drafts.length, "черновик", "черновика", "черновиков"), "contract", "blue"),
+        tile(bookmarks.favorites().length, "в избранном", "star", "amber"),
+        tile(bookmarks.recent().length, "недавно открыто", "clock", "teal")),
+      drafts.length > 0
+        ? h("ul", { class: "account-drafts" }, drafts.slice(0, 4).map((draft) => h("li", {},
+          h("a", { href: `#document/${draft.id}` }, draft.title),
+          h("span", {}, window.UI.shortDateTime(draft.updatedAt)))))
+        : h("p", { class: "account-note" }, "Черновиков пока нет. ", h("a", { href: "#templates" }, "Выбрать шаблон")));
   }
 
-  function dataCard(profile, rerender) {
-    const status = h("p", { class: "account-status", role: "status" });
-    const fileInput = h("input", { type: "file", accept: "application/json,.json", hidden: true, onChange: async () => {
-      const file = fileInput.files[0];
-      fileInput.value = "";
-      if (!file) return;
-      let copy;
-      try {
-        copy = JSON.parse(await file.text());
-      } catch {
-        status.textContent = "Файл не читается: выберите копию, которую сохранила «Норма».";
-        return;
-      }
-      const result = profile.restore(copy);
-      status.textContent = result.ok ? "Данные восстановлены из копии." : result.error;
-      if (result.ok) { announce(); rerender("Данные восстановлены из копии."); }
-    } });
-
-    const save = () => {
-      const copy = profile.backup();
-      const day = copy.createdAt.slice(0, 10);
-      window.UI.downloadFile(new TextEncoder().encode(JSON.stringify(copy, null, 2)), `norma-backup-${day}.json`, "application/json");
-      status.textContent = "Копия сохранена в загрузки. Храните её как обычный файл.";
-    };
-
-    const erase = () => {
-      if (!window.confirm("Удалить все черновики, избранное, историю и профиль из этого браузера? Вернуть их можно только из резервной копии.")) return;
-      const ok = profile.eraseAll();
+  function securityCard(app) {
+    const current = h("input", { id: "password-current", type: "password", autocomplete: "current-password" });
+    const next = h("input", { id: "password-next", type: "password", autocomplete: "new-password" });
+    const form = formWith("", [
+      h("div", { class: "auth-pair" },
+        h("div", { class: "field" }, h("label", { htmlFor: "password-current" }, "Текущий пароль"), current),
+        h("div", { class: "field" }, h("label", { htmlFor: "password-next" }, "Новый пароль"), next)),
+    ], "Сменить пароль", async () => {
+      const result = await app.auth.changePassword({ current: current.value, next: next.value });
+      if (result.ok) { current.value = ""; next.value = ""; }
+      return { ...result, message: "Пароль изменён." };
+    });
+    const signOut = async () => {
+      await app.auth.signOut();
       announce();
-      rerender(ok ? "Все данные «Нормы» удалены из этого браузера." : "Браузер не дал удалить данные.");
+      location.hash = "#home";
     };
-
-    return card("Данные и устройства",
-      h("p", { class: "account-note" }, "Черновики, избранное и профиль хранятся только в этом браузере и никуда не отправляются. Чтобы перенести их на другой компьютер или телефон, сохраните резервную копию и восстановите её там."),
-      h("div", { class: "account-buttons" },
-        h("button", { class: "button", type: "button", onClick: save }, icon("download"), "Скачать резервную копию"),
-        h("button", { class: "button", type: "button", onClick: () => fileInput.click() }, icon("upload"), "Восстановить из копии"),
-        h("button", { class: "button quiet danger", type: "button", onClick: erase }, "Удалить все данные")),
-      fileInput, status,
-      h("p", { class: "account-soon" }, h("span", { class: "badge plain" }, "Скоро"), "Вход по почте и синхронизация между устройствами без резервных копий."));
+    const remove = async () => {
+      if (!window.confirm("Удалить аккаунт? Вместе с ним удалятся черновики, избранное и история. Отменить это нельзя.")) return;
+      const result = await app.auth.deleteAccount();
+      if (!result.ok) { window.alert(result.error); return; }
+      announce();
+      location.hash = "#home";
+    };
+    return card("Безопасность", "",
+      form,
+      h("div", { class: "account-danger" },
+        h("button", { class: "button", type: "button", onClick: signOut }, "Выйти из аккаунта"),
+        h("button", { class: "button quiet danger", type: "button", onClick: remove }, "Удалить аккаунт")));
   }
 
   function helpCard() {
     const telegram = window.SITE && window.SITE.telegram;
     const link = (href, text, external) => h("li", {}, h("a", external ? { href, target: "_blank", rel: "noopener noreferrer" } : { href }, text));
-    return card("Помощь",
+    return card("Помощь", "",
       h("ul", { class: "account-links" },
         telegram && link(telegram, "Написать в поддержку в Telegram", true),
         link("./", "О сервисе «Норма»"),
@@ -112,26 +136,30 @@
   }
 
   window.Views = window.Views || {};
-  window.Views.account = function render(root, _params, app, message) {
-    const profile = window.Profile.createProfile(window.Storage2.browserBackend());
-    const rerender = (text) => {
-      root.replaceChildren();
-      render(root, _params, app, text);
-    };
-    const data = profile.read();
-    const initials = window.Profile.initials(data.name);
-    const subtitle = [window.Profile.roleLabel(data.role), data.organization].filter(Boolean).join(" · ");
-    root.append(
+  window.Views.account = function render(root, params, app, message) {
+    const user = app.auth.current();
+    if (!user) {
+      window.AuthPages.rememberReturn("#account");
+      location.replace("#login");
+      return;
+    }
+    const rerender = (text) => { root.replaceChildren(); render(root, params, app, text); };
+    const subtitle = [user.email, window.Auth.roleLabel(user.role), user.organization].filter(Boolean).join(" · ");
+    // root — обычный элемент: пустые блоки отфильтровываем сами, иначе append напишет «undefined»
+    root.append(...[
       h("div", { class: "account-head" },
-        h("span", { class: "avatar large", "aria-hidden": "true" }, initials || icon("user")),
+        h("span", { class: "avatar large", "aria-hidden": "true" }, window.Auth.initials(user.name) || icon("user")),
         h("div", {},
-          h("h1", {}, data.name || "Личный кабинет"),
-          h("p", {}, subtitle || "Ранний доступ"))),
+          h("h1", {}, user.name),
+          h("p", {}, subtitle),
+          user.createdAt && h("p", { class: "account-since" }, `В «Норме» с ${longDate(user.createdAt)}`))),
       message && h("p", { class: "account-banner", role: "status" }, message),
       h("div", { class: "account-grid" },
-        profileCard(profile, () => rerender("Профиль сохранён.")),
+        profileCard(app, user, rerender),
+        planCard(user),
         workCard(app),
-        dataCard(profile, rerender),
-        helpCard()));
+        securityCard(app),
+        helpCard()),
+    ].filter(Boolean));
   };
 })();

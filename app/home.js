@@ -181,10 +181,10 @@
           h("span", { class: "card-arrow" }, window.UI.icon("arrow"))))))));
   }
 
-  /** Заголовок главной: по имени из личного кабинета, если оно указано. */
-  function greeting() {
-    const { name } = window.Profile.createProfile(window.Storage2.browserBackend()).read();
-    return name ? `Здравствуйте, ${name}` : "Что найти?";
+  /** Заголовок главной: по имени из аккаунта, если человек вошёл. */
+  function greeting(app) {
+    const user = app && app.auth && app.auth.current();
+    return user ? `Здравствуйте, ${user.name}` : "Что найти?";
   }
 
   window.Views = window.Views || {};
@@ -192,7 +192,7 @@
     // блоки, которым нечего показать (например, лента изменений без данных), отдают null и пропускаются
     root.append(...[
       h("section", { class: "home-hero" }, h("div", { class: "home-inner hero-center" },
-        h("h1", {}, greeting()),
+        h("h1", {}, greeting(app)),
         h("p", { class: "hero-lead" }, "Статья по номеру, шаблон, официальный бланк или расчёт: одна строка для всего."),
         window.SearchBox.create({ id: "hero-search" }),
         h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point))))),

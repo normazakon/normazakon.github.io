@@ -3,7 +3,11 @@
   "use strict";
 
   const view = document.getElementById("view");
-  const app = { store: window.Storage2.createStore(window.Storage2.browserBackend()) };
+  // app.auth — аккаунты: сейчас тестовый режим в браузере (lib/auth.js), позже сервер с теми же методами
+  const app = {
+    store: window.Storage2.createStore(window.Storage2.browserBackend()),
+    auth: window.Auth.createLocalAuth(window.Storage2.browserBackend()),
+  };
 
   /** Разбирает адрес вида #template/loan в раздел и параметры. */
   function parseRoute(hash) {
@@ -28,6 +32,9 @@
       case "privacy": return { name: "privacy", nav: "privacy", params: {} };
       case "contacts": return { name: "contacts", nav: "contacts", params: {} };
       case "account": return { name: "account", nav: "account", params: {} };
+      case "login": return { name: "login", nav: "account", params: {} };
+      case "register": return { name: "register", nav: "account", params: {} };
+      case "reset": return { name: "reset", nav: "account", params: {} };
       case "":
       case "home": return { name: "home", nav: "home", params: {} };
       default: return { name: "notFound", nav: null, params: {} };
@@ -39,6 +46,7 @@
     // окно статьи открыто поверх прежнего экрана: при переходе (в том числе кнопкой «Назад») его закрываем,
     // а если новый адрес сам ведёт на статью, раздел законов откроет её заново
     for (const dialog of [document.getElementById("article-dialog"), searchDialog]) if (dialog && dialog.open) dialog.close();
+    closeAccountMenu();
     view.replaceChildren();
     // класс перезапускает анимацию появления экрана (в styles.css, при «уменьшить движение» её нет)
     view.classList.remove("view-enter");
@@ -65,21 +73,68 @@
       `Последняя учтённая редакция от ${window.Editions.formatDate(updated)}.`;
   }
 
-  /* Шапка: кружок кабинета с инициалами и поиск по всему из любого раздела (кнопка, Ctrl+K или «/»). */
-  const profile = window.Profile.createProfile(window.Storage2.browserBackend());
-  const accountLink = document.getElementById("account-link");
-  const userIcon = accountLink.innerHTML;
-  function showAvatar() {
-    const { name } = profile.read();
-    const initials = window.Profile.initials(name);
-    if (initials) accountLink.textContent = initials;
-    else accountLink.innerHTML = userIcon;
-    accountLink.setAttribute("aria-label", name ? `Личный кабинет: ${name}` : "Личный кабинет");
+  /* Шапка справа: без входа — кнопка «Войти», после входа — кружок с инициалами и меню аккаунта.
+     Поиск по всему открывается из любого раздела (кнопка, Ctrl+K или «/»). */
+  const { h } = window.UI;
+  const slot = document.getElementById("account-slot");
+  let menu = null;
+
+  function closeAccountMenu() {
+    if (!menu || menu.hidden) return;
+    menu.hidden = true;
+    document.getElementById("account-link").setAttribute("aria-expanded", "false");
   }
-  window.addEventListener("norma:profile", showAvatar);
-  // профиль поменяли в другой вкладке
-  window.addEventListener("storage", (event) => { if (event.key === window.Profile.KEY || event.key === null) showAvatar(); });
-  showAvatar();
+
+  function renderAccount() {
+    const user = app.auth.current();
+    menu = null;
+    if (!user) {
+      const login = h("a", { class: "button primary topbar-login", id: "account-link", href: "#login", "data-section": "account" }, "Войти");
+      login.addEventListener("click", () => window.AuthPages.rememberReturn(location.hash || "#home"));
+      slot.replaceChildren(login);
+      return;
+    }
+    const initials = window.Auth.initials(user.name);
+    const button = h("button", {
+      class: "avatar", id: "account-link", type: "button", "data-section": "account",
+      "aria-haspopup": "menu", "aria-expanded": "false", "aria-controls": "account-menu", "aria-label": `Аккаунт: ${user.name}`,
+    }, initials || window.UI.icon("user"));
+    const telegram = window.SITE && window.SITE.telegram;
+    const item = (props, iconName, text) => h(props.href ? "a" : "button", { class: "account-menu-item", role: "menuitem", type: props.href ? undefined : "button", ...props },
+      window.UI.icon(iconName), text);
+    menu = h("div", { class: "account-menu", id: "account-menu", role: "menu", hidden: true },
+      h("div", { class: "account-menu-head" },
+        h("span", { class: "avatar", "aria-hidden": "true" }, initials || window.UI.icon("user")),
+        h("div", {}, h("strong", {}, user.name), h("span", {}, user.email))),
+      h("div", { class: "account-menu-plan" }, h("span", { class: "badge" }, user.plan.title), h("span", {}, user.plan.price)),
+      h("div", { class: "account-menu-list" },
+        item({ href: "#account" }, "user", "Личный кабинет"),
+        item({ href: "#documents" }, "contract", "Мои документы"),
+        telegram && item({ href: telegram, target: "_blank", rel: "noopener noreferrer" }, "letter", "Поддержка")),
+      h("div", { class: "account-menu-list" },
+        item({ onClick: async () => { closeAccountMenu(); await app.auth.signOut(); window.dispatchEvent(new CustomEvent("norma:auth")); location.hash = "#home"; } },
+          "logout", "Выйти")));
+    menu.addEventListener("click", (event) => { if (event.target.closest("a")) closeAccountMenu(); });
+    button.addEventListener("click", () => {
+      const open = menu.hidden;
+      menu.hidden = !open;
+      button.setAttribute("aria-expanded", String(open));
+      if (open) menu.querySelector(".account-menu-item").focus();
+    });
+    slot.replaceChildren(button, menu);
+    if (location.hash === "#account") button.setAttribute("aria-current", "page");
+  }
+  // щелчок мимо меню и Esc закрывают его
+  document.addEventListener("click", (event) => { if (menu && !slot.contains(event.target)) closeAccountMenu(); });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && menu && !menu.hidden) { closeAccountMenu(); document.getElementById("account-link").focus(); }
+  });
+  window.addEventListener("norma:auth", renderAccount);
+  // вошли или вышли в другой вкладке
+  window.addEventListener("storage", (event) => {
+    if (event.key === window.Auth.KEY || event.key === null) { renderAccount(); showRoute(); }
+  });
+  renderAccount();
 
   const searchDialog = document.getElementById("search-dialog");
   function openSearch() {

@@ -29,7 +29,7 @@
     </nav>
     <div class="topbar-tools">
       <button class="topbar-search" id="search-open" type="button" aria-haspopup="dialog" aria-keyshortcuts="Control+K" title="Поиск (Ctrl+K)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><span class="topbar-search-text">Найти статью или шаблон</span><kbd>Ctrl K</kbd></button>
-      <a class="avatar" id="account-link" href="#account" data-section="account" aria-label="Личный кабинет" title="Личный кабинет"><svg class="icon-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></a>
+      <div class="account-slot" id="account-slot"></div>
     </div>
   </header>
 
@@ -93,7 +93,7 @@
   <script src="lib/docx-reader.js"></script>
   <script src="lib/storage.js"></script>
   <script src="lib/bookmarks.js"></script>
-  <script src="lib/profile.js"></script>
+  <script src="lib/auth.js"></script>
   <script src="lib/site-search.js"></script>
   <script src="lib/template-search.js"></script>
   <script src="lib/counterparty.js"></script>
@@ -105,6 +105,7 @@
   <script src="app/pwa.js"></script>
   <script src="app/search.js"></script>
   <script src="app/home.js"></script>
+  <script src="app/auth-pages.js"></script>
   <script src="app/account.js"></script>
   <script src="app/forms.js"></script>
   <script src="app/catalog.js"></script>
