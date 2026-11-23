@@ -149,10 +149,9 @@ body.landing { background: var(--bg); }
   transition-delay: calc(var(--i, 0) * 80ms), calc(var(--i, 0) * 80ms), 0ms;
 }
 
-/* карточки отзываются на наведение: приподнимаются, значок слегка поворачивается */
-.land-features li, .land-steps-list li { border: 1px solid transparent; }
+/* карточки отзываются на наведение: приподнимаются, значок слегка поворачивается, рамки нет */
 @media (hover: hover) {
-  .land-features li.is-in:hover, .land-steps-list li.is-in:hover { transform: translateY(-4px); border-color: var(--hover-line); transition-delay: 0ms; transition-duration: 250ms; }
+  .land-features li.is-in:hover, .land-steps-list li.is-in:hover { transform: translateY(-4px); transition-delay: 0ms; transition-duration: 250ms; }
   .land-features li:hover .tone-plate { transform: scale(1.08) rotate(-6deg); }
   .land-actions .button:hover, .land-final .button:hover { transform: translateY(-2px); }
 }
@@ -185,11 +184,6 @@ body.landing { background: var(--bg); }
 .land-nav a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -6px; height: 2px; border-radius: 2px; background: var(--accent); transform: scaleX(0); transition: transform 300ms cubic-bezier(0.2, 0.7, 0.2, 1); }
 .land-nav a.is-active { color: var(--ink); }
 .land-nav a.is-active::after, .land-nav a:hover::after { transform: scaleX(1); }
-
-/* в заголовке под ключевыми словами прорисовывается линия */
-@keyframes land-underline { from { background-size: 0 0.14em; } }
-.land-mark { background: linear-gradient(90deg, var(--accent), #6f9be6) 0 92% / 100% 0.14em no-repeat; animation: land-underline 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 700ms both; }
-.land-mark + .land-mark, h1 .land-mark:last-child { animation-delay: 950ms; }
 
 /* карточки вокруг снимка экрана: покачиваются и при прокрутке смещаются с разной скоростью */
 @keyframes land-float-in { from { opacity: 0; scale: 0.85; } }
@@ -233,7 +227,7 @@ body.landing { background: var(--bg); }
 
 @media (prefers-reduced-motion: reduce) {
   .land-hero::before, .land-hero::after, .land-hero-copy > *, .land-shot, .land-tab:not([hidden]), .land-tab:not([hidden]) li,
-  .land-faq details[open] p, .land-final-box, .land-mark, .land-float, .land-marquee-track { animation: none !important; }
+  .land-faq details[open] p, .land-final-box, .land-float, .land-marquee-track { animation: none !important; }
   .land-float { translate: none; }
   .land-marquee { -webkit-mask-image: none; mask-image: none; }
   .land-marquee-row { flex-wrap: wrap; width: auto; padding: 0 16px; }
