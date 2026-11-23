@@ -121,6 +121,57 @@
         timelineColumn("Недавно изменились", data.recent, false)));
   }
 
+  const VISIBLE_WATCHED = 5;
+
+  /** «Изменилось в ваших статьях»: изменения в статьях из избранного и в основаниях шаблонов и черновиков. */
+  function watchedChanges(app) {
+    const { bookmarks } = window.UI;
+    const drafts = app && app.store ? app.store.list() : [];
+    const { watched, items } = window.Watch.watchedChanges({
+      favorites: bookmarks.favorites(), drafts, templates: window.TEMPLATE_INDEX, changes: window.LAW_CHANGES,
+    });
+    const head = h("div", { class: "continue-head" }, h("h2", {}, "Изменилось в ваших статьях"));
+    const wrap = (...children) => h("section", { class: "home-watch" }, h("div", { class: "home-inner" }, head, ...children));
+
+    if (!watched) {
+      return wrap(h("p", { class: "continue-empty" },
+        "Отмечайте статьи и шаблоны звёздочкой или начните документ по шаблону: здесь появится, что в их статьях изменилось и что скоро вступит в силу."));
+    }
+    if (!items.length) {
+      return wrap(h("p", { class: "continue-empty watch-calm" },
+        `В ${counted(watched, "статье", "статьях", "статьях")}, за которыми вы следите, за последние ${window.LAW_CHANGES.recentDays} дней изменений не было, новых редакций пока не ожидается.`));
+    }
+
+    const rows = items.map((item) => {
+      const law = window.LAW_BASE.laws[item.lawId];
+      const article = law && law.articles[item.number];
+      const [year, month, day] = item.date.split("-");
+      const status = item.kind === "added" ? "новая" : item.kind === "repealed" ? (item.upcoming ? "утратит силу" : "утратила силу") : null;
+      return h("li", {}, h("button", {
+        class: `watch-item${item.upcoming ? " upcoming" : ""}`, type: "button",
+        onClick: () => window.UI.showArticle(item.lawId, item.number, item.upcoming ? { date: item.date } : {}),
+      },
+      h("span", { class: "watch-date" },
+        h("span", {}, item.upcoming ? "вступит" : "изменена"),
+        h("strong", {}, String(Number(day))), h("span", {}, `${MONTHS_SHORT[Number(month) - 1]} ${year}`)),
+      h("span", { class: "watch-text" },
+        h("span", { class: "watch-title" }, h("strong", {}, window.UI.articleName(item.lawId, item.number)),
+          status && h("span", { class: item.kind === "repealed" ? "badge draft" : "badge" }, status)),
+        article && h("span", { class: "watch-name" }, article.title),
+        h("span", { class: "watch-reason" }, window.Watch.reasonText(item.reasons))),
+      h("span", { class: "card-arrow" }, window.UI.icon("arrow"))));
+    });
+    rows.slice(VISIBLE_WATCHED).forEach((row) => { row.hidden = true; });
+    const toggle = rows.length > VISIBLE_WATCHED && h("button", { class: "link-button timeline-toggle", type: "button" }, `Показать все (${rows.length})`);
+    if (toggle) toggle.addEventListener("click", () => { rows.forEach((row) => { row.hidden = false; }); toggle.remove(); });
+    const upcoming = items.filter((item) => item.upcoming).length;
+    const summary = [upcoming && `${counted(upcoming, "изменение вступит", "изменения вступят", "изменений вступят")} в силу`,
+      items.length - upcoming && `${counted(items.length - upcoming, "статья изменилась", "статьи изменились", "статей изменились")} за ${window.LAW_CHANGES.recentDays} дней`]
+      .filter(Boolean).join(", ");
+    head.append(h("span", { class: "watch-summary" }, `${summary}. Под наблюдением ${counted(watched, "статья", "статьи", "статей")}.`));
+    return wrap(h("ul", { class: "watch-list" }, rows), toggle);
+  }
+
   /** Карточка «Продолжить работу». */
   function continueCard(props, tone, iconName, title, note) {
     return h("li", {}, h(props.href ? "a" : "button", { class: `continue-card tone-${tone}`, type: props.href ? undefined : "button", ...props },
@@ -198,6 +249,7 @@
         h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point))))),
 
       continueWork(app),
+      watchedChanges(app),
       tasks(),
       lawChanges(),
     ].filter(Boolean));

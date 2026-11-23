@@ -383,6 +383,31 @@ a:hover > .card-arrow, a:hover .card-arrow, a:focus-visible .card-arrow { opacit
 .home-continue { padding: 8px 0 24px; }
 .continue-empty { margin: 0; padding: 18px 20px; background: var(--surface); border-radius: var(--radius-l); color: var(--muted); }
 .home-changes { background: var(--gradient-band); }
+/* «Изменилось в ваших статьях» */
+.home-watch { padding: 0 0 32px; }
+.home-watch .continue-head { flex-direction: column; align-items: flex-start; gap: 4px; }
+.watch-summary { color: var(--muted); font-size: 15px; }
+.watch-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.watch-item { display: grid; grid-template-columns: 92px minmax(0, 1fr) auto; align-items: center; gap: 16px; width: 100%; padding: 14px 18px; background: var(--surface); border: 0; border-radius: var(--radius-l); color: inherit; cursor: pointer; font: inherit; text-align: left; transition: transform 250ms cubic-bezier(0.2, 0.7, 0.2, 1); }
+.watch-date { display: flex; flex-direction: column; color: var(--muted); font-size: 13px; line-height: 1.3; }
+.watch-date strong { color: var(--ink); font-size: 24px; font-weight: 600; line-height: 1.1; }
+.watch-item.upcoming .watch-date strong, .watch-item.upcoming .watch-date span:first-child { color: var(--accent); }
+.watch-text { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.watch-title { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.watch-title strong { font-size: 16px; font-weight: 600; }
+.watch-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.watch-reason { color: var(--muted); font-size: 14px; }
+.watch-calm::before { content: "✓"; margin-right: 8px; color: var(--ok); font-weight: 600; }
+@media (hover: hover) {
+  .watch-item:hover { transform: translateY(-2px); }
+  .watch-item:hover .watch-title strong { color: var(--accent); }
+  .watch-item:hover .card-arrow { transform: translateX(4px); }
+}
+@media (max-width: 640px) {
+  .watch-item { grid-template-columns: 64px minmax(0, 1fr); gap: 12px; padding: 12px 14px; }
+  .watch-item .card-arrow { display: none; }
+  .watch-name { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; white-space: normal; }
+}
 .continue-head { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
 .continue-head h2 { font-size: 24px; }
 .continue-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
@@ -1114,7 +1139,7 @@ button.avatar { border: 0; cursor: pointer; }
 
 /* fill-mode backwards: после анимации transform снимается и не создаёт слоёв, которые перекрывали бы выпадающие списки */
 .view-enter > * { animation: view-in 380ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
-.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > * { animation: card-in 450ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; animation-delay: calc(var(--n, 0) * 45ms + 80ms); }
+.view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list, .watch-list) > * { animation: card-in 450ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; animation-delay: calc(var(--n, 0) * 45ms + 80ms); }
 .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(2) { --n: 1; }
 .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(3) { --n: 2; }
 .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > :nth-child(4) { --n: 3; }
@@ -1144,7 +1169,7 @@ button.avatar { border: 0; cursor: pointer; }
 .article-dialog[open]::backdrop, .search-dialog[open]::backdrop { animation: backdrop-in 280ms ease both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .view-enter > *, .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list) > *,
+  .view-enter > *, .view-enter :is(.task-grid, .continue-grid, .catalog-grid, .calc-grid, .forms-list, .watch-list) > *,
   .home-hero::before, .article-dialog[open], .article-dialog[open]::backdrop, .search-dialog[open], .search-dialog[open]::backdrop, .account-menu { animation: none !important; }
   .task-card:hover, .catalog-card:hover, .continue-card:hover, .bookmark:hover, .law-card:hover, .task-card:hover .tone-plate, .catalog-card:hover .tone-plate,
   .task-card:hover .card-arrow, .catalog-card:hover .card-arrow { transform: none; }
