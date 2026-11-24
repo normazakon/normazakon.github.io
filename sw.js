@@ -3,7 +3,7 @@
    Запросы на другие адреса (проверка контрагента в DaData) не трогаем: они идут прямо в сеть. */
 "use strict";
 
-const CACHE = "norma-app-v74";
+const CACHE = "norma-app-v75";
 const NETWORK_TIMEOUT_MS = 4000;
 const EXTRA = ["manifest.webmanifest", "404.html", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png", "icons/favicon-32.png"];
 
