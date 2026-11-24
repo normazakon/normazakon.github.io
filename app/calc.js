@@ -5,7 +5,7 @@
 
   const { h, showArticle } = window.UI;
   const { parseMoney, kopecksText, parseDate } = window.Russian;
-  const { interest395, penalty, salaryCompensation, utilityPenalty, vacationPay, rateOn, CalculationError, MORATORIUM } = window.Calculators;
+  const { interest395, penalty, salaryCompensation, utilityPenalty, vacationPay, alimonyAmount, alimonyPenalty, deductionRefund, rateOn, CalculationError, MORATORIUM } = window.Calculators;
   const Fees = window.CourtFees;
 
   const rubles = (kopecks) => (kopecks / 100).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -41,6 +41,7 @@
   const CARD_LOOK = {
     deadline: ["clock", "amber"], fee: ["court", "violet"], interest: ["percent", "green"], penalty: ["calc", "orange"],
     salary: ["briefcase", "blue"], utility: ["building", "teal"], vacation: ["calc", "rose"],
+    alimony: ["user", "violet"], deduction: ["percent", "amber"],
   };
 
   /** Предупреждение, если ставка после последней известной даты взята по последнему известному значению. */
@@ -347,6 +348,107 @@
       result);
   }
 
+  /* ---------- Алименты ---------- */
+
+  function alimonyCard() {
+    const result = h("div", { class: "calc-result", role: "status" });
+    const income = textInput("ali-income", "например, 80 000", update);
+    const children = selectInput("ali-children", [["1", "Один ребенок — 1/4"], ["2", "Двое детей — 1/3"], ["3", "Трое и больше — 1/2"]], update);
+    const debt = textInput("ali-debt", "не обязательно", update);
+    const from = dateInput("ali-from", update);
+    const to = dateInput("ali-to", update);
+
+    function update() {
+      const parts = [];
+      const kopecks = parseMoney(income.value);
+      if (kopecks) {
+        const calc = alimonyAmount(kopecks, Number(children.value));
+        parts.push(h("span", { class: "calc-total" }, `${rubles(calc.monthly)} ₽ в месяц`), h("p", {}, `${calc.share} дохода, ${kopecksText(calc.monthly)}`));
+      } else {
+        parts.push(h("p", {}, "Введите доход, чтобы посчитать алименты."));
+      }
+      const owed = parseMoney(debt.value);
+      if (owed && parseDate(from.value) && parseDate(to.value)) {
+        try {
+          const late = alimonyPenalty(owed, from.value, to.value);
+          parts.push(h("p", { class: "calc-subtotal" }, `Неустойка за просрочку: ${rubles(late.total)} ₽`),
+            h("p", {}, `${rubles(owed)} × 0,1 % × ${late.days} дн. Суд может ее уменьшить, если она явно несоразмерна.`));
+        } catch (error) {
+          if (!(error instanceof CalculationError)) throw error;
+          parts.push(h("p", { class: "calc-error" }, error.message));
+        }
+      }
+      parts.push(h("p", {}, "Алименты удерживают из заработка и иного дохода после удержания НДФЛ. Неустойка 0,1 % в день положена, если алименты взысканы судом; по соглашению — как в нем указано."));
+      fill(result, parts);
+    }
+
+    update();
+    return card("Алименты на детей",
+      h("span", {}, "Доля дохода по ", basisLink("SK", "81", "ст. 81 СК РФ"), ", неустойка по ", basisLink("SK", "115", "ст. 115 СК РФ")),
+      [
+        field("ali-income", "Доход в месяц, ₽", income, "Заработок и иной доход после удержания НДФЛ"),
+        field("ali-children", "Сколько детей", children),
+        field("ali-debt", "Долг по алиментам, ₽", debt, "Для расчета неустойки за просрочку"),
+        field("ali-from", "Первый день просрочки", from),
+        field("ali-to", "Последний день", to),
+      ],
+      result);
+  }
+
+  /* ---------- Налоговый вычет ---------- */
+
+  const DEDUCTION_KINDS = [
+    ["property", "Покупка или строительство жилья — до 2 млн ₽"],
+    ["mortgage", "Проценты по ипотеке — до 3 млн ₽"],
+    ["social", "Лечение, свое обучение, спорт — до 150 тыс. ₽ в год"],
+    ["childEducation", "Обучение детей — до 110 тыс. ₽ на ребенка"],
+    ["expensiveTreatment", "Дорогостоящее лечение — без предела"],
+  ];
+
+  function deductionCard() {
+    const result = h("div", { class: "calc-result", role: "status" });
+    const kind = selectInput("ded-kind", DEDUCTION_KINDS, () => { childrenField.hidden = kind.value !== "childEducation"; update(); });
+    const expenses = textInput("ded-sum", "например, 6 500 000", update);
+    const children = h("input", { id: "ded-children", type: "number", min: "1", step: "1", value: "1", inputMode: "numeric", onInput: update });
+    const childrenField = field("ded-children", "Сколько детей учились", children);
+    childrenField.hidden = true;
+    const taxPaid = textInput("ded-tax", "не обязательно", update);
+    const rate = selectInput("ded-rate", [["13", "13 % — доход до 2,4 млн ₽ в год"], ["15", "15 % — доход от 2,4 до 5 млн ₽"]], update);
+
+    function update() {
+      const kopecks = parseMoney(expenses.value);
+      if (!kopecks) {
+        fill(result, h("p", {}, "Введите сумму расходов."));
+        return;
+      }
+      try {
+        const calc = deductionRefund(kind.value, kopecks, { children: Number(children.value) || 1, rate: Number(rate.value), taxPaid: parseMoney(taxPaid.value) || 0 });
+        fill(result,
+          h("span", { class: "calc-total" }, `${rubles(calc.refund)} ₽`),
+          h("p", {}, `вернут с вычета ${rubles(calc.deduction)} ₽${calc.limited ? " (расходы больше предела)" : ""}`),
+          calc.rest > 0 && h("p", { class: "calc-warning" }, calc.carry
+            ? `За этот год вернут ${rubles(calc.thisYear)} ₽ — не больше удержанного налога. Остаток ${rubles(calc.rest)} ₽ переносится на следующие годы.`
+            : `За этот год вернут только ${rubles(calc.thisYear)} ₽ — не больше удержанного налога. Остаток ${rubles(calc.rest)} ₽ на следующие годы не переносится.`),
+          h("p", {}, "Вычет получают через налоговую по декларации 3-НДФЛ или у работодателя. Социальные вычеты — за три последних года, имущественный за жилье — один раз в жизни, остаток предела переносится на другое жилье."));
+      } catch (error) {
+        if (!(error instanceof CalculationError)) throw error;
+        fill(result, h("p", { class: "calc-error" }, error.message));
+      }
+    }
+
+    update();
+    return card("Налоговый вычет",
+      h("span", {}, "Сколько НДФЛ вернут: ", basisLink("NK", "220", "ст. 220"), " и ", basisLink("NK", "219", "ст. 219 НК РФ")),
+      [
+        field("ded-kind", "Вид вычета", kind),
+        field("ded-sum", "Расходы, ₽", expenses),
+        childrenField,
+        field("ded-tax", "НДФЛ, удержанный за год, ₽", taxPaid, "Из справки о доходах: больше него за год не вернут"),
+        field("ded-rate", "Ставка НДФЛ", rate),
+      ],
+      result);
+  }
+
   /* ---------- Процессуальные сроки ---------- */
 
   function deadlineCard() {
@@ -429,6 +531,7 @@
     const cards = {
       deadline: deadlineCard(), fee: feeCard(), interest: interestCard(), penalty: penaltyCard(),
       salary: salaryCard(), utility: utilityCard(), vacation: vacationCard(),
+      alimony: alimonyCard(), deduction: deductionCard(),
     };
     for (const [id, element] of Object.entries(cards)) {
       element.id = `calc-${id}`;
@@ -439,7 +542,7 @@
     root.append(
       h("div", { class: "page-head" }, h("div", {},
         h("h1", {}, "Расчёты"),
-        h("p", {}, "Последний день срока, госпошлина, проценты и неустойка, компенсация за задержку зарплаты, пени за ЖКУ и отпускные. Расчёт идёт по правилам закона, но результат верен, только если верны ваши даты и суммы."))),
+        h("p", {}, "Последний день срока, госпошлина, проценты и неустойка, компенсация за задержку зарплаты, пени за ЖКУ, отпускные, алименты и налоговые вычеты. Расчёт идёт по правилам закона, но результат верен, только если верны ваши даты и суммы."))),
       h("div", { class: "calc-grid" }, Object.values(cards)));
     // #calc/fee из поиска на главной сразу показывает нужный расчёт
     const target = cards[params.card];
