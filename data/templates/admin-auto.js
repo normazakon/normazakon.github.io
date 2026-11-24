@@ -13,7 +13,7 @@
     text("applicant_phone", "Телефон", { hint: "телефон", optional: true }),
   ];
   const applicantLines = () => [
-    address("от {{applicant_name}}"),
+    address("От: {{applicant_name}}"),
     address("Адрес: {{applicant_address}}"),
     address("Телефон: {{applicant_phone}}", filled("applicant_phone")),
   ];

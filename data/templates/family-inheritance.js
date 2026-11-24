@@ -147,7 +147,7 @@
     },
     body: [
       address("{{notary}}"),
-      address("от {{heir_name}}, {{heir_birth}} г. р."),
+      address("От: {{heir_name}}, {{heir_birth}} г. р."),
       address("{{heir_passport}}"),
       address("Адрес: {{heir_address}}"),
       title("ЗАЯВЛЕНИЕ"),
@@ -272,7 +272,7 @@
     checks() { return []; },
     body: [
       address("{{guardianship}}"),
-      address("от {{applicant_name}}"),
+      address("От: {{applicant_name}}"),
       address("Адрес: {{applicant_address}}"),
       address("Телефон: {{applicant_phone}}", filled("applicant_phone")),
       title("ЗАЯВЛЕНИЕ"),
