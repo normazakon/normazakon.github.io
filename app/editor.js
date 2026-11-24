@@ -94,6 +94,11 @@
     const form = h("form", { class: "form-column", id: "document-form", onSubmit: (event) => event.preventDefault() });
     const body = h("div", { class: "editor-body", dataset: { pane: "form" } }, form, h("div", { class: "paper-column" }, notices, paper));
     const exampleButton = h("button", { class: "button quiet", type: "button", id: "example-button", onClick: fillExample }, "Заполнить примером");
+    // «Мои данные»: ФИО, адрес и другие сведения заявителя из кабинета; только у вошедших и только там, где заявитель — сам пользователь
+    const user = app && app.auth ? app.auth.current() : null;
+    const myDataButton = user && window.Auth.hasSelfFields(Engine.allFields(template), template.category)
+      ? h("button", { class: "button quiet", type: "button", id: "my-data-button", onClick: fillMyData }, window.UI.icon("user"), "Мои данные")
+      : null;
 
     function isEmptyDocument() {
       return Engine.allFields(template).every((field) => {
@@ -269,6 +274,21 @@
       input.scrollIntoView({ block: "center" });
     }
 
+    function fillMyData() {
+      const found = window.Auth.myDataValues(app.auth.current(), Engine.allFields(template), state.values);
+      const count = Object.keys(found).length;
+      if (!count) {
+        actionNote.replaceChildren("Подставлять нечего: поля уже заполнены или в кабинете нет данных для документов. ",
+          h("a", { href: "#account" }, "Заполнить в кабинете"));
+        return;
+      }
+      state.values = { ...state.values, ...found };
+      renderForm();
+      renderDocument();
+      saveNow();
+      actionNote.textContent = `Из кабинета подставлено полей: ${count}. Проверьте их.`;
+    }
+
     function fillExample() {
       state.values = Engine.withDefaults(template, { ...template.example });
       renderForm();
@@ -321,6 +341,7 @@
             window.UI.starButton({ kind: "template", templateId: template.id }, "small"),
             window.UI.reportLink(`Ошибка в шаблоне: «${template.title}» (${template.id})`, `#template/${template.id}`))),
         h("div", { class: "editor-actions" },
+          myDataButton,
           exampleButton,
           h("button", { class: "button", type: "button", id: "copy-button", onClick: copyText }, window.UI.icon("copy"), "Скопировать текст"),
           h("button", { class: "button", type: "button", id: "print-button", onClick: () => window.print() }, window.UI.icon("print"), "Печать"),

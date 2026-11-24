@@ -49,6 +49,12 @@
       h("option", { value: item.value, selected: item.value === user.role }, item.label)));
     const organization = h("input", { id: "profile-org", type: "text", value: user.organization, maxLength: 120, autocomplete: "organization", placeholder: "Компания, коллегия или вуз" });
     const email = h("input", { id: "profile-email", type: "email", value: user.email, readOnly: true });
+    const docInput = (id, value, placeholder, autocomplete) => h("input", { id, type: "text", value: value || "", placeholder, autocomplete: autocomplete || "off" });
+    const fullName = docInput("profile-fullname", user.fullName, "Иванов Иван Иванович", "name");
+    const birth = docInput("profile-birth", user.birth, "15.03.1985, г. Энск", "off");
+    const address = docInput("profile-address", user.address, "г. Энск, ул. Примерная, д. 1, кв. 1", "street-address");
+    const phone = docInput("profile-phone", user.phone, "+7 900 000-00-00", "tel");
+    const identifier = docInput("profile-identifier", user.identifier, "СНИЛС 000-000-000 00", "off");
     return card("Профиль", "", formWith("", [
       h("div", { class: "field" }, h("label", { htmlFor: "profile-name" }, "Как к вам обращаться"), name),
       h("div", { class: "field" }, h("label", { htmlFor: "profile-email" }, "Почта"), email,
@@ -56,8 +62,21 @@
       h("div", { class: "auth-pair" },
         h("div", { class: "field" }, h("label", { htmlFor: "profile-role" }, "Чем вы занимаетесь"), role),
         h("div", { class: "field" }, h("label", { htmlFor: "profile-org" }, "Организация"), organization)),
+      h("div", { class: "profile-doc-data" },
+        h("h3", {}, "Данные для документов"),
+        h("p", { class: "account-note" }, "Подставляются кнопкой «Мои данные» в заявления, иски и претензии, где заявитель — вы. Заполненные поля не перезаписываются."),
+        h("div", { class: "field" }, h("label", { htmlFor: "profile-fullname" }, "Фамилия, имя, отчество"), fullName),
+        h("div", { class: "auth-pair" },
+          h("div", { class: "field" }, h("label", { htmlFor: "profile-birth" }, "Дата и место рождения"), birth),
+          h("div", { class: "field" }, h("label", { htmlFor: "profile-phone" }, "Телефон"), phone)),
+        h("div", { class: "field" }, h("label", { htmlFor: "profile-address" }, "Адрес"), address),
+        h("div", { class: "field" }, h("label", { htmlFor: "profile-identifier" }, "Идентификатор для суда"), identifier,
+          h("span", { class: "field-help" }, "СНИЛС, ИНН или серия и номер паспорта — один из них указывают в иске"))),
     ], "Сохранить", async () => {
-      const result = await app.auth.updateProfile({ name: name.value, role: role.value, organization: organization.value });
+      const result = await app.auth.updateProfile({
+        name: name.value, role: role.value, organization: organization.value,
+        fullName: fullName.value, birth: birth.value, address: address.value, phone: phone.value, identifier: identifier.value,
+      });
       if (result.ok) { announce(); rerender("Профиль сохранён."); }
       return result;
     }));
