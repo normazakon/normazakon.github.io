@@ -543,6 +543,10 @@
       h("div", { class: "page-head" }, h("div", {},
         h("h1", {}, "Расчёты"),
         h("p", {}, "Последний день срока, госпошлина, проценты и неустойка, компенсация за задержку зарплаты, пени за ЖКУ, отпускные, алименты и налоговые вычеты. Расчёт идёт по правилам закона, но результат верен, только если верны ваши даты и суммы."))),
+      // девять карточек: на телефоне до нужной далеко листать, поэтому сверху — переход к каждой
+      h("nav", { class: "calc-jump", "aria-label": "Перейти к расчету" }, Object.entries(cards).map(([id, element]) =>
+        h("button", { class: "chip", type: "button", onClick: () => element.scrollIntoView({ block: "start", behavior: "smooth" }) },
+          element.querySelector("h2").textContent))),
       h("div", { class: "calc-grid" }, Object.values(cards)));
     // #calc/fee из поиска на главной сразу показывает нужный расчёт
     const target = cards[params.card];
