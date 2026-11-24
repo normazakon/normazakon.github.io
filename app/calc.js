@@ -1,15 +1,21 @@
-/* Раздел расчётов: процессуальные сроки, государственная пошлина, проценты по статье 395 ГК РФ, неустойка. */
+/* Раздел расчётов: процессуальные сроки, государственная пошлина, проценты по статье 395 ГК РФ, неустойка,
+   компенсация за задержку зарплаты, пени за ЖКУ, отпускные. */
 (function () {
   "use strict";
 
   const { h, showArticle } = window.UI;
   const { parseMoney, kopecksText, parseDate } = window.Russian;
-  const { interest395, penalty, CalculationError, MORATORIUM } = window.Calculators;
+  const { interest395, penalty, salaryCompensation, utilityPenalty, vacationPay, rateOn, CalculationError, MORATORIUM } = window.Calculators;
   const Fees = window.CourtFees;
 
   const rubles = (kopecks) => (kopecks / 100).toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   const dots = (iso) => iso.split("-").reverse().join(".");
   const capitalize = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+  /** Показывает результат расчета; пропускает пустые части (условные блоки вида `условие && h(...)`), чтобы не появлялось «false». */
+  function fill(target, ...parts) {
+    target.replaceChildren(...parts.flat().filter((part) => part !== false && part !== null && part !== undefined && part !== ""));
+  }
 
   function field(id, label, input, help) {
     return h("div", { class: "field" }, h("label", { htmlFor: id }, label), input, help && h("span", { class: "field-help" }, help));
@@ -32,7 +38,26 @@
   }
 
   // иконка и оттенок карточек расчётов, по id карточки
-  const CARD_LOOK = { deadline: ["clock", "amber"], fee: ["court", "violet"], interest: ["percent", "green"], penalty: ["calc", "orange"] };
+  const CARD_LOOK = {
+    deadline: ["clock", "amber"], fee: ["court", "violet"], interest: ["percent", "green"], penalty: ["calc", "orange"],
+    salary: ["briefcase", "blue"], utility: ["building", "teal"], vacation: ["calc", "rose"],
+  };
+
+  /** Предупреждение, если ставка после последней известной даты взята по последнему известному значению. */
+  function extendedNote(extendedFrom) {
+    if (!extendedFrom) return null;
+    const last = window.KEY_RATES.changes[window.KEY_RATES.changes.length - 1][1];
+    return h("p", { class: "calc-warning" }, `Ключевая ставка в базе известна по ${dots(window.KEY_RATES.lastDate)}. С ${dots(extendedFrom)} расчет идет по последней известной ставке ${String(last).replace(".", ",")} %: если Банк России ее менял, пересчитайте этот период.`);
+  }
+
+  /** Таблица периодов по ставкам: период, дни, ставка, сумма. */
+  function periodsTable(rows) {
+    return h("div", { class: "calc-table-wrap" }, h("table", { class: "calc-table" },
+      h("thead", {}, h("tr", {}, ["Период", "Дней", "Ставка", "Сумма"].map((name) => h("th", { scope: "col" }, name)))),
+      h("tbody", {}, rows.map((row) => h("tr", {},
+        h("td", {}, `${dots(row.from)}–${dots(row.to)}`), h("td", {}, String(row.days)),
+        h("td", {}, `${String(row.rate).replace(".", ",")}%`), h("td", {}, rubles(row.amount)))))));
+  }
 
   function card(title, basis, fields, result) {
     return h("section", { class: "calc-card" }, h("div", { class: "calc-card-head" }, h("span", { class: "tone-plate" }), h("h2", {}, title)), h("p", { class: "calc-basis" }, basis), h("div", { class: "calc-fields" }, fields), result);
@@ -52,7 +77,7 @@
     function update() {
       const kopecks = parseMoney(price.value);
       if (kopecks === null || kopecks === 0) {
-        result.replaceChildren(h("p", {}, "Введите цену иска цифрами."));
+        fill(result, h("p", {}, "Введите цену иска цифрами."));
         return;
       }
       const arbitration = court.value === "arbitration";
@@ -62,7 +87,7 @@
         : (order ? Fees.courtOrderFee(kopecks) : Fees.claimFee(kopecks));
       const notes = [];
       if (order && !arbitration && kopecks > Fees.COURT_ORDER_PRICE_LIMIT) notes.push("Судебный приказ в суде общей юрисдикции выносится при сумме не более 500 000 рублей.");
-      result.replaceChildren(
+      fill(result, 
         h("span", { class: "calc-total" }, `${rubles(fee)} ₽`),
         h("p", {}, kopecksText(fee)),
         h("p", {}, "Перед оплатой проверьте льготы по статье 333.36 НК РФ: например, потребители и работники по ряду исков освобождены от пошлины."),
@@ -88,20 +113,21 @@
     function update() {
       const kopecks = parseMoney(sum.value);
       if (kopecks === null || !parseDate(from.value) || !parseDate(to.value)) {
-        result.replaceChildren(h("p", {}, "Введите сумму долга и даты просрочки."));
+        fill(result, h("p", {}, "Введите сумму долга и даты просрочки."));
         return;
       }
       try {
-        const calc = interest395(kopecks, from.value, to.value, window.KEY_RATES);
+        const calc = interest395(kopecks, from.value, to.value, window.KEY_RATES, { extend: true });
         lastText = [
           `Расчет процентов по статье 395 ГК РФ на сумму ${rubles(kopecks)} руб.`,
           "Период\tДней\tСтавка\tДней в году\tПроценты",
           ...calc.rows.map((row) => `${dots(row.from)}–${dots(row.to)}\t${row.days}\t${String(row.rate).replace(".", ",")}%\t${row.basis}\t${rubles(row.amount)}`),
           `Итого за ${calc.days} дн.: ${rubles(calc.total)} руб.`,
         ].join("\n");
-        result.replaceChildren(
+        fill(result, 
           h("span", { class: "calc-total" }, `${rubles(calc.total)} ₽`),
           h("p", {}, `за ${calc.days} дн. просрочки`),
+          extendedNote(calc.extendedFrom),
           calc.overlapsMoratorium && h("p", { class: "calc-warning" }, `Период пересекается с ${dots(MORATORIUM.from)}–${dots(MORATORIUM.to)}. Проверьте, распространяется ли на должника мораторий по постановлению Правительства РФ от 28.03.2022 № 497: в этот период проценты могут не начисляться.`),
           h("div", { class: "calc-table-wrap" }, h("table", { class: "calc-table" },
             h("thead", {}, h("tr", {}, ["Период", "Дней", "Ставка", "Проценты"].map((name) => h("th", { scope: "col" }, name)))),
@@ -112,7 +138,7 @@
           h("p", { id: "int-copied" }));
       } catch (error) {
         if (!(error instanceof CalculationError)) throw error;
-        result.replaceChildren(h("p", { class: "calc-error" }, error.message));
+        fill(result, h("p", { class: "calc-error" }, error.message));
       }
     }
 
@@ -159,14 +185,14 @@
       const kopecks = parseMoney(base.value);
       const rate = Number(String(percent.value).replace(",", "."));
       if (kopecks === null || !rate || !parseDate(from.value) || !parseDate(to.value)) {
-        result.replaceChildren(h("p", {}, "Введите сумму, процент и даты."));
+        fill(result, h("p", {}, "Введите сумму, процент и даты."));
         return;
       }
       const consumerCap = preset.value ? kopecks : 0;
       const limit = parseMoney(cap.value) || consumerCap;
       try {
         const calc = penalty(kopecks, rate, from.value, to.value, limit);
-        result.replaceChildren(
+        fill(result, 
           h("span", { class: "calc-total" }, `${rubles(calc.total)} ₽`),
           h("p", {}, `${rubles(kopecks)} × ${String(rate).replace(".", ",")}% × ${calc.days} дн. = ${rubles(calc.full)} ₽`),
           calc.limited && h("p", {}, preset.value && !parseMoney(cap.value)
@@ -175,7 +201,7 @@
           h("p", {}, "Суд может уменьшить явно несоразмерную неустойку по статье 333 ГК РФ."));
       } catch (error) {
         if (!(error instanceof CalculationError)) throw error;
-        result.replaceChildren(h("p", { class: "calc-error" }, error.message));
+        fill(result, h("p", { class: "calc-error" }, error.message));
       }
     }
 
@@ -189,6 +215,134 @@
         field("pen-from", "Первый день просрочки", from),
         field("pen-to", "Последний день", to),
         field("pen-cap", "Предел, ₽", cap, "Если договор или закон ограничивает сумму"),
+      ],
+      result);
+  }
+
+  /* ---------- Компенсация за задержку зарплаты ---------- */
+
+  function salaryCard() {
+    const result = h("div", { class: "calc-result", role: "status" });
+    const sum = textInput("sal-sum", "например, 60 000", update);
+    const due = dateInput("sal-due", update);
+    const paid = dateInput("sal-paid", update);
+
+    function update() {
+      const kopecks = parseMoney(sum.value);
+      if (kopecks === null || !parseDate(due.value) || !parseDate(paid.value)) {
+        fill(result, h("p", {}, "Введите сумму и даты."));
+        return;
+      }
+      try {
+        const calc = salaryCompensation(kopecks, due.value, paid.value, window.KEY_RATES, { extend: true });
+        fill(result, 
+          h("span", { class: "calc-total" }, `${rubles(calc.total)} ₽`),
+          h("p", {}, `за ${calc.days} дн. задержки, ${kopecksText(calc.total)}`),
+          extendedNote(calc.extendedFrom),
+          periodsTable(calc.rows),
+          h("p", {}, "Это минимальный размер: коллективный или трудовой договор может установить больше."));
+      } catch (error) {
+        if (!(error instanceof CalculationError)) throw error;
+        fill(result, h("p", { class: "calc-error" }, error.message));
+      }
+    }
+
+    update();
+    return card("Компенсация за задержку зарплаты",
+      h("span", {}, "1/150 ключевой ставки за каждый день, ", basisLink("TK", "236", "ст. 236 ТК РФ")),
+      [
+        field("sal-sum", "Невыплаченная сумма, ₽", sum, "Зарплата, отпускные или выплаты при увольнении после удержания НДФЛ"),
+        field("sal-due", "Когда должны были выплатить", due),
+        field("sal-paid", "День выплаты", paid, "Или дата, на которую считаете"),
+      ],
+      result);
+  }
+
+  /* ---------- Пени за ЖКУ ---------- */
+
+  function utilityCard() {
+    const result = h("div", { class: "calc-result", role: "status" });
+    const sum = textInput("utl-sum", "например, 10 000", update);
+    const due = dateInput("utl-due", update);
+    const paid = dateInput("utl-paid", update);
+    const rate = textInput("utl-rate", "по ключевой ставке", update);
+
+    function update() {
+      const kopecks = parseMoney(sum.value);
+      if (kopecks === null || !parseDate(due.value) || !parseDate(paid.value)) {
+        fill(result, h("p", {}, "Введите сумму долга и даты."));
+        return;
+      }
+      // ставка рефинансирования с 2016 года равна ключевой; берется на день фактической оплаты
+      const own = Number(String(rate.value).replace(",", "."));
+      const known = paid.value <= window.KEY_RATES.lastDate;
+      const percent = own > 0 ? own : rateOn(known ? paid.value : window.KEY_RATES.lastDate, window.KEY_RATES.changes);
+      try {
+        const calc = utilityPenalty(kopecks, due.value, paid.value, percent);
+        const rows = [
+          [`1–${calc.free}-й день`, `${calc.free}`, "—", rubles(0)],
+          calc.first ? [`с ${dots(calc.firstFrom)}`, String(calc.first), "1/300", rubles(calc.firstAmount)] : null,
+          calc.second ? [`с ${dots(calc.secondFrom)}`, String(calc.second), "1/130", rubles(calc.secondAmount)] : null,
+        ].filter(Boolean);
+        fill(result, 
+          h("span", { class: "calc-total" }, `${rubles(calc.total)} ₽`),
+          h("p", {}, `${calc.overdue} дн. просрочки, ставка ${String(percent).replace(".", ",")} %`),
+          !own && !known && h("p", { class: "calc-warning" }, `Ключевая ставка в базе известна по ${dots(window.KEY_RATES.lastDate)}: взята последняя известная. Если на день оплаты ставка другая, укажите ее в поле «Ставка».`),
+          h("div", { class: "calc-table-wrap" }, h("table", { class: "calc-table" },
+            h("thead", {}, h("tr", {}, ["Дни просрочки", "Дней", "Доля ставки", "Пени"].map((name) => h("th", { scope: "col" }, name)))),
+            h("tbody", {}, rows.map((row) => h("tr", {}, row.map((cell) => h("td", {}, cell))))))),
+          h("p", {}, "Первые 30 дней просрочки пени не начисляются. Правительство может временно ограничивать ставку для расчета пеней (так было с 2022 года): проверьте, действует ли ограничение на день оплаты."));
+      } catch (error) {
+        if (!(error instanceof CalculationError)) throw error;
+        fill(result, h("p", { class: "calc-error" }, error.message));
+      }
+    }
+
+    update();
+    return card("Пени за жилье и коммунальные услуги",
+      h("span", {}, "1/300 ставки с 31-го дня, 1/130 с 91-го, ", basisLink("JK", "155", "ч. 14 ст. 155 ЖК РФ")),
+      [
+        field("utl-sum", "Долг, ₽", sum),
+        field("utl-due", "Последний день срока оплаты", due, "Обычно 10-е число месяца, следующего за расчетным"),
+        field("utl-paid", "День оплаты", paid, "Или дата, на которую считаете"),
+        field("utl-rate", "Ставка, %", rate, "Пусто — ключевая ставка на день оплаты"),
+      ],
+      result);
+  }
+
+  /* ---------- Отпускные ---------- */
+
+  function vacationCard() {
+    const result = h("div", { class: "calc-result", role: "status" });
+    const earnings = textInput("vac-earn", "например, 720 000", update);
+    const months = h("input", { id: "vac-months", type: "number", min: "1", max: "12", step: "1", value: "12", inputMode: "numeric", onInput: update });
+    const days = h("input", { id: "vac-days", type: "number", min: "1", step: "1", value: "28", inputMode: "numeric", onInput: update });
+
+    function update() {
+      const kopecks = parseMoney(earnings.value);
+      if (kopecks === null) {
+        fill(result, h("p", {}, "Введите зарплату за расчетный период."));
+        return;
+      }
+      try {
+        const calc = vacationPay(kopecks, Number(months.value), Number(days.value));
+        fill(result, 
+          h("span", { class: "calc-total" }, `${rubles(calc.total)} ₽`),
+          h("p", {}, `Средний дневной заработок ${rubles(calc.daily)} ₽ × ${calc.days} дн.`),
+          h("p", {}, "Сумма до удержания НДФЛ. Если в каком-то месяце были больничный, отпуск или командировка, этот месяц считается неполным: дни в нем учитываются по особым правилам, и средний заработок будет точнее у работодателя."));
+      } catch (error) {
+        if (!(error instanceof CalculationError)) throw error;
+        fill(result, h("p", { class: "calc-error" }, error.message));
+      }
+    }
+
+    update();
+    return card("Отпускные и компенсация за отпуск",
+      h("span", {}, "Средний дневной заработок: зарплата ÷ месяцы ÷ 29,3, ", basisLink("TK", "139", "ст. 139 ТК РФ")),
+      [
+        field("vac-earn", "Зарплата за расчетный период, ₽", earnings, "Начисленная за 12 месяцев до отпуска, до удержания НДФЛ"),
+        field("vac-months", "Полностью отработанных месяцев", months),
+        field("vac-days", "Дней отпуска или неиспользованного отпуска", days),
       ],
       result);
   }
@@ -231,7 +385,7 @@
         ? { regime: item.regime, amount: item.amount, unit: item.unit, start: start.value }
         : { regime: regime.value, amount: Number(amount.value), unit: unit.value, start: start.value };
       if (!start.value) {
-        result.replaceChildren(h("p", {}, "Укажите дату события."));
+        fill(result, h("p", {}, "Укажите дату события."));
         return;
       }
       let calc;
@@ -239,7 +393,7 @@
         calc = D.compute(input, calendar);
       } catch (error) {
         if (!(error instanceof D.DeadlineError)) throw error;
-        result.replaceChildren(h("p", { class: "calc-error" }, error.message));
+        fill(result, h("p", { class: "calc-error" }, error.message));
         return;
       }
       const today = new Date().toISOString().slice(0, 10);
@@ -257,7 +411,7 @@
         h("p", { class: "calc-basis" }, "Порядок исчисления: ", ...regimeBasis, ` ${law(input.regime)}.`,
           ...(item ? [" Срок: ", basisLink(item.basis[0], item.basis[1], `ст. ${item.basis[1]} ${law(item.basis[0])}`), "."] : [])),
       ];
-      result.replaceChildren(...parts.filter(Boolean));
+      fill(result, ...parts.filter(Boolean));
     }
 
     syncUnits();
@@ -272,7 +426,10 @@
 
   window.Views = window.Views || {};
   window.Views.calc = function (root, params = {}) {
-    const cards = { deadline: deadlineCard(), fee: feeCard(), interest: interestCard(), penalty: penaltyCard() };
+    const cards = {
+      deadline: deadlineCard(), fee: feeCard(), interest: interestCard(), penalty: penaltyCard(),
+      salary: salaryCard(), utility: utilityCard(), vacation: vacationCard(),
+    };
     for (const [id, element] of Object.entries(cards)) {
       element.id = `calc-${id}`;
       const [iconName, tone] = CARD_LOOK[id];
@@ -282,7 +439,7 @@
     root.append(
       h("div", { class: "page-head" }, h("div", {},
         h("h1", {}, "Расчёты"),
-        h("p", {}, "Узнайте последний день срока, размер госпошлины, проценты за просрочку и неустойку. Расчёт идёт по правилам закона, но результат верен, только если верны ваши даты и суммы."))),
+        h("p", {}, "Последний день срока, госпошлина, проценты и неустойка, компенсация за задержку зарплаты, пени за ЖКУ и отпускные. Расчёт идёт по правилам закона, но результат верен, только если верны ваши даты и суммы."))),
       h("div", { class: "calc-grid" }, Object.values(cards)));
     // #calc/fee из поиска на главной сразу показывает нужный расчёт
     const target = cards[params.card];
