@@ -33,6 +33,7 @@
       case "privacy": return { name: "privacy", nav: "privacy", params: {} };
       case "contacts": return { name: "contacts", nav: "contacts", params: {} };
       case "account": return { name: "account", nav: "account", params: {} };
+      case "news": return { name: "news", nav: "news", params: {} };
       case "login": return { name: "login", nav: "account", params: {} };
       case "register": return { name: "register", nav: "account", params: {} };
       case "reset": return { name: "reset", nav: "account", params: {} };
@@ -92,7 +93,7 @@
     }
     const initials = window.Auth.initials(user.name);
     const button = h("button", {
-      class: "avatar", id: "account-link", type: "button", "data-section": "account",
+      class: window.News.hasUnseen() ? "avatar has-dot" : "avatar", id: "account-link", type: "button", "data-section": "account",
       "aria-haspopup": "menu", "aria-expanded": "false", "aria-controls": "account-menu", "aria-label": `Аккаунт: ${user.name}`,
     }, initials || window.UI.icon("user"));
     const telegram = window.SITE && window.SITE.telegram;
@@ -106,6 +107,7 @@
       h("div", { class: "account-menu-list" },
         item({ href: "#account" }, "user", "Личный кабинет"),
         item({ href: "#documents" }, "contract", "Мои документы"),
+        item({ href: "#news", class: window.News.hasUnseen() ? "account-menu-item has-dot" : "account-menu-item" }, "star", "Что нового"),
         telegram && item({ href: telegram, target: "_blank", rel: "noopener noreferrer" }, "letter", "Поддержка")),
       h("div", { class: "account-menu-list" },
         item({ onClick: async () => { closeAccountMenu(); await app.auth.signOut(); window.dispatchEvent(new CustomEvent("norma:auth")); location.hash = "#home"; } },
@@ -127,6 +129,8 @@
   });
   // вошли или вышли: шапка и текущий экран показывают уже данные другого человека
   // экраны входа и кабинета сами решают, куда перейти после входа или выхода, их не трогаем
+  // обновление просмотрено — убрать отметку с кружка и пункта меню
+  window.addEventListener("norma:news", () => renderAccount());
   window.addEventListener("norma:auth", () => {
     renderAccount();
     if (!/^#(login|register|reset|account)\b/.test(location.hash)) showRoute();

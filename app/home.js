@@ -248,6 +248,7 @@
         window.SearchBox.create({ id: "hero-search" }),
         h("ul", { class: "hero-points" }, heroPoints().map((point) => h("li", {}, point))))),
 
+      window.News.banner(),
       continueWork(app),
       // блоки, которые можно скрыть в настройках кабинета
       homeSettings().homeWatch && watchedChanges(app),
